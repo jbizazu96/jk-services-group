@@ -469,7 +469,7 @@ export default function JKServicePage() {
 {/* ================= GALLERY ================= */}
 <section
   id="gallery"
-  className="py-10 bg-black overflow-hidden relative"
+  className="py-10 bg-black relative"
 >
 
   {/* HEADER */}
@@ -502,30 +502,66 @@ export default function JKServicePage() {
   </div>
 
   {/* LEFT BUTTON */}
-  <button
-    onClick={() => {
-      galleryRef.current?.scrollBy({
-        left: -500,
-        behavior: "smooth",
-      });
-    }}
-    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-yellow-500 hover:text-black border border-white/10 backdrop-blur-xl w-14 h-14 rounded-full flex items-center justify-center transition shadow-2xl"
-  >
+<button
+  onClick={() => {
+    galleryRef.current?.scrollBy({
+      left: -350,
+      behavior: "smooth",
+    });
+  }}
+  className="
+    absolute 
+    left-2 md:left-4 
+    top-1/2 
+    -translate-y-1/2 
+    z-30
+    bg-black/70 
+    hover:bg-yellow-500 
+    hover:text-black 
+    border border-white/10 
+    backdrop-blur-xl 
+    w-10 h-10 md:w-14 md:h-14
+    rounded-full 
+    flex items-center justify-center 
+    transition 
+    shadow-2xl
+  "
+>
+  <span className="text-xl md:text-2xl font-bold">
     ←
-  </button>
+  </span>
+</button>
 
-  {/* RIGHT BUTTON */}
-  <button
-    onClick={() => {
-      galleryRef.current?.scrollBy({
-        left: 500,
-        behavior: "smooth",
-      });
-    }}
-    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-yellow-500 hover:text-black border border-white/10 backdrop-blur-xl w-14 h-14 rounded-full flex items-center justify-center transition shadow-2xl"
-  >
+{/* RIGHT BUTTON */}
+<button
+  onClick={() => {
+    galleryRef.current?.scrollBy({
+      left: 350,
+      behavior: "smooth",
+    });
+  }}
+  className="
+    absolute 
+    right-2 md:right-4 
+    top-1/2 
+    -translate-y-1/2 
+    z-30
+    bg-black/70 
+    hover:bg-yellow-500 
+    hover:text-black 
+    border border-white/10 
+    backdrop-blur-xl 
+    w-10 h-10 md:w-14 md:h-14
+    rounded-full 
+    flex items-center justify-center 
+    transition 
+    shadow-2xl
+  "
+>
+  <span className="text-xl md:text-2xl font-bold">
     →
-  </button>
+  </span>
+</button>
 
   {/* LEFT FADE */}
   <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
@@ -536,7 +572,7 @@ export default function JKServicePage() {
   {/* SCROLL AREA */}
   <div
     ref={galleryRef}
-    className="overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+    className="overflow-x-auto scrollbar-hide snap-x snap-mandatory relative"
   >
 
     <div className="flex gap-6 px-6 w-max pb-4">
