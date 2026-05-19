@@ -1,5 +1,6 @@
 "use client";
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PopupButton } from "react-calendly";
 import React, { useRef, useEffect } from "react";
 import {
