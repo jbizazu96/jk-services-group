@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import {
   Calendar,
   Phone,
@@ -20,6 +20,7 @@ import {
 
 export default function JKServicePage() {
   const [mobileMenu, setMobileMenu] = React.useState(false);
+  const galleryRef = useRef(null);
 
   const services = [
     {
@@ -466,7 +467,10 @@ export default function JKServicePage() {
 </section>
 
 {/* ================= MEDIA STRIP ================= */}
-<section className="py-10 bg-black overflow-hidden">
+<section
+  id="gallery"
+  className="py-10 bg-black overflow-hidden relative"
+>
 
   {/* HEADER */}
   <div className="max-w-7xl mx-auto px-6 mb-14">
@@ -497,9 +501,44 @@ export default function JKServicePage() {
     </div>
   </div>
 
-  {/* HORIZONTAL SCROLL */}
-  <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory">
-    
+  {/* LEFT BUTTON */}
+  <button
+    onClick={() => {
+      galleryRef.current?.scrollBy({
+        left: -500,
+        behavior: "smooth",
+      });
+    }}
+    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-yellow-500 hover:text-black border border-white/10 backdrop-blur-xl w-14 h-14 rounded-full flex items-center justify-center transition shadow-2xl"
+  >
+    ←
+  </button>
+
+  {/* RIGHT BUTTON */}
+  <button
+    onClick={() => {
+      galleryRef.current?.scrollBy({
+        left: 500,
+        behavior: "smooth",
+      });
+    }}
+    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-yellow-500 hover:text-black border border-white/10 backdrop-blur-xl w-14 h-14 rounded-full flex items-center justify-center transition shadow-2xl"
+  >
+    →
+  </button>
+
+  {/* LEFT FADE */}
+  <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
+
+  {/* RIGHT FADE */}
+  <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
+
+  {/* SCROLL AREA */}
+  <div
+    ref={galleryRef}
+    className="overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+  >
+
     <div className="flex gap-6 px-6 w-max pb-4">
 
       {/* VIDEO */}
@@ -541,7 +580,6 @@ export default function JKServicePage() {
         className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center hover:scale-[1.02] transition duration-500"
       />
 
- 
     </div>
   </div>
 </section>
