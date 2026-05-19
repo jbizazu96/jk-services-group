@@ -789,45 +789,128 @@ export default function JKServicePage() {
   </div>
 </section>
 
-      {/* ================= ABOUT =============== */}
+        {/* ================= ABOUT ================= */}
+        <section
+          id="about"
+          className="py-24 px-6 bg-black"
+        >
+          <div className="max-w-7xl mx-auto">
 
-       <section id="about" style={{ padding: "100px 40px", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
-          <div style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: -2, background: "linear-gradient(135deg, #1d4ed8, transparent)", borderRadius: 12, zIndex: 0 }} />
-            <img
-              src="/images/logo.png"
-              alt="Founder"
-              style={{ width: "100%", borderRadius: 10, position: "relative", zIndex: 1, display: "block", filter: "brightness(0.9) contrast(1.05)" }}
-            />
-           
-           {/* <div style={{ position: "absolute", bottom: -20, right: -20, background: "#1e40af", borderRadius: 8, padding: "20px 28px", zIndex: 2 }}>
-              <div style={{ fontSize: "2rem", fontWeight: 700, color: "#fff" }}>10+</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#93c5fd", letterSpacing: "0.1em" }}>YEARS EXP.</div>
-            </div> */}
-          </div>
-          <div>
-            <div className="section-label">Who We Are</div>
-            <h2 style={{ fontSize: "clamp(2.2rem, 4vw, 3.5rem)", fontWeight: 400, lineHeight: 1.15, marginBottom: 24 }}>
-              Passion meets<br /><span style={{ color: "#60a5fa" }}>professionalism</span>
-            </h2>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", color: "#94a3b8", lineHeight: 1.85, marginBottom: 20, fontWeight: 300 }}>
-              J&K Services was built on a simple belief: every event deserves to be extraordinary, and every organization deserves reliable technology. With years of hands-on experience in event hosting, networking, and IT, we bring expertise and heart to everything we do.
-            </p>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", color: "#94a3b8", lineHeight: 1.85, marginBottom: 36, fontWeight: 300 }}>
-              We serve weddings, churches, nonprofits, and small businesses — delivering not just services, but confidence. Whether it's your big day or your company's network infrastructure, we treat every project as if it were our own.
-            </p>
-            <div style={{ display: "flex", gap: 16 }}>
-              {["Event Expert", "IT Certified", "Community Focused"].map(t => (
-                <span key={t} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", letterSpacing: "0.08em", border: "1px solid rgba(96,165,250,0.25)", padding: "6px 16px", borderRadius: 20, color: "#60a5fa" }}>{t}</span>
-              ))}
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+
+              {/* IMAGE SIDE */}
+              <div className="relative order-1">
+
+                {/* GLOW EFFECT */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-yellow-500/20 blur-3xl rounded-[40px]"></div>
+
+                {/* IMAGE CARD */}
+                <div className="relative bg-white/5 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl overflow-hidden">
+
+                  <img
+                    src="/images/logo.png"
+                    alt="J&K Service Group"
+                    className="
+                      w-full
+                      max-w-[450px]
+                      mx-auto
+                      object-contain
+                      relative
+                      z-10
+                    "
+                  />
+                </div>
+
+                {/* EXPERIENCE BADGE */}
+                {/* <div className="
+                  absolute
+                  -bottom-6
+                  right-4
+                  md:right-10
+                  bg-blue-700
+                  rounded-2xl
+                  px-6
+                  py-4
+                  shadow-2xl
+                  z-20
+                ">
+                  <div className="text-3xl font-black text-white">
+                    10+
+                  </div>
+
+                  <div className="text-xs tracking-[0.2em] text-blue-100">
+                    YEARS EXP.
+                  </div>
+                </div> */}
+              </div>
+
+              {/* TEXT SIDE */}
+              <div className="order-2">
+
+                {/* LABEL */}
+                <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-5 py-2 mb-8">
+                  <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+
+                  <span className="text-blue-300 tracking-wide text-sm uppercase">
+                    Who We Are
+                  </span>
+                </div>
+
+                {/* TITLE */}
+                <h2 className="text-4xl md:text-6xl font-black leading-tight mb-8">
+                  Passion Meets
+                  <br />
+                  <span className="text-yellow-400">
+                    Professionalism
+                  </span>
+                </h2>
+
+                {/* TEXT */}
+                <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                  J&K Services was built on a simple belief:
+                  every event deserves to be extraordinary,
+                  and every organization deserves reliable
+                  technology solutions.
+                </p>
+
+                <p className="text-gray-400 text-lg leading-relaxed mb-10">
+                  With years of hands-on experience in event hosting,
+                  networking, IT support, leadership, and media,
+                  we combine expertise with dedication in every
+                  project we handle.
+                </p>
+
+                {/* TAGS */}
+                <div className="flex flex-wrap gap-4">
+
+                  {[
+                    "Event Expert",
+                    "IT Certified",
+                    "Community Focused",
+                  ].map((tag, index) => (
+                    <span
+                      key={index}
+                      className="
+                        px-5
+                        py-3
+                        rounded-full
+                        border
+                        border-blue-500/20
+                        bg-blue-500/5
+                        text-blue-300
+                        text-sm
+                      "
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
-      </section>
- 
-      <div className="shine-line" style={{ width: "80%", opacity: 0.4 }} />
- 
+        </section>
+
       {/* ================= CTA ================= */}
       <section className="py-28 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-blue-900"></div>
