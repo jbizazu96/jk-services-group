@@ -1,7 +1,7 @@
 "use client";
 
 import { PopupButton } from "react-calendly";
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   Calendar,
   Phone,
@@ -19,10 +19,28 @@ import {
   Presentation,
 } from "lucide-react";
 
+
+
 export default function JKServicePage() {
   const [mobileMenu, setMobileMenu] = React.useState(false);
+  const [donationMenu, setDonationMenu] = React.useState(false);
   const galleryRef = useRef(null);
 
+  {/* ========== MAKE POP WINDOW TO DISAPPEAR ========== */}
+    useEffect(() => {
+      const handleScroll = () => {
+        setMobileMenu(false);
+        setDonationMenu(false);
+      };
+    
+      window.addEventListener("scroll", handleScroll);
+    
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }, []);
+
+  {/* =========== SERVICE CONSTANT ============== */}
   const services = [
     {
       title: "MC Services",
@@ -158,9 +176,84 @@ export default function JKServicePage() {
               Contact
             </a>
 
-            <button className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-3 rounded-full transition shadow-2xl">
-              Donation
-            </button>
+            <div className="relative">
+
+          <button
+            onClick={() => setDonationMenu(!donationMenu)}
+            className="
+              bg-yellow-500
+              hover:bg-yellow-400
+              text-black
+              font-semibold
+              px-6
+              py-3
+              rounded-full
+              transition
+              shadow-2xl
+            "
+          >
+            Donate
+          </button>
+
+          {donationMenu && (
+            <div className="
+              absolute
+              right-0
+              mt-4
+              w-64
+              bg-black/95
+              backdrop-blur-xl
+              border
+              border-white/10
+              rounded-3xl
+              p-5
+              shadow-2xl
+              z-50
+            ">
+
+                <h3 className="text-xl font-bold mb-4">
+                  Support Our Mission
+                </h3>
+
+                <div className="flex flex-col gap-3">
+
+                  <a
+                    href="https://buy.stripe.com/8x27sF8IK6at7O5gM5grS00"
+                    target="_blank"
+                    className="bg-yellow-500 text-black text-center py-3 rounded-xl font-semibold hover:bg-yellow-400 transition"
+                  >
+                    Donate $10
+                  </a>
+
+                  <a
+                    href="https://buy.stripe.com/fZueV7aQS1Udc4l3ZjgrS03"
+                    target="_blank"
+                    className="bg-white/10 text-white text-center py-3 rounded-xl hover:bg-white hover:text-black transition"
+                  >
+                    Donate $25
+                  </a>
+
+                  <a
+                    href="https://buy.stripe.com/3cI7sF3oqfL39Wd1RbgrS04"
+                    target="_blank"
+                    className="bg-white/10 text-white text-center py-3 rounded-xl hover:bg-white hover:text-black transition"
+                  >
+                    Donate $50
+                  </a>
+
+                  <a
+                    href="https://donate.stripe.com/6oU3cp3oq9mF4BTbrLgrS05"
+                    target="_blank"
+                    className="border border-yellow-500 text-yellow-400 text-center py-3 rounded-xl hover:bg-yellow-500 hover:text-black transition"
+                  >
+                    Custom Amount
+                  </a>
+
+                </div>
+              </div>
+            )}
+
+          </div>
           </div>
 
           {/* MOBILE BUTTON */}
@@ -178,6 +271,8 @@ export default function JKServicePage() {
             <div className="flex flex-col p-6 gap-6">
               <a href="#home">Home</a>
               <a href="#services">Services</a>
+              <a href="#home">Gallery</a>
+              <a href="#home">Team</a>
               <a href="#about">About</a>
               <a href="#contact">Contact</a>
 
@@ -202,7 +297,7 @@ export default function JKServicePage() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/hero-video.mp4" type="video/mp4" />
+          <source src="/videos/" type="video/mp4" />
         </video>
 
         {/* DARK OVERLAY */}
