@@ -1,5 +1,6 @@
 "use client";
 
+import { PopupButton } from "react-calendly";
 import React, { useRef } from "react";
 import {
   Calendar,
@@ -130,13 +131,6 @@ export default function JKServicePage() {
             </a>
 
             <a
-              href="#about"
-              className="hover:text-yellow-400 transition"
-            >
-              About
-            </a>
-
-            <a
               href="#gallery"
               className="hover:text-yellow-400 transition"
             >
@@ -149,6 +143,14 @@ export default function JKServicePage() {
             >
               Team
             </a>
+
+            <a
+              href="#about"
+              className="hover:text-yellow-400 transition"
+            >
+              About
+            </a>
+
             <a
               href="#contact"
               className="hover:text-yellow-400 transition"
@@ -157,7 +159,7 @@ export default function JKServicePage() {
             </a>
 
             <button className="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-6 py-3 rounded-full transition shadow-2xl">
-              Book Now
+              Donation
             </button>
           </div>
 
@@ -304,7 +306,7 @@ export default function JKServicePage() {
             <div className="w-2 h-2 bg-white rounded-full mt-3"></div>
           </div>
         </div>
-      </section>
+      </section> 
 
 
      {/* ================= SERVICES ================= */}
@@ -450,14 +452,52 @@ export default function JKServicePage() {
         </p>
 
         {/* BUTTONS */}
-        <div className="flex gap-4">
-          <button className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-full font-bold transition shadow-xl">
-            Book Now
-          </button>
+        <div className="flex flex-wrap gap-4">
 
-          {/*<button className="border border-white/20 hover:bg-white hover:text-black px-6 py-3 rounded-full transition">
-            Learn More
-          </button>*/}
+        {/* 30 MIN CONSULTATION */}
+        <PopupButton
+          url="https://calendly.com/josuebizazu60/30min"
+          rootElement={
+            typeof window !== "undefined"
+              ? document.body
+              : undefined
+          }
+          text="30 Min - $25"
+          className="
+            bg-yellow-500
+            hover:bg-yellow-400
+            text-black
+            px-6
+            py-3
+            rounded-full
+            font-bold
+            transition
+            shadow-xl
+          "
+        />
+
+        {/* 1 HOUR CONSULTATION */}
+        <PopupButton
+          url="https://calendly.com/josuebizazu60/new-meeting"
+          rootElement={
+            typeof window !== "undefined"
+              ? document.body
+              : undefined
+          }
+          text="1 Hour - $50"
+          className="
+            border
+            border-white/20
+            hover:bg-white
+            hover:text-black
+            px-6
+            py-3
+            rounded-full
+            font-bold
+            transition
+          "
+        />
+
         </div>
       </div>
     </div>
@@ -911,7 +951,7 @@ export default function JKServicePage() {
           </div>
         </section>
 
-      {/* ================= CTA ================= */}
+      {/* ================= SCHEDULE ================= */}
       <section className="py-28 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-blue-900"></div>
 
@@ -925,9 +965,29 @@ export default function JKServicePage() {
             service and unmatched dedication.
           </p>
 
-          <button className="mt-10 bg-black hover:bg-white hover:text-black text-white px-10 py-5 rounded-full text-xl font-bold transition shadow-2xl">
-            Schedule Consultation
-          </button>
+            <PopupButton
+            url="https://calendly.com/josuebizazu60/new-meeting"
+            rootElement={
+              typeof window !== "undefined"
+                ? document.body
+                : undefined
+            }
+            text="Schedule Consultation"
+            className="
+              mt-10
+              bg-black
+              hover:bg-white
+              hover:text-black
+              text-white
+              px-10
+              py-5
+              rounded-full
+              text-xl
+              font-bold
+              transition
+              shadow-2xl
+            "
+          />
         </div>
       </section>
 
