@@ -665,7 +665,7 @@ export default function JKServicePage() {
           <img
             src="/images/Me1.JPG"
             alt="Josue Bizazu"
-            className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-[500px] object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 
@@ -697,7 +697,7 @@ export default function JKServicePage() {
           <img
             src="/images/Kerene.jpeg"
             alt="Event Planner"
-            className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-[500px] object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 
@@ -729,7 +729,7 @@ export default function JKServicePage() {
         <img
           src="/images/jeremie.jpg"
           alt="Event Planner"
-          className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+          className="w-full h-[500px] object-cover group-hover:scale-105 transition duration-700"
         />
       </div>
 
@@ -761,7 +761,7 @@ export default function JKServicePage() {
           <img
             src="/images/percy.jpg"
             alt="Videographer"
-            className="w-full h-[420px] object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-[500px] object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 
