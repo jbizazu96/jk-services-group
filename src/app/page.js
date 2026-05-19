@@ -466,7 +466,7 @@ export default function JKServicePage() {
 </div>
 </section>
 
-{/* ================= MEDIA STRIP ================= */}
+{/* ================= GALLERY ================= */}
 <section
   id="gallery"
   className="py-10 bg-black overflow-hidden relative"
@@ -541,17 +541,6 @@ export default function JKServicePage() {
 
     <div className="flex gap-6 px-6 w-max pb-4">
 
-      {/* VIDEO */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center"
-      >
-        <source src="/videos/usvideo.MP4" type="video/mp4" />
-      </video>
-
       {/* IMAGE */}
       <img
         src="/images/me4.JPG"
@@ -579,6 +568,19 @@ export default function JKServicePage() {
         alt="Event"
         className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center hover:scale-[1.02] transition duration-500"
       />
+
+
+      {/* VIDEO */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center"
+      >
+        <source src="/videos/usvideo.MP4" type="video/mp4" />
+      </video>
+
 
     </div>
   </div>
