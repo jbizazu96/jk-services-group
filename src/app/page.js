@@ -24,6 +24,7 @@ import {
 export default function JKServicePage() {
   const [mobileMenu, setMobileMenu] = React.useState(false);
   const [donationMenu, setDonationMenu] = React.useState(false);
+  const [bookingModal, setBookingModal] = React.useState(false);
   const galleryRef = useRef(null);
 
   {/* ========== MAKE POP WINDOW TO DISAPPEAR ========== */}
@@ -332,14 +333,48 @@ export default function JKServicePage() {
 
             {/* CTA BUTTONS */}
             <div className="mt-10 flex flex-wrap gap-5">
-              <button className="bg-yellow-500 hover:bg-yellow-400 text-black px-8 py-4 rounded-full text-lg font-bold flex items-center gap-2 transition shadow-2xl">
-                Book Appointment
-                <ChevronRight />
-              </button>
+                 <button
+                  onClick={() => setBookingModal(true)}
+                  className="
+                    bg-yellow-500
+                    hover:bg-yellow-400
+                    text-black
+                    px-8
+                    py-4
+                    rounded-full
+                    text-lg
+                    font-bold
+                    transition
+                    shadow-2xl
+                    flex
+                    items-center
+                    gap-2
+                  "
+                >
+                  Book Appointment
+                  <ChevronRight />
+                </button>
 
-              <button className="border border-white/30 hover:bg-white hover:text-black px-8 py-4 rounded-full text-lg font-semibold transition">
+                <a
+                href="#services"
+                className="
+                  border
+                  border-white/30
+                  hover:bg-white
+                  hover:text-black
+                  px-8
+                  py-4
+                  rounded-full
+                  text-lg
+                  font-semibold
+                  transition
+                  inline-flex
+                  items-center
+                  justify-center
+                "
+              >
                 Explore Services
-              </button>
+              </a>
             </div>
 
             {/* STATS */}
@@ -1060,14 +1095,8 @@ export default function JKServicePage() {
             service and unmatched dedication.
           </p>
 
-            <PopupButton
-            url="https://calendly.com/josuebizazu60/new-meeting"
-            rootElement={
-              typeof window !== "undefined"
-                ? document.body
-                : undefined
-            }
-            text="Schedule Consultation"
+           <button
+            onClick={() => setBookingModal(true)}
             className="
               mt-10
               bg-black
@@ -1082,9 +1111,120 @@ export default function JKServicePage() {
               transition
               shadow-2xl
             "
-          />
+          >
+            Schedule Consultation
+          </button>
         </div>
       </section>
+
+        {/* ================= BOOKING MODAL ================= */}
+        {bookingModal && (
+          <div
+            className="
+              fixed
+              inset-0
+              z-[100]
+              bg-black/80
+              backdrop-blur-md
+              flex
+              items-center
+              justify-center
+              px-6
+            "
+          >
+
+            {/* MODAL CARD */}
+            <div className="
+              bg-zinc-950
+              border
+              border-white/10
+              rounded-[32px]
+              p-10
+              max-w-lg
+              w-full
+              relative
+              shadow-2xl
+            ">
+
+              {/* CLOSE BUTTON */}
+              <button
+                onClick={() => setBookingModal(false)}
+                className="
+                  absolute
+                  top-5
+                  right-5
+                  text-white
+                  hover:text-yellow-400
+                  text-2xl
+                "
+              >
+                ✕
+              </button>
+
+              {/* TITLE */}
+              <h2 className="text-4xl font-black mb-4 text-center">
+                Choose Your Consultation
+              </h2>
+
+              <p className="text-gray-400 text-center mb-10">
+                Select your preferred consultation duration.
+              </p>
+
+              {/* OPTIONS */}
+              <div className="flex flex-col gap-5">
+
+                {/* 30 MIN */}
+                <PopupButton
+                  url="https://calendly.com/josuebizazu60/30min"
+                  rootElement={
+                    typeof window !== "undefined"
+                      ? document.body
+                      : undefined
+                  }
+                  text="30 Minutes - $25"
+                  className="
+                    bg-yellow-500
+                    hover:bg-yellow-400
+                    text-black
+                    py-5
+                    rounded-2xl
+                    font-bold
+                    text-lg
+                    transition
+                    w-full
+                  "
+                />
+
+                {/* 1 HOUR */}
+                <PopupButton
+                  url="https://calendly.com/josuebizazu60/new-meeting"
+                  rootElement={
+                    typeof window !== "undefined"
+                      ? document.body
+                      : undefined
+                  }
+                  text="1 Hour - $50"
+                  className="
+                    border
+                    border-white/20
+                    hover:bg-white
+                    hover:text-black
+                    text-white
+                    py-5
+                    rounded-2xl
+                    font-bold
+                    text-lg
+                    transition
+                    w-full
+                  "
+                />
+
+              </div>
+            </div>
+          </div>
+        )}
+
+
 
       {/* ================= FOOTER ================= */}
       <footer
