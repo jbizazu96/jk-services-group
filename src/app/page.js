@@ -319,10 +319,10 @@ export default function JKServicePage() {
               w-full
               h-full
               object-cover
-              opacity-[0.08]
+              opacity-[0.10]
             "
           >
-            <source src="/videos/hero-video.mp4" type="video/mp4" />
+            <source src="/videos/net1.mp4" type="video/mp4" />
           </video>
 
           {/* MAIN CONTENT */}
@@ -759,30 +759,66 @@ export default function JKServicePage() {
 {/* ================= GALLERY ================= */}
 <section
   id="gallery"
-  className="py-10 bg-black relative"
+  className="
+    py-24
+    relative
+    overflow-hidden
+    bg-gradient-to-br
+    from-[#050505]
+    via-[#0f172a]
+    to-[#111827]
+    text-white
+  "
 >
 
+  {/* AMBIENT GLOWS */}
+  <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-yellow-500/10 blur-[120px] rounded-full"></div>
+
+  <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-blue-500/10 blur-[120px] rounded-full"></div>
+
   {/* HEADER */}
-  <div className="max-w-7xl mx-auto px-6 mb-14">
+  <div className="max-w-7xl mx-auto px-6 mb-16 relative z-20">
 
-    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
 
+      {/* LEFT */}
       <div>
-        <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-5 py-2 mb-6">
+
+        {/* LABEL */}
+        <div className="
+          inline-flex
+          items-center
+          gap-2
+          bg-white/5
+          border
+          border-white/10
+          rounded-full
+          px-5
+          py-2
+          mb-6
+          backdrop-blur-md
+        ">
           <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
 
-          <span className="text-yellow-300 tracking-wide text-sm uppercase">
+          <span className="text-yellow-300 tracking-wide text-sm uppercase font-semibold">
             Our Moments
           </span>
         </div>
 
+        {/* TITLE */}
         <h2 className="text-5xl md:text-6xl font-black leading-tight">
           Events &
           <span className="text-yellow-400"> Experiences</span>
         </h2>
       </div>
 
-      <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
+      {/* DESCRIPTION */}
+      <p className="
+        text-gray-300
+        text-lg
+        max-w-xl
+        leading-relaxed
+      ">
         Explore highlights from weddings, conferences,
         networking installations, DJ performances,
         photography sessions, and unforgettable moments.
@@ -792,109 +828,193 @@ export default function JKServicePage() {
   </div>
 
   {/* LEFT BUTTON */}
-<button
-  onClick={() => {
-    galleryRef.current?.scrollBy({
-      left: -350,
-      behavior: "smooth",
-    });
-  }}
-  className="
-    absolute 
-    left-2 md:left-4 
-    top-1/2 
-    -translate-y-1/2 
-    z-30
-    bg-black/70 
-    hover:bg-yellow-500 
-    hover:text-black 
-    border border-white/10 
-    backdrop-blur-xl 
-    w-10 h-10 md:w-14 md:h-14
-    rounded-full 
-    flex items-center justify-center 
-    transition 
-    shadow-2xl
-  "
->
-  <span className="text-xl md:text-2xl font-bold">
-    ←
-  </span>
-</button>
+  <button
+    onClick={() => {
+      galleryRef.current?.scrollBy({
+        left: -350,
+        behavior: "smooth",
+      });
+    }}
+    className="
+      absolute
+      left-2 md:left-4
+      top-1/2
+      -translate-y-1/2
+      z-30
+      bg-black/60
+      hover:bg-yellow-500
+      hover:text-black
+      border
+      border-white/10
+      backdrop-blur-xl
+      w-12
+      h-12
+      md:w-14
+      md:h-14
+      rounded-full
+      flex
+      items-center
+      justify-center
+      transition
+      shadow-2xl
+    "
+  >
+    <span className="text-xl md:text-2xl font-bold">
+      ←
+    </span>
+  </button>
 
-{/* RIGHT BUTTON */}
-<button
-  onClick={() => {
-    galleryRef.current?.scrollBy({
-      left: 350,
-      behavior: "smooth",
-    });
-  }}
-  className="
-    absolute 
-    right-2 md:right-4 
-    top-1/2 
-    -translate-y-1/2 
-    z-30
-    bg-black/70 
-    hover:bg-yellow-500 
-    hover:text-black 
-    border border-white/10 
-    backdrop-blur-xl 
-    w-10 h-10 md:w-14 md:h-14
-    rounded-full 
-    flex items-center justify-center 
-    transition 
-    shadow-2xl
-  "
->
-  <span className="text-xl md:text-2xl font-bold">
-    →
-  </span>
-</button>
+  {/* RIGHT BUTTON */}
+  <button
+    onClick={() => {
+      galleryRef.current?.scrollBy({
+        left: 350,
+        behavior: "smooth",
+      });
+    }}
+    className="
+      absolute
+      right-2 md:right-4
+      top-1/2
+      -translate-y-1/2
+      z-30
+      bg-black/60
+      hover:bg-yellow-500
+      hover:text-black
+      border
+      border-white/10
+      backdrop-blur-xl
+      w-12
+      h-12
+      md:w-14
+      md:h-14
+      rounded-full
+      flex
+      items-center
+      justify-center
+      transition
+      shadow-2xl
+    "
+  >
+    <span className="text-xl md:text-2xl font-bold">
+      →
+    </span>
+  </button>
 
   {/* LEFT FADE */}
-  <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
+  <div className="
+    absolute
+    left-0
+    top-0
+    w-32
+    h-full
+    bg-gradient-to-r
+    from-[#050505]
+    to-transparent
+    z-10
+    pointer-events-none
+  "></div>
 
   {/* RIGHT FADE */}
-  <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
+  <div className="
+    absolute
+    right-0
+    top-0
+    w-32
+    h-full
+    bg-gradient-to-l
+    from-[#111827]
+    to-transparent
+    z-10
+    pointer-events-none
+  "></div>
 
   {/* SCROLL AREA */}
   <div
     ref={galleryRef}
-    className="overflow-x-auto scrollbar-hide snap-x snap-mandatory relative"
+    className="
+      overflow-x-auto
+      scrollbar-hide
+      snap-x
+      snap-mandatory
+      relative
+      z-20
+    "
   >
 
-    <div className="flex gap-6 px-6 w-max pb-4">
+    <div className="flex gap-8 px-6 w-max pb-4">
 
       {/* IMAGE */}
       <img
         src="/images/me4.JPG"
         alt="Wedding"
-        className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center hover:scale-[1.02] transition duration-500"
+        className="
+          w-[380px]
+          h-[520px]
+          object-cover
+          rounded-[36px]
+          flex-shrink-0
+          snap-center
+          hover:scale-[1.02]
+          transition
+          duration-500
+          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
+        "
       />
 
       {/* IMAGE */}
       <img
         src="/images/Me3.JPG"
         alt="Networking"
-        className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center hover:scale-[1.02] transition duration-500"
+        className="
+          w-[380px]
+          h-[520px]
+          object-cover
+          rounded-[36px]
+          flex-shrink-0
+          snap-center
+          hover:scale-[1.02]
+          transition
+          duration-500
+          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
+        "
       />
 
       {/* IMAGE */}
       <img
         src="/images/meoffice.JPG"
         alt="Office"
-        className="w-[800px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center hover:scale-[1.02] transition duration-500"
+        className="
+          w-[800px]
+          h-[520px]
+          object-cover
+          rounded-[36px]
+          flex-shrink-0
+          snap-center
+          hover:scale-[1.02]
+          transition
+          duration-500
+          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
+        "
       />
 
       {/* IMAGE */}
       <img
         src="/images/me5.JPG"
         alt="Event"
-        className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center hover:scale-[1.02] transition duration-500"
+        className="
+          w-[380px]
+          h-[520px]
+          object-cover
+          rounded-[36px]
+          flex-shrink-0
+          snap-center
+          hover:scale-[1.02]
+          transition
+          duration-500
+          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
+        "
       />
-
 
       {/* VIDEO */}
       <video
@@ -902,16 +1022,22 @@ export default function JKServicePage() {
         muted
         loop
         playsInline
-        className="w-[380px] h-[520px] object-cover rounded-[30px] flex-shrink-0 snap-center"
+        className="
+          w-[380px]
+          h-[520px]
+          object-cover
+          rounded-[36px]
+          flex-shrink-0
+          snap-center
+          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
+        "
       >
         <source src="/videos/usvideo.MP4" type="video/mp4" />
       </video>
 
-
     </div>
   </div>
 </section>
-
 {/* ================= TEAM SECTION ================= */}
 <section
   id="team"
@@ -1295,7 +1421,7 @@ export default function JKServicePage() {
 
                 {/* 30 MIN */}
                 <PopupButton
-                  url="https://calendly.com/josuebizazu60/30min"
+                  url={`https://calendly.com/josuebizazu60/30min?a1=General%20Consultation`}
                   rootElement={
                     typeof window !== "undefined"
                       ? document.body
@@ -1317,7 +1443,7 @@ export default function JKServicePage() {
 
                 {/* 1 HOUR */}
                 <PopupButton
-                  url="https://calendly.com/josuebizazu60/new-meeting"
+                  url={`https://calendly.com/josuebizazu60/new-meeting?a1=General%20Consultation`}
                   rootElement={
                     typeof window !== "undefined"
                       ? document.body
