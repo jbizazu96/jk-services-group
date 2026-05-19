@@ -285,60 +285,110 @@ export default function JKServicePage() {
         )}
       </nav>
 
-      {/* ================= HERO SECTION ================= */}
-      <section
-        id="home"
-        className="relative h-screen flex items-center justify-center"
-      >
-        {/* HERO VIDEO */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+              {/* ================= HERO SECTION ================= */}
+        <section
+          id="home"
+          className="
+            relative
+            min-h-screen
+            flex
+            items-center
+            overflow-hidden
+            bg-gradient-to-br
+            from-[#f8f8f8]
+            via-white
+            to-slate-100
+            text-black
+          "
         >
-          <source src="/videos/" type="video/mp4" />
-        </video>
 
-        {/* DARK OVERLAY */}
-        <div className="absolute inset-0 bg-black/70"></div>
+          {/* SOFT BACKGROUND GLOW */}
+          <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-yellow-200/30 blur-[120px] rounded-full"></div>
 
-        {/* GLOW EFFECT */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 via-transparent to-yellow-500/20"></div>
+          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-200/30 blur-[120px] rounded-full"></div>
 
-        {/* CONTENT */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          {/* LEFT */}
-          <div>
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-md rounded-full px-5 py-2 mb-8">
-              <span className="w-2 h-2 rounded-full bg-green-400"></span>
+          {/* HERO VIDEO */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="
+              absolute
+              inset-0
+              w-full
+              h-full
+              object-cover
+              opacity-[0.08]
+            "
+          >
+            <source src="/videos/hero-video.mp4" type="video/mp4" />
+          </video>
 
-              <span className="text-sm tracking-wide">
-                Professional Multi-Service Company
-              </span>
-            </div>
+          {/* MAIN CONTENT */}
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 grid lg:grid-cols-2 gap-20 items-center">
 
-            <h1 className="text-5xl md:text-7xl font-black leading-tight">
-              Turning Your
-              <span className="text-yellow-400"> Vision </span>
-              Into Reality
-            </h1>
+            {/* LEFT SIDE */}
+            <div>
 
-            <p className="mt-8 text-xl text-gray-300 leading-relaxed max-w-2xl">
-              From unforgettable weddings and conferences to enterprise-grade
-              networking and IT solutions — J&K Service Group delivers
-              professionalism, creativity, and excellence.
-            </p>
+              {/* TOP BADGE */}
+              <div className="
+                inline-flex
+                items-center
+                gap-3
+                bg-white/70
+                border
+                border-black/10
+                rounded-full
+                px-5
+                py-2
+                shadow-lg
+                mb-8
+              ">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
 
-            {/* CTA BUTTONS */}
-            <div className="mt-10 flex flex-wrap gap-5">
-                 <button
+                <span className="text-sm tracking-wide font-medium">
+                  Professional Multi-Service Company
+                </span>
+              </div>
+
+              {/* MAIN TITLE */}
+              <h1 className="
+                text-5xl
+                md:text-7xl
+                font-black
+                leading-tight
+              ">
+                Turning Your
+                <span className="text-yellow-500"> Vision </span>
+                Into Reality
+              </h1>
+
+              {/* DESCRIPTION */}
+              <p className="
+                mt-8
+                text-xl
+                text-gray-700
+                leading-relaxed
+                max-w-2xl
+              ">
+                From unforgettable weddings and conferences to
+                enterprise-grade networking and IT solutions —
+                J&K Service Group delivers professionalism,
+                creativity, and excellence.
+              </p>
+
+              {/* BUTTONS */}
+              <div className="mt-12 flex flex-wrap gap-5">
+
+                {/* BOOK BUTTON */}
+                <button
                   onClick={() => setBookingModal(true)}
                   className="
-                    bg-yellow-500
-                    hover:bg-yellow-400
-                    text-black
+                    bg-black
+                    hover:bg-yellow-500
+                    hover:text-black
+                    text-white
                     px-8
                     py-4
                     rounded-full
@@ -355,89 +405,159 @@ export default function JKServicePage() {
                   <ChevronRight />
                 </button>
 
+                {/* SERVICES BUTTON */}
                 <a
-                href="#services"
-                className="
-                  border
-                  border-white/30
-                  hover:bg-white
-                  hover:text-black
-                  px-8
-                  py-4
-                  rounded-full
-                  text-lg
-                  font-semibold
-                  transition
-                  inline-flex
-                  items-center
-                  justify-center
-                "
-              >
-                Explore Services
-              </a>
-            </div>
+                  href="#services"
+                  className="
+                    border
+                    border-black/20
+                    hover:bg-black
+                    hover:text-white
+                    px-8
+                    py-4
+                    rounded-full
+                    text-lg
+                    font-semibold
+                    transition
+                    inline-flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  Explore Services
+                </a>
 
-            {/* STATS */}
-            <div className="mt-14 grid grid-cols-3 gap-6">
-              <div>
-                <h3 className="text-4xl font-black text-yellow-400">10+</h3>
-                <p className="text-gray-400 mt-2">Events Served</p>
               </div>
 
-              <div>
-                <h3 className="text-4xl font-black text-yellow-400">24/7</h3>
-                <p className="text-gray-400 mt-2">IT Support</p>
-              </div>
+              {/* STATS */}
+              <div className="mt-16 grid grid-cols-3 gap-8">
 
-              <div>
-                <h3 className="text-4xl font-black text-yellow-400">5★</h3>
-                <p className="text-gray-400 mt-2">Client Experience</p>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT SIDE CARD */}
-          <div className="hidden lg:flex justify-center">
-            <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[40px] p-10 shadow-2xl max-w-lg">
-              <img
-                src="/images/logo.png"
-                alt="Logo"
-                className="w-72 mx-auto"
-              />
-
-              <div className="mt-10 space-y-5">
-                <div className="bg-black/30 rounded-2xl p-5 border border-white/10">
-                  <h3 className="text-xl font-bold">
-                    Wedding & Event Services
+                <div>
+                  <h3 className="text-4xl font-black text-yellow-500">
+                    10+
                   </h3>
 
-                  <p className="text-gray-300 mt-2">
-                    MC • DJ • Planning • Photography • Ushers
+                  <p className="text-gray-500 mt-2">
+                    Events Served
                   </p>
                 </div>
 
-                <div className="bg-black/30 rounded-2xl p-5 border border-white/10">
-                  <h3 className="text-xl font-bold">
-                    Networking & IT Solutions
+                <div>
+                  <h3 className="text-4xl font-black text-yellow-500">
+                    24/7
                   </h3>
 
-                  <p className="text-gray-300 mt-2">
-                    Installation • Troubleshooting • Management • Consulting
+                  <p className="text-gray-500 mt-2">
+                    IT Support
                   </p>
+                </div>
+
+                <div>
+                  <h3 className="text-4xl font-black text-yellow-500">
+                    5★
+                  </h3>
+
+                  <p className="text-gray-500 mt-2">
+                    Client Experience
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            {/* RIGHT SIDE CARD */}
+            <div className="hidden lg:flex justify-center">
+
+              <div className="
+                bg-white/70
+                backdrop-blur-md
+                border
+                border-black/10
+                rounded-[40px]
+                p-10
+                shadow-[0_20px_80px_rgba(0,0,0,0.08)]
+                max-w-lg
+              ">
+
+                {/* LOGO */}
+                <img
+                  src="/images/logo.png"
+                  alt="Logo"
+                  className="w-72 mx-auto"
+                />
+
+                {/* CARDS */}
+                <div className="mt-10 space-y-5">
+
+                  {/* CARD 1 */}
+                  <div className="
+                    bg-white
+                    rounded-3xl
+                    p-6
+                    border
+                    border-black/5
+                    shadow-lg
+                  ">
+                    <h3 className="text-xl font-bold">
+                      Wedding & Event Services
+                    </h3>
+
+                    <p className="text-gray-600 mt-3">
+                      MC • DJ • Planning • Photography • Ushers
+                    </p>
+                  </div>
+
+                  {/* CARD 2 */}
+                  <div className="
+                    bg-white
+                    rounded-3xl
+                    p-6
+                    border
+                    border-black/5
+                    shadow-lg
+                  ">
+                    <h3 className="text-xl font-bold">
+                      Networking & IT Solutions
+                    </h3>
+
+                    <p className="text-gray-600 mt-3">
+                      Installation • Troubleshooting • Consulting
+                    </p>
+                  </div>
+
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* SCROLL INDICATOR */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-8 h-14 border-2 border-white rounded-full flex justify-center">
-            <div className="w-2 h-2 bg-white rounded-full mt-3"></div>
+          {/* SCROLL INDICATOR */}
+          <div className="
+            absolute
+            bottom-10
+            left-1/2
+            -translate-x-1/2
+            animate-bounce
+          ">
+            <div className="
+              w-8
+              h-14
+              border-2
+              border-black/40
+              rounded-full
+              flex
+              justify-center
+            ">
+              <div className="
+                w-2
+                h-2
+                bg-black/50
+                rounded-full
+                mt-3
+              "></div>
+            </div>
           </div>
-        </div>
-      </section> 
 
+        </section>
 
      {/* ================= SERVICES ================= */}
     <section
@@ -585,8 +705,8 @@ export default function JKServicePage() {
         <div className="flex flex-wrap gap-4">
 
         {/* 30 MIN CONSULTATION */}
-        <PopupButton
-          url="https://calendly.com/josuebizazu60/30min"
+          <PopupButton
+          url={`https://calendly.com/josuebizazu60/30min?a1=${encodeURIComponent(service.title)}`}
           rootElement={
             typeof window !== "undefined"
               ? document.body
@@ -608,7 +728,7 @@ export default function JKServicePage() {
 
         {/* 1 HOUR CONSULTATION */}
         <PopupButton
-          url="https://calendly.com/josuebizazu60/new-meeting"
+          url={`https://calendly.com/josuebizazu60/new-meeting?a1=${encodeURIComponent(service.title)}`}
           rootElement={
             typeof window !== "undefined"
               ? document.body
