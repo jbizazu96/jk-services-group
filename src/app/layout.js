@@ -13,9 +13,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "J&K Service Group",
+  title: "J&K Service Group | Events, IT & Media Services",
   description:
-    "Professional event services, networking solutions, photography, videography, and business consulting.",
+    "J&K Service Group provides professional event planning, MC services, DJ entertainment, photography, videography, networking installation, IT consulting, and conference solutions.",
+  keywords: [
+    "event planning",
+    "DJ services",
+    "MC services",
+    "photography",
+    "videography",
+    "network installation",
+    "IT support",
+    "conference services",
+    "Iowa event services",
+    "J&K Service Group",
+  ],
+
+  icons: {
+    icon: "/favicon.ico",
+  },
+  
 };
 
 export default function RootLayout({ children }) {
