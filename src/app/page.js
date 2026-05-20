@@ -1727,8 +1727,8 @@ export default function JKServicePage() {
                   }
                   text="15 Minutes - Free Consultaion"
                   className="
-                    bg-yellow-500
-                    hover:bg-yellow-400
+                    bg-blue-500
+                    hover:bg-blue-400
                     text-black
                     py-5
                     rounded-2xl
