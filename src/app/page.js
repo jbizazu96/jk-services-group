@@ -2385,12 +2385,17 @@ export default function JKServicePage() {
 
               <div className="flex items-center gap-3">
                 <Mail className="text-yellow-400" size={20} />
-                <span>info@jkservicegroup.com</span>
+                <span>info@myjkservices.com</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Mail className="text-yellow-400" size={20} />
-                <span>support@jkservicegroup.com</span>
+                <span>support@myjkservices.com</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Mail className="text-yellow-400" size={20} />
+                <span>booking@myjkservices.com</span>
               </div>
 
               <div className="flex items-center gap-3">
