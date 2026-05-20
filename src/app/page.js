@@ -1716,6 +1716,29 @@ export default function JKServicePage() {
               {/* OPTIONS */}
               <div className="flex flex-col gap-5">
 
+
+                 {/* Free consultation 15MIN */}
+                 <PopupButton
+                  url={`https://calendly.com/josuebizazu60/new-meeting-1`}
+                  rootElement={
+                    typeof window !== "undefined"
+                      ? document.body
+                      : undefined
+                  }
+                  text="15 Minutes - Free Consultaion"
+                  className="
+                    bg-yellow-500
+                    hover:bg-yellow-400
+                    text-black
+                    py-5
+                    rounded-2xl
+                    font-bold
+                    text-lg
+                    transition
+                    w-full
+                  "
+                />
+
                 {/* 30 MIN */}
                 <PopupButton
                   url={`https://calendly.com/josuebizazu60/30min?a1=General%20Consultation`}
