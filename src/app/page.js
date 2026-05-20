@@ -382,7 +382,7 @@ export default function JKServicePage() {
           </video>
 
           {/* MAIN CONTENT */}
-          <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 grid lg:grid-cols-2 gap-20 items-center">
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
 
             {/* LEFT SIDE */}
             <div>
@@ -522,7 +522,7 @@ export default function JKServicePage() {
             </div>
 
             {/* RIGHT SIDE CARD */}
-            <div className="hidden lg:flex justify-center">
+            <div className="flex justify-center mt-16 lg:mt-0">
 
               <div className="
                 bg-white/70
@@ -530,16 +530,16 @@ export default function JKServicePage() {
                 border
                 border-black/10
                 rounded-[40px]
-                p-10
+                p-6 md:p-8 lg:p-10
                 shadow-[0_20px_80px_rgba(0,0,0,0.08)]
-                max-w-lg
+                w-full max-w-md lg:max-w-lg
               ">
 
                 {/* LOGO */}
                 <img
                   src="/images/logo.png"
                   alt="Logo"
-                  className="w-72 mx-auto"
+                  className="w-52 md:w-64 lg:w-72 mx-auto"
                 />
 
                 {/* CARDS */}
