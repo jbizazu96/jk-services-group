@@ -25,6 +25,9 @@ export default function JKServicePage() {
   const [mobileMenu, setMobileMenu] = React.useState(false);
   const [donationMenu, setDonationMenu] = React.useState(false);
   const [bookingModal, setBookingModal] = React.useState(false);
+  const [bookingModalGS, setBookingModalGS] = React.useState(false);
+  const [selectedService, setSelectedService] = React.useState("");
+  const [openFAQ, setOpenFAQ] = React.useState([]);
   const galleryRef = useRef(null);
 
   {/* ========== MAKE POP WINDOW TO DISAPPEAR ========== */}
@@ -40,6 +43,59 @@ export default function JKServicePage() {
         window.removeEventListener("scroll", handleScroll);
       };
     }, []);
+
+    {/* ============== fAQ CONSTANT =============== */}
+
+    const faqData = [
+      {
+        question: "Who is J&K Service Group?",
+        answer:
+          "J&K Service Group is a professional multi-service company specializing in event services, networking and IT solutions, photography, videography, DJ entertainment, business consulting, and conference support. Our mission is to deliver premium experiences and reliable solutions tailored to every client’s needs.",
+      },
+    
+      {
+        question: "Can I schedule a consultation without paying?",
+        answer:
+          "Yes. We offer a free 15-minute introductory consultation where clients can discuss their needs, ask questions, and explore possible solutions before committing to a paid consultation or service.",
+      },
+    
+      {
+        question: "Are the prices listed on the website final?",
+        answer:
+          "Not always. The prices displayed on our services are estimated ranges. Final pricing may vary depending on factors such as event size, location, duration, customization, technical requirements, and overall project complexity.",
+      },
+    
+      {
+        question: "Do I pay for every consultation after purchasing a service?",
+        answer:
+          "No. In many cases, once a service agreement is finalized, follow-up discussions directly related to your booked service are included. Additional advanced consultations outside the original project scope may require separate booking.",
+      },
+    
+      {
+        question: "Do you travel for events or projects?",
+        answer:
+          "Yes. We are available for both local and out-of-state projects depending on availability, travel requirements, and scheduling arrangements.",
+      },
+    
+      {
+        question: "How far in advance should I book?",
+        answer:
+          "We recommend booking as early as possible, especially for weddings, conferences, and large events. Early booking helps secure availability and allows better planning and preparation.",
+      },
+    
+      {
+        question: "Do you offer custom packages?",
+        answer:
+          "Absolutely. We understand every client has unique needs. Custom packages can be created by combining services such as DJ, MC, photography, networking support, videography, and event coordination.",
+      },
+    
+      {
+        question: "What payment methods do you accept?",
+        answer:
+          "We accept secure online payments, card payments, and other approved payment methods depending on the service type and consultation arrangement.",
+      },
+    ];
+
 
   {/* =========== SERVICE CONSTANT ============== */}
   const services = [
@@ -272,8 +328,8 @@ export default function JKServicePage() {
             <div className="flex flex-col p-6 gap-6">
               <a href="#home">Home</a>
               <a href="#services">Services</a>
-              <a href="#home">Gallery</a>
-              <a href="#home">Team</a>
+              <a href="#gallery">Gallery</a>
+              <a href="#team">Team</a>
               <a href="#about">About</a>
               <a href="#contact">Contact</a>
 
@@ -383,7 +439,7 @@ export default function JKServicePage() {
 
                 {/* BOOK BUTTON */}
                 <button
-                  onClick={() => setBookingModal(true)}
+                  onClick={() => setBookingModalGS(true)}
                   className="
                     bg-black
                     hover:bg-yellow-500
@@ -558,202 +614,289 @@ export default function JKServicePage() {
           </div>
 
         </section>
+{/* ================= SERVICES ================= */}
+<section
+  id="services"
+  className="
+    py-28
+    relative
+    overflow-hidden
+    bg-gradient-to-br
+    from-black
+    via-zinc-900
+    to-slate-950
+  "
+>
 
-     {/* ================= SERVICES ================= */}
-    <section
-      id="services"
-      className="py-28 bg-gradient-to-b from-black to-slate-950"
-    >
-      <div className="max-w-7xl mx-auto px-6">
+  {/* AMBIENT GLOW */}
+  <div className="
+    absolute
+    top-0
+    right-0
+    w-[500px]
+    h-[500px]
+    bg-yellow-500/10
+    blur-[120px]
+    rounded-full
+  "></div>
 
-        {/* TITLE */}
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-6xl font-black">
-            Our Services
-          </h2>
+  <div className="
+    absolute
+    bottom-0
+    left-0
+    w-[500px]
+    h-[500px]
+    bg-blue-500/10
+    blur-[120px]
+    rounded-full
+  "></div>
 
-          <p className="text-xl text-gray-400 mt-6 max-w-3xl mx-auto">
-            Professional solutions designed to elevate your events,
-            businesses, and digital presence.
-          </p>
-        </div>
+  <div className="max-w-7xl mx-auto px-6 relative z-10">
 
-        {/* SERVICES GRID */}
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+    {/* TITLE */}
+    <div className="text-center mb-20">
 
-  {[
-    {
-      title: "MC Services",
-      image:
-        "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Professional hosting for weddings, conferences, birthdays, and corporate events.",
-      price: "$150 - $1,500",
-    },
+      {/* BADGE */}
+      <div className="
+        inline-flex
+        items-center
+        gap-2
+        bg-white/5
+        border
+        border-white/10
+        rounded-full
+        px-5
+        py-2
+        mb-8
+        backdrop-blur-md
+      ">
+        <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
 
-    {
-      title: "Event Planning",
-      image:
-        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Complete event planning and coordination services from beginning to end.",
-      price: "$300 - $4,000+",
-    },
-
-    {
-      title: "DJ Music",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Premium DJ services with professional sound and lighting systems.",
-      price: "$250 - $2,000+",
-    },
-
-    {
-      title: "Photography & Videography",
-      image:
-        "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Capture unforgettable moments with cinematic video and photography.",
-      price: "$300 - $5,000+",
-    },
-
-    {
-      title: "Ushers",
-      image:
-        "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Professional ushering services for weddings and special events.",
-      price: "$75 - $1,000",
-    },
-
-    {
-      title: "Network Installation",
-      image:
-        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Complete business and residential networking installation solutions.",
-      price: "$500 - Custom",
-    },
-
-    {
-      title: "IT Support",
-      image:
-        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Network troubleshooting, upgrades, optimization, and IT consulting.",
-      price: "$75/hr - $2,000/month",
-    },
-
-    {
-      title: "Flyer Design",
-      image:
-        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Modern flyer and social media designs for all events and businesses.",
-      price: "$50 - $800",
-    },
-
-    {
-      title: "Conferences",
-      image:
-        "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1400&auto=format&fit=crop",
-      description:
-        "Professional speaking engagements and conferences on diverse topics.",
-      price: "$200 - Custom",
-    },
-  ].map((service, index) => (
-    <div
-      key={index}
-      className="group relative overflow-hidden rounded-[36px] h-[500px] border border-white/10 hover:border-yellow-500/40 transition duration-500"
-    >
-
-      {/* BACKGROUND IMAGE */}
-      <img
-        src={service.image}
-        alt={service.title}
-        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
-      />
-
-      {/* DARK OVERLAY */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20"></div>
-
-      {/* GLOW EFFECT */}
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-
-      {/* CONTENT */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-8">
-
-        {/* PRICE */}
-        <div className="mb-4">
-          <span className="bg-yellow-500 text-black px-4 py-2 rounded-full text-sm font-bold">
-            {service.price}
-          </span>
-        </div>
-
-        {/* TITLE */}
-        <h3 className="text-3xl font-black mb-4">
-          {service.title}
-        </h3>
-
-        {/* DESCRIPTION */}
-        <p className="text-gray-300 leading-relaxed mb-8">
-          {service.description}
-        </p>
-
-        {/* BUTTONS */}
-        <div className="flex flex-wrap gap-4">
-
-        {/* 30 MIN CONSULTATION */}
-          <PopupButton
-          url={`https://calendly.com/josuebizazu60/30min?a1=${encodeURIComponent(service.title)}`}
-          rootElement={
-            typeof window !== "undefined"
-              ? document.body
-              : undefined
-          }
-          text="30 Min - $25"
-          className="
-            bg-yellow-500
-            hover:bg-yellow-400
-            text-black
-            px-6
-            py-3
-            rounded-full
-            font-bold
-            transition
-            shadow-xl
-          "
-        />
-
-        {/* 1 HOUR CONSULTATION */}
-        <PopupButton
-          url={`https://calendly.com/josuebizazu60/new-meeting?a1=${encodeURIComponent(service.title)}`}
-          rootElement={
-            typeof window !== "undefined"
-              ? document.body
-              : undefined
-          }
-          text="1 Hour - $50"
-          className="
-            border
-            border-white/20
-            hover:bg-white
-            hover:text-black
-            px-6
-            py-3
-            rounded-full
-            font-bold
-            transition
-          "
-        />
-
-        </div>
+        <span className="text-yellow-300 text-sm uppercase tracking-wide font-semibold">
+          Our Services
+        </span>
       </div>
+
+      <h2 className="text-5xl md:text-6xl font-black text-white">
+        Premium
+        <span className="text-yellow-400"> Solutions</span>
+      </h2>
+
+      <p className="text-xl text-gray-400 mt-6 max-w-3xl mx-auto leading-relaxed">
+        Professional solutions designed to elevate your events,
+        businesses, and digital presence.
+      </p>
     </div>
-  ))}
-</div>
-</div>
+
+    {/* SERVICES GRID */}
+    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+
+      {[
+        {
+          title: "MC Services",
+          image:
+            "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Professional hosting for weddings, conferences, birthdays, and corporate events.",
+          price: "$150 - $1,500",
+        },
+
+        {
+          title: "Event Planning",
+          image:
+            "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Complete event planning and coordination services from beginning to end.",
+          price: "$300 - $4,000+",
+        },
+
+        {
+          title: "DJ Music",
+          image:
+            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Premium DJ services with professional sound and lighting systems.",
+          price: "$250 - $2,000+",
+        },
+
+        {
+          title: "Photography & Videography",
+          image:
+            "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Capture unforgettable moments with cinematic video and photography.",
+          price: "$300 - $5,000+",
+        },
+
+        {
+          title: "Ushers",
+          image:
+            "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Professional ushering services for weddings and special events.",
+          price: "$75 - $1,000",
+        },
+
+        {
+          title: "Network Installation",
+          image:
+            "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Complete business and residential networking installation solutions.",
+          price: "$500 - Custom",
+        },
+
+        {
+          title: "IT Support",
+          image:
+            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Network troubleshooting, upgrades, optimization, and IT consulting.",
+          price: "$75/hr - $2,000/month",
+        },
+
+        {
+          title: "Flyer Design",
+          image:
+            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Modern flyer and social media designs for all events and businesses.",
+          price: "$50 - $800",
+        },
+
+        {
+          title: "Conferences",
+          image:
+            "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1400&auto=format&fit=crop",
+          description:
+            "Professional speaking engagements and conferences on diverse topics.",
+          price: "$200 - Custom",
+        },
+      ].map((service, index) => (
+        <div
+          key={index}
+          className="
+            group
+            relative
+            overflow-hidden
+            rounded-[36px]
+            h-[500px]
+            border
+            border-white/10
+            hover:border-yellow-500/40
+            transition
+            duration-500
+            shadow-[0_20px_60px_rgba(0,0,0,0.35)]
+          "
+        >
+
+          {/* BACKGROUND IMAGE */}
+          <img
+            src={service.image}
+            alt={service.title}
+            className="
+              absolute
+              inset-0
+              w-full
+              h-full
+              object-cover
+              group-hover:scale-110
+              transition
+              duration-700
+            "
+          />
+
+          {/* OVERLAY */}
+          <div className="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black
+            via-black/50
+            to-black/20
+          "></div>
+
+          {/* HOVER GLOW */}
+          <div className="
+            absolute
+            inset-0
+            bg-gradient-to-br
+            from-yellow-500/10
+            to-blue-500/10
+            opacity-0
+            group-hover:opacity-100
+            transition
+            duration-500
+          "></div>
+
+          {/* CONTENT */}
+          <div className="
+            relative
+            z-10
+            h-full
+            flex
+            flex-col
+            justify-end
+            p-8
+          ">
+
+            {/* PRICE */}
+            <div className="mb-4">
+              <span className="
+                bg-yellow-500
+                text-black
+                px-4
+                py-2
+                rounded-full
+                text-sm
+                font-bold
+              ">
+                {service.price}
+              </span>
+            </div>
+
+            {/* TITLE */}
+            <h3 className="text-3xl font-black mb-4 text-white">
+              {service.title}
+            </h3>
+
+            {/* DESCRIPTION */}
+            <p className="
+              text-gray-300
+              leading-relaxed
+              mb-8
+            ">
+              {service.description}
+            </p>
+
+            {/* BOOK NOW BUTTON */}
+            <button
+              onClick={() => {
+                setSelectedService(service.title);
+                setBookingModal(true);
+              }}
+              className="
+                w-full
+                bg-yellow-500
+                hover:bg-yellow-400
+                text-black
+                py-4
+                rounded-2xl
+                font-bold
+                text-lg
+                transition
+                shadow-xl
+              "
+            >
+              Book Now
+            </button>
+
+          </div>
+        </div>
+      ))}
+
+    </div>
+  </div>
 </section>
 
 {/* ================= GALLERY ================= */}
@@ -1079,9 +1222,9 @@ export default function JKServicePage() {
 
         <div className="overflow-hidden">
           <img
-            src="/images/Me1.JPG"
+            src="/images/Me3.JPG"
             alt="Josue Bizazu"
-            className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-130 object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 
@@ -1095,8 +1238,13 @@ export default function JKServicePage() {
           </p>
 
           <p className="text-gray-400 leading-relaxed">
-            Professional MC, network engineer, IT consultant, and community leader focused on excellence in
-            events and technology solutions.
+          A passionate leader, professional MC,
+          network engineer, and technology consultant dedicated
+          to excellence in both events and IT solutions.
+          With years of experience in networking, leadership,
+          public speaking, and community engagement, he brings
+          professionalism, energy, and vision to every project
+          and event he leads.
           </p>
         </div>
         <div style={{ position: "absolute", top: -20, left: -20, background: "#1e40af", borderRadius: 8, padding: "20px 20px", zIndex: 2 }}>
@@ -1112,7 +1260,7 @@ export default function JKServicePage() {
           <img
             src="/images/Kerene.jpeg"
             alt="Event Planner"
-            className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-130 object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 
@@ -1126,9 +1274,14 @@ export default function JKServicePage() {
           </p>
 
           <p className="text-gray-400 leading-relaxed">
-            Experienced in event planning, coordination,
-            guest management, and creating smooth and
-            welcoming event experiences.
+          Universal Banker III with strong
+          expertise in customer service, organization, event
+          coordination, and time management. Fluent in five
+          languages — Lingala, French, English, Portuguese,
+          and Spanish — she creates welcoming and professional
+          experiences for clients and guests. Her experience
+          in ushering and event planning allows her to bring
+          structure, elegance, and smooth coordination to every event.
           </p>
         </div>
         <div style={{ position: "absolute", top: -20, left: -20, background: "#1e40af", borderRadius: 8, padding: "20px 20px", zIndex: 2 }}>
@@ -1144,7 +1297,7 @@ export default function JKServicePage() {
         <img
           src="/images/jeremie.jpg"
           alt="Event Planner"
-          className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+          className="w-full h-130 object-cover group-hover:scale-105 transition duration-700"
         />
       </div>
 
@@ -1158,9 +1311,12 @@ export default function JKServicePage() {
         </p>
 
         <p className="text-gray-400 leading-relaxed">
-          Experienced in event planning, coordination,
-          guest management, and creating smooth and
-          welcoming event experiences.
+        Hardworking and highly motivated DJ
+        and music professional with experience in live event
+        entertainment, sound coordination, and audience engagement.
+        Known for his professionalism, teamwork, and energy,
+        he creates vibrant atmospheres that make every event
+        memorable and enjoyable.
         </p>
       </div>
       <div style={{ position: "absolute", top: -20, left: -20, background: "#1e40af", borderRadius: 8, padding: "20px 20px", zIndex: 2 }}>
@@ -1176,7 +1332,7 @@ export default function JKServicePage() {
           <img
             src="/images/percy.jpg"
             alt="Videographer"
-            className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-130 object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 
@@ -1190,9 +1346,13 @@ export default function JKServicePage() {
           </p>
 
           <p className="text-gray-400 leading-relaxed">
-            Creative media professional specializing in
-            cinematic storytelling, editing, photography,
-            and professional video production.
+          Talented photographer, videographer,
+          and graphic designer with more than 10 years of creative
+          experience. He has worked on multiple music video projects,
+          weddings, events, and professional media productions.
+          His passion for storytelling, visual creativity, and
+          attention to detail allows him to capture unforgettable
+          moments with cinematic quality and artistic excellence.
           </p>
         </div>
         <div style={{ position: "absolute", top: -20, left: -20, background: "#1e40af", borderRadius: 8, padding: "20px 20px", zIndex: 2 }}>
@@ -1623,6 +1783,250 @@ export default function JKServicePage() {
             </div>
           </section>
 
+        {/* ================= FAQ SECTION ================= */}
+          <section
+            id="faq"
+            className="
+              relative
+              py-28
+              overflow-hidden
+              bg-gradient-to-br
+              from-[#f8f8f8]
+              via-white
+              to-slate-100
+              text-black
+            "
+          >
+
+            {/* BACKGROUND GLOW */}
+            <div className="
+              absolute
+              top-0
+              left-0
+              w-[450px]
+              h-[450px]
+              bg-yellow-200/40
+              blur-[120px]
+              rounded-full
+            "></div>
+
+            <div className="
+              absolute
+              bottom-0
+              right-0
+              w-[450px]
+              h-[450px]
+              bg-blue-200/30
+              blur-[120px]
+              rounded-full
+            "></div>
+
+            {/* HEADER */}
+            <div className="
+              relative
+              z-10
+              max-w-4xl
+              mx-auto
+              px-6
+              text-center
+            ">
+
+              {/* BADGE */}
+              <div className="
+                inline-flex
+                items-center
+                gap-2
+                bg-yellow-500/10
+                border
+                border-yellow-500/20
+                rounded-full
+                px-5
+                py-2
+                mb-8
+                backdrop-blur-md
+              ">
+                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+
+                <span className="
+                  text-yellow-700
+                  text-sm
+                  uppercase
+                  tracking-wide
+                  font-semibold
+                ">
+                  Frequently Asked Questions
+                </span>
+              </div>
+
+              {/* TITLE */}
+              <h2 className="
+                text-5xl
+                md:text-6xl
+                font-black
+                leading-tight
+              ">
+                Questions &
+                <span className="text-yellow-500"> Answers</span>
+              </h2>
+
+              {/* DESCRIPTION */}
+              <p className="
+                mt-6
+                text-lg
+                text-gray-600
+                leading-relaxed
+                max-w-3xl
+                mx-auto
+              ">
+                Everything you need to know about our services,
+                consultations, pricing, and how we work with clients.
+              </p>
+
+            </div>
+
+            {/* FAQ CONTENT */}
+            <div className="
+              relative
+              z-10
+              max-w-5xl
+              mx-auto
+              px-6
+              mt-20
+            ">
+
+              {/* EXPAND ALL BUTTON */}
+              <div className="flex justify-end mb-8">
+
+                <button
+                  onClick={() => {
+                    const allIndexes = faqData.map((_, index) => index);
+
+                    if (openFAQ.length === faqData.length) {
+                      setOpenFAQ([]);
+                    } else {
+                      setOpenFAQ(allIndexes);
+                    }
+                  }}
+                  className="
+                    bg-black
+                    hover:bg-yellow-500
+                    hover:text-black
+                    text-white
+                    px-6
+                    py-3
+                    rounded-full
+                    font-semibold
+                    transition
+                    shadow-xl
+                  "
+                >
+                  {openFAQ.length === faqData.length
+                    ? "Close All"
+                    : "Expand All"}
+                </button>
+
+              </div>
+
+              {/* FAQ ITEMS */}
+              <div className="space-y-6">
+
+                {faqData.map((faq, index) => (
+
+                  <div
+                    key={index}
+                    className="
+                      bg-white/70
+                      backdrop-blur-xl
+                      border
+                      border-black/5
+                      rounded-[28px]
+                      overflow-hidden
+                      shadow-[0_20px_60px_rgba(0,0,0,0.08)]
+                      transition
+                      duration-300
+                      hover:shadow-[0_20px_80px_rgba(0,0,0,0.12)]
+                    "
+                  >
+
+                    {/* QUESTION */}
+                    <button
+                      onClick={() => {
+                        if (openFAQ.includes(index)) {
+                          setOpenFAQ(
+                            openFAQ.filter((item) => item !== index)
+                          );
+                        } else {
+                          setOpenFAQ([...openFAQ, index]);
+                        }
+                      }}
+                      className="
+                        w-full
+                        flex
+                        items-center
+                        justify-between
+                        text-left
+                        p-8
+                      "
+                    >
+
+                      <h3 className="
+                        text-xl
+                        md:text-2xl
+                        font-bold
+                        pr-6
+                      ">
+                        {faq.question}
+                      </h3>
+
+                      {/* ARROW */}
+                      <div
+                        className={`
+                          text-3xl
+                          font-light
+                          transition
+                          duration-300
+                          ${openFAQ.includes(index)
+                            ? "rotate-180 text-yellow-500"
+                            : "rotate-0 text-black"}
+                        `}
+                      >
+                        ↓
+                      </div>
+
+                    </button>
+
+                    {/* ANSWER */}
+                    <div
+                      className={`
+                        overflow-hidden
+                        transition-all
+                        duration-500
+                        ${
+                          openFAQ.includes(index)
+                            ? "max-h-[500px] opacity-100 pb-8 px-8"
+                            : "max-h-0 opacity-0"
+                        }
+                      `}
+                    >
+
+                      <p className="
+                        text-gray-600
+                        leading-relaxed
+                        text-lg
+                      ">
+                        {faq.answer}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+            </div>
+          </section>
+
 
       {/* ================= SCHEDULE ================= */}
       <section className="py-28 relative overflow-hidden">
@@ -1639,7 +2043,7 @@ export default function JKServicePage() {
           </p>
 
            <button
-            onClick={() => setBookingModal(true)}
+            onClick={() => setBookingModalGS(true)}
             className="
               mt-10
               bg-black
@@ -1719,7 +2123,139 @@ export default function JKServicePage() {
 
                  {/* Free consultation 15MIN */}
                  <PopupButton
-                  url={`https://calendly.com/josuebizazu60/new-meeting-1`}
+                  url={`https://calendly.com/josuebizazu60/new-meeting-1?a1=${encodeURIComponent(selectedService)}`}
+                  rootElement={
+                    typeof window !== "undefined"
+                      ? document.body
+                      : undefined
+                  }
+                  text="15 Minutes - Free Consultaion"
+                  className="
+                    bg-blue-500
+                    hover:bg-blue-400
+                    text-black
+                    py-5
+                    rounded-2xl
+                    font-bold
+                    text-lg
+                    transition
+                    w-full
+                  "
+                />
+
+                {/* 30 MIN */}
+                <PopupButton
+                  url={`https://calendly.com/josuebizazu60/30min?a1=${encodeURIComponent(selectedService)}`}
+                  rootElement={
+                    typeof window !== "undefined"
+                      ? document.body
+                      : undefined
+                  }
+                  text="30 Minutes - $25"
+                  className="
+                    bg-yellow-500
+                    hover:bg-yellow-400
+                    text-black
+                    py-5
+                    rounded-2xl
+                    font-bold
+                    text-lg
+                    transition
+                    w-full
+                  "
+                />
+
+                {/* 1 HOUR */}
+                <PopupButton
+                  url={`https://calendly.com/josuebizazu60/new-meeting?a1=${encodeURIComponent(selectedService)}`}
+                  rootElement={
+                    typeof window !== "undefined"
+                      ? document.body
+                      : undefined
+                  }
+                  text="1 Hour - $50"
+                  className="
+                    border
+                    border-white/20
+                    hover:bg-white
+                    hover:text-black
+                    text-white
+                    py-5
+                    rounded-2xl
+                    font-bold
+                    text-lg
+                    transition
+                    w-full
+                  "
+                />
+
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
+        {/* ================= BOOKING MODAL GS================= */}
+        {bookingModalGS && (
+          <div
+            className="
+              fixed
+              inset-0
+              z-[100]
+              bg-black/80
+              backdrop-blur-md
+              flex
+              items-center
+              justify-center
+              px-6
+            "
+          >
+
+            {/* MODAL CARD */}
+            <div className="
+              bg-zinc-950
+              border
+              border-white/10
+              rounded-[32px]
+              p-10
+              max-w-lg
+              w-full
+              relative
+              shadow-2xl
+            ">
+
+              {/* CLOSE BUTTON */}
+              <button
+                onClick={() => setBookingModalGS(false)}
+                className="
+                  absolute
+                  top-5
+                  right-5
+                  text-white
+                  hover:text-yellow-400
+                  text-2xl
+                "
+              >
+                ✕
+              </button>
+
+              {/* TITLE */}
+              <h2 className="text-4xl font-black mb-4 text-center">
+                Choose Your Consultation
+              </h2>
+
+              <p className="text-gray-400 text-center mb-10">
+                Select your preferred consultation duration.
+              </p>
+
+              {/* OPTIONS */}
+              <div className="flex flex-col gap-5">
+
+
+                 {/* Free consultation 15MIN */}
+                 <PopupButton
+                  url={`https://calendly.com/josuebizazu60/new-meeting-1?a1=General%20Consultation`}
                   rootElement={
                     typeof window !== "undefined"
                       ? document.body
