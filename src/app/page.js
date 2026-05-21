@@ -30,28 +30,85 @@ import {
 import { db } from "@/lib/firebase";
 
 export default function JKServicePage() {
-  const [mobileMenu, setMobileMenu] = React.useState(false);
-  const [donationMenu, setDonationMenu] = React.useState(false);
-  const [bookingModal, setBookingModal] = React.useState(false);
-  const [bookingModalGS, setBookingModalGS] = React.useState(false);
-  const [selectedService, setSelectedService] = React.useState("");
-  
-  const [openFAQ, setOpenFAQ] = React.useState([]);
-  const galleryRef = useRef(null);
+
+  const [mobileMenu, setMobileMenu] =
+    useState(false);
+
+  const [donationMenu, setDonationMenu] =
+    useState(false);
+
+  const [bookingModal, setBookingModal] =
+    useState(false);
+
+  const [bookingModalGS, setBookingModalGS] =
+    useState(false);
+
+  const [selectedService, setSelectedService] =
+    useState("");
+
+  const [openFAQ, setOpenFAQ] =
+    useState([]);
+
+  const [services, setServices] =
+    useState([]);
+
+  const galleryRef =
+    useRef(null);
+
+  const loadServices = async () => {
+
+    try {
+
+      const q = query(
+        collection(db, "services"),
+        where("active", "==", true)
+      );
+
+      const snapshot =
+        await getDocs(q);
+
+      const items =
+        snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+      setServices(items);
+
+    } catch (error) {
+
+      console.error(
+        "Service Error:",
+        error
+      );
+
+    }
+
+  };
 
   {/* ========== MAKE POP WINDOW TO DISAPPEAR ========== */}
     useEffect(() => {
-      const handleScroll = () => {
-        setMobileMenu(false);
-        setDonationMenu(false);
-      };
-    
-      window.addEventListener("scroll", handleScroll);
-    
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-      };
-    }, []);
+
+  loadServices();
+
+  const handleScroll = () => {
+    setMobileMenu(false);
+    setDonationMenu(false);
+  };
+
+  window.addEventListener(
+    "scroll",
+    handleScroll
+  );
+
+  return () => {
+    window.removeEventListener(
+      "scroll",
+      handleScroll
+    );
+  };
+
+}, []);
 
     {/* ============== fAQ CONSTANT =============== */}
 
@@ -107,71 +164,7 @@ export default function JKServicePage() {
 
 
   {/* =========== SERVICE CONSTANT ============== */}
-  const services = [
-    {
-      title: "MC Services",
-      icon: <Mic className="w-10 h-10" />,
-      description:
-        "Professional hosting for weddings, conferences, birthdays, and corporate events.",
-      price: "$150 - $1,500",
-    },
-    {
-      title: "Event Planning",
-      icon: <Calendar className="w-10 h-10" />,
-      description:
-        "Full event planning and coordination services from beginning to end.",
-      price: "$300 - $4,000+",
-    },
-    {
-      title: "DJ Music",
-      icon: <Music className="w-10 h-10" />,
-      description:
-        "Premium DJ services with professional sound and lighting systems.",
-      price: "$250 - $2,000+",
-    },
-    {
-      title: "Photography & Videography",
-      icon: <Camera className="w-10 h-10" />,
-      description:
-        "Capture unforgettable moments with cinematic video and photography.",
-      price: "$300 - $5,000+",
-    },
-    {
-      title: "Ushers",
-      icon: <Users className="w-10 h-10" />,
-      description:
-        "Professional ushering services for weddings and special events.",
-      price: "$75 - $1,000",
-    },
-    {
-      title: "Network Installation",
-      icon: <Network className="w-10 h-10" />,
-      description:
-        "Complete business and residential networking installation solutions.",
-      price: "$500 - Custom",
-    },
-    {
-      title: "IT Support",
-      icon: <Wrench className="w-10 h-10" />,
-      description:
-        "Network troubleshooting, upgrades, optimization, and IT consulting.",
-      price: "$75/hr - $2,000/month",
-    },
-    {
-      title: "Flyer Design",
-      icon: <PenTool className="w-10 h-10" />,
-      description:
-        "Modern flyer and social media designs for all events and businesses.",
-      price: "$50 - $800",
-    },
-    {
-      title: "Conferences",
-      icon: <Presentation className="w-10 h-10" />,
-      description:
-        "Professional speaking engagements and conferences on diverse topics.",
-      price: "$200 - Custom",
-    },
-  ];
+ 
 
   return (
     <main className="bg-black text-white overflow-hidden">
@@ -698,213 +691,144 @@ export default function JKServicePage() {
     </div>
 
     {/* SERVICES GRID */}
-    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+<div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-      {[
-        {
-          title: "MC Services",
-          image:
-            "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Professional hosting for weddings, conferences, birthdays, and corporate events.",
-          price: "$150 - $1,500",
-        },
+  {services.map((service) => (
 
-        {
-          title: "Event Planning",
-          image:
-            "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Complete event planning and coordination services from beginning to end.",
-          price: "$300 - $4,000+",
-        },
+    <div
+      key={service.id}
+      className="
+        group
+        relative
+        overflow-hidden
+        rounded-[36px]
+        h-[500px]
+        border
+        border-white/10
+        hover:border-yellow-500/40
+        transition
+        duration-500
+        shadow-[0_20px_60px_rgba(0,0,0,0.35)]
+      "
+    >
 
-        {
-          title: "DJ Music",
-          image:
-            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Premium DJ services with professional sound and lighting systems.",
-          price: "$250 - $2,000+",
-        },
+      <img
+        src={service.image}
+        alt={service.name}
+        className="
+          absolute
+          inset-0
+          w-full
+          h-full
+          object-cover
+          
+        "
+      />
 
-        {
-          title: "Photography & Videography",
-          image:
-            "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Capture unforgettable moments with cinematic video and photography.",
-          price: "$300 - $5,000+",
-        },
+      <div className="
+        absolute
+        inset-0
+        bg-gradient-to-t
+        from-black
+        via-black/70
+        to-black/20
+      "></div>
 
-        {
-          title: "Ushers",
-          image:
-            "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Professional ushering services for weddings and special events.",
-          price: "$75 - $1,000",
-        },
+      <div className="
+        relative
+        z-10
+        h-full
+        flex
+        flex-col
+        justify-end
+        p-8
+      ">
 
-        {
-          title: "Network Installation",
-          image:
-            "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Complete business and residential networking installation solutions.",
-          price: "$500 - Custom",
-        },
+        <div className="mb-4">
 
-        {
-          title: "IT Support",
-          image:
-            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Network troubleshooting, upgrades, optimization, and IT consulting.",
-          price: "$75/hr - $2,000/month",
-        },
+           <p className="
+            text-white/70
+            uppercase
+            tracking-widest
+            text-xs
+            font-semibold
+            mb-1
+          ">
+            Price Range
+          </p>
 
-        {
-          title: "Flyer Design",
-          image:
-            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Modern flyer and social media designs for all events and businesses.",
-          price: "$50 - $800",
-        },
-
-        {
-          title: "Conferences",
-          image:
-            "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1400&auto=format&fit=crop",
-          description:
-            "Professional speaking engagements and conferences on diverse topics.",
-          price: "$200 - Custom",
-        },
-      ].map((service, index) => (
-        <div
-          key={index}
-          className="
-            group
-            relative
-            overflow-hidden
-            rounded-[36px]
-            h-[500px]
-            border
-            border-white/10
-            hover:border-yellow-500/40
-            transition
-            duration-500
-            shadow-[0_20px_60px_rgba(0,0,0,0.35)]
-          "
-        >
-
-          {/* BACKGROUND IMAGE */}
-          <img
-            src={service.image}
-            alt={service.title}
-            className="
-              absolute
-              inset-0
-              w-full
-              h-full
-              object-cover
-              group-hover:scale-110
-              transition
-              duration-700
-            "
-          />
-
-          {/* OVERLAY */}
-          <div className="
-            absolute
-            inset-0
-            bg-gradient-to-t
-            from-black
-            via-black/50
-            to-black/20
-          "></div>
-
-          {/* HOVER GLOW */}
-          <div className="
-            absolute
-            inset-0
-            bg-gradient-to-br
-            from-yellow-500/10
-            to-blue-500/10
-            opacity-0
-            group-hover:opacity-100
-            transition
-            duration-500
-          "></div>
-
-          {/* CONTENT */}
-          <div className="
-            relative
-            z-10
-            h-full
-            flex
-            flex-col
-            justify-end
-            p-8
+          <span className="
+            bg-yellow-500
+            text-black
+            px-4
+            py-2
+            rounded-full
+            text-sm
+            font-bold
           ">
 
-            {/* PRICE */}
-            <div className="mb-4">
-              <span className="
-                bg-yellow-500
-                text-black
-                px-4
-                py-2
-                rounded-full
-                text-sm
-                font-bold
-              ">
-                {service.price}
-              </span>
-            </div>
+            {service.priceText}
 
-            {/* TITLE */}
-            <h3 className="text-3xl font-black mb-4 text-white">
-              {service.title}
-            </h3>
+          </span>
 
-            {/* DESCRIPTION */}
-            <p className="
-              text-gray-300
-              leading-relaxed
-              mb-8
-            ">
-              {service.description}
-            </p>
-
-            {/* BOOK NOW BUTTON */}
-            <button
-              onClick={() => {
-                setSelectedService(service.title);
-                setBookingModal(true);
-              }}
-              className="
-                w-full
-                bg-yellow-500
-                hover:bg-yellow-400
-                text-black
-                py-4
-                rounded-2xl
-                font-bold
-                text-lg
-                transition
-                shadow-xl
-              "
-            >
-              Book Now
-            </button>
-
-          </div>
         </div>
-      ))}
+
+        <h3 className="
+          text-3xl
+          font-black
+          mb-4
+          text-white
+        ">
+          {service.name}
+        </h3>
+
+      {/* ========== THIS SHOW THE SERVICE TYPE IN THE CARD ============== */}
+       {/* <p className="
+          text-yellow-400
+          font-semibold
+          mb-4
+        ">
+          {service.category}
+        </p> 
+        */} 
+
+        <p className="
+          text-gray-300
+          leading-relaxed
+          mb-8
+        ">
+          {service.description}
+        </p>
+
+        <button
+          onClick={() => {
+            setSelectedService(
+              service.name
+            );
+            setBookingModal(true);
+          }}
+          className="
+            w-full
+            bg-yellow-500
+            hover:bg-yellow-400
+            text-black
+            py-4
+            rounded-2xl
+            font-bold
+            text-lg
+            transition
+          "
+        >
+          Book Now
+        </button>
+
+      </div>
 
     </div>
+
+  ))}
+
+</div>
   </div>
 </section>
 
