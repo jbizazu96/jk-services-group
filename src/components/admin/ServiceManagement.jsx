@@ -371,8 +371,8 @@ return (
             className="w-full rounded-xl border border-zinc-700 bg-zinc-800 text-white p-3"
           >
             <option value="Events">Events</option>
-            <option value="Cleaning">Cleaning</option>
-            <option value="Transportation">Transportation</option>
+            <option value="Cleaning">Music</option>
+            <option value="Transportation">Media</option>
             <option value="IT Services">IT Services</option>
             <option value="Consulting">Consulting</option>
           </select>
