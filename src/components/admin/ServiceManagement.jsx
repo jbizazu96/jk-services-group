@@ -21,6 +21,20 @@ import {
 
 import { db } from "@/lib/firebase";
 
+/* ==========================================
+   FIREBASE STORAGE IMPORTS
+   Used for uploading service images
+========================================== */
+
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+
+import { storage } from "@/lib/firebase";
+
+
 /* ================================
    COMPONENT
 ================================ */
@@ -309,12 +323,105 @@ export default function ServiceManagement() {
     loadServices();
   };
 
+      /* ==========================================
+      IMAGE UPLOAD STATES
+    ========================================== */
+
+    // Shows upload progress status
+    const [uploading, setUploading] =
+      useState(false);
+
+    // Used to preview image before saving
+    const [imagePreview,
+          setImagePreview] =
+      useState("");
+
+
+      /* ==========================================
+   IMAGE UPLOAD FUNCTION
+========================================== */
+
+/*
+  Triggered when admin selects
+  an image from their computer.
+
+  Process:
+  1. Select image
+  2. Upload to Firebase Storage
+  3. Get download URL
+  4. Save URL to image state
+  5. Display preview
+*/
+
+const handleImageUpload =
+  async (e) => {
+
+    // Get selected file
+    const file =
+      e.target.files[0];
+
+    // Exit if no file selected
+    if (!file) return;
+
+    try {
+
+      // Start upload state
+      setUploading(true);
+
+      /*
+        Create unique file path
+
+        Example:
+        services/
+        1717000000-photo.jpg
+      */
+      const storageRef = ref(
+        storage,
+        `services/${Date.now()}-${file.name}`
+      );
+
+      // Upload image
+      await uploadBytes(
+        storageRef,
+        file
+      );
+
+      // Retrieve image URL
+      const url =
+        await getDownloadURL(
+          storageRef
+        );
+
+      // Save image URL
+      setImage(url);
+
+      // Display preview
+      setImagePreview(url);
+
+    } catch (err) {
+
+      console.error(
+        "Upload Error:",
+        err
+      );
+
+      alert(
+        "Image upload failed"
+      );
+
+    } finally {
+
+      // Stop upload state
+      setUploading(false);
+    }
+  };
+
   /* ================================
      UI
   ================================ */
 
 return (
-  <div className="min-h-screen bg-black p-6">
+  <div className="p-6">
 
     {/* =====================================
         PAGE HEADER
@@ -633,7 +740,15 @@ return (
 
       <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
 
-        <div className="bg-zinc-900 rounded-2xl border border-zinc-700">
+        <div className="
+          bg-zinc-900
+          border
+          border-zinc-700
+          rounded-2xl
+          p-6
+          w-full
+          max-w-2xl
+        ">
 
           <h2 className="text-2xl font-bold text-white mb-6">
             Edit Service

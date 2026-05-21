@@ -1,69 +1,249 @@
 "use client";
 
+/* ==========================================
+   REACT
+========================================== */
+
 import { useState } from "react";
 
+/* ==========================================
+   ADMIN COMPONENTS
+========================================== */
+
 import FeedbackManagement from "@/components/admin/FeedbackManagement";
+
 import ProtectedAdmin from "@/components/admin/ProtectedAdmin";
+
 import DashboardStats from "@/components/admin/DashboardStats";
+
 import ServiceManagement from "@/components/admin/ServiceManagement";
+
+/* ==========================================
+   AUTH FUNCTIONS
+========================================== */
+
 import { logout } from "@/lib/auth";
 
+/* ==========================================
+   ADMIN PAGE COMPONENT
+========================================== */
+
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+
+  /* ==========================================
+     ACTIVE TAB STATE
+
+     Controls which admin page
+     is currently displayed.
+  ========================================== */
+
+  const [activeTab, setActiveTab] =
+    useState("dashboard");
 
   return (
+
+    /* ==========================================
+       PROTECTED ADMIN ROUTE
+
+       Only logged-in admins can access.
+    ========================================== */
+
     <ProtectedAdmin>
+
+      {/* ==========================================
+          MAIN PAGE LAYOUT
+      ========================================== */}
+
       <main className="min-h-screen bg-slate-950 text-white flex">
 
-        {/* SIDEBAR */}
-        <aside className="w-72 bg-black border-r border-white/10 p-6 flex flex-col">
+        {/* ==========================================
+            SIDEBAR NAVIGATION
+        ========================================== */}
+
+        <aside
+          className="
+            w-72
+            bg-black
+            border-r
+            border-white/10
+            p-6
+            flex
+            flex-col
+          "
+        >
+
+          {/* ==========================================
+              TOP SIDEBAR CONTENT
+          ========================================== */}
 
           <div>
-            <h1 className="text-2xl font-black mb-10">
+
+            {/* ADMIN LOGO / TITLE */}
+
+            <h1
+              className="
+                text-2xl
+                font-black
+                mb-10
+              "
+            >
               J&K Admin
             </h1>
 
+            {/* ==========================================
+                NAVIGATION BUTTONS
+            ========================================== */}
+
             <div className="space-y-3">
 
+              {/* DASHBOARD */}
+
               <button
-                onClick={() => setActiveTab("dashboard")}
-                className="w-full text-left p-4 rounded-xl hover:bg-white/10 transition"
+                onClick={() =>
+                  setActiveTab(
+                    "dashboard"
+                  )
+                }
+                className={`
+
+                  w-full
+                  text-left
+                  p-4
+                  rounded-xl
+                  transition
+
+                  ${
+                    activeTab ===
+                    "dashboard"
+
+                      ? "bg-blue-600 text-white"
+
+                      : "hover:bg-white/10"
+                  }
+
+                `}
               >
                 🏠 Dashboard
               </button>
 
+              {/* FEEDBACKS */}
+
               <button
-                onClick={() => setActiveTab("feedbacks")}
-                className="w-full text-left p-4 rounded-xl hover:bg-white/10 transition"
+                onClick={() =>
+                  setActiveTab(
+                    "feedbacks"
+                  )
+                }
+                className={`
+
+                  w-full
+                  text-left
+                  p-4
+                  rounded-xl
+                  transition
+
+                  ${
+                    activeTab ===
+                    "feedbacks"
+
+                      ? "bg-blue-600 text-white"
+
+                      : "hover:bg-white/10"
+                  }
+
+                `}
               >
                 ⭐ Feedbacks
               </button>
 
+              {/* BOOKINGS */}
+
               <button
-                onClick={() => setActiveTab("bookings")}
-                className="w-full text-left p-4 rounded-xl hover:bg-white/10 transition"
+                onClick={() =>
+                  setActiveTab(
+                    "bookings"
+                  )
+                }
+                className={`
+
+                  w-full
+                  text-left
+                  p-4
+                  rounded-xl
+                  transition
+
+                  ${
+                    activeTab ===
+                    "bookings"
+
+                      ? "bg-blue-600 text-white"
+
+                      : "hover:bg-white/10"
+                  }
+
+                `}
               >
                 📅 Bookings
               </button>
 
+              {/* SERVICES */}
+
               <button
-                onClick={() => setActiveTab("services")}
-                className="w-full text-left p-4 rounded-xl hover:bg-white/10 transition"
+                onClick={() =>
+                  setActiveTab(
+                    "services"
+                  )
+                }
+                className={`
+
+                  w-full
+                  text-left
+                  p-4
+                  rounded-xl
+                  transition
+
+                  ${
+                    activeTab ===
+                    "services"
+
+                      ? "bg-blue-600 text-white"
+
+                      : "hover:bg-white/10"
+                  }
+
+                `}
               >
                 🛠 Services
               </button>
 
             </div>
+
           </div>
 
-          {/* Logout at Bottom */}
+          {/* ==========================================
+              LOGOUT SECTION
+          ========================================== */}
+
           <div className="mt-auto pt-8">
 
             <button
+
               onClick={async () => {
+
+                /*
+                  Sign out admin
+                */
+
                 await logout();
-                window.location.href = "/admin";
+
+                /*
+                  Redirect to login page
+                */
+
+                window.location.href =
+                  "/admin";
               }}
+
               className="
                 w-full
                 bg-red-500
@@ -81,58 +261,113 @@ export default function AdminPage() {
 
         </aside>
 
-          {/* CONTENT */}
-            <section className="flex-1 p-10 overflow-y-auto">
+        {/* ==========================================
+            MAIN CONTENT AREA
+        ========================================== */}
 
-            {/* DASHBOARD */}
-            {activeTab === "dashboard" && (
-              <div>
+        <section
+          className="
+            flex-1
+            p-10
+            overflow-y-auto
+          "
+        >
 
-                <h2 className="text-4xl font-black mb-8">
-                  Dashboard Overview
-                </h2>
+          {/* ==========================================
+              DASHBOARD TAB
+          ========================================== */}
 
-                <DashboardStats />
+          {activeTab ===
+            "dashboard" && (
+
+            <div>
+
+              <h2
+                className="
+                  text-4xl
+                  font-black
+                  mb-8
+                "
+              >
+                Dashboard Overview
+              </h2>
+
+              {/* Dashboard Statistics */}
+
+              <DashboardStats />
+
+            </div>
+
+          )}
+
+          {/* ==========================================
+              FEEDBACKS TAB
+          ========================================== */}
+
+          {activeTab ===
+            "feedbacks" && (
+
+            <FeedbackManagement />
+
+          )}
+
+          {/* ==========================================
+              BOOKINGS TAB
+          ========================================== */}
+
+          {activeTab ===
+            "bookings" && (
+
+            <div>
+
+              <h2
+                className="
+                  text-4xl
+                  font-black
+                  mb-6
+                "
+              >
+                Booking Management
+              </h2>
+
+              <div
+                className="
+                  bg-white/5
+                  rounded-3xl
+                  p-8
+                  border
+                  border-white/10
+                "
+              >
+
+                <p className="text-gray-400">
+
+                  Booking system will
+                  be connected here soon.
+
+                </p>
 
               </div>
-            )}
 
-            {/* FEEDBACKS */}
-            {activeTab === "feedbacks" && (
-              <FeedbackManagement />
-            )}
+            </div>
 
-            {/* BOOKINGS */}
-            {activeTab === "bookings" && (
-              <div>
+          )}
 
-                <h2 className="text-4xl font-black mb-6">
-                  Booking Management
-                </h2>
+          {/* ==========================================
+              SERVICES TAB
+          ========================================== */}
 
-                <div className="bg-white/5 rounded-3xl p-8 border border-white/10">
+          {activeTab ===
+            "services" && (
 
-                  <p className="text-gray-400">
-                    Booking system will be connected here soon.
-                  </p>
+            <ServiceManagement />
 
-                </div>
+          )}
 
-              </div>
-            )}
-
-            {/* SERVICES */}
-            {activeTab === "services" && (
-              
-             
-                <ServiceManagement />
-             
-              
-            )}
-
-            </section>
+        </section>
 
       </main>
+
     </ProtectedAdmin>
   );
 }

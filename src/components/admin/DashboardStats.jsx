@@ -1,6 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+/* ==========================================
+   REACT
+========================================== */
+
+import {
+  useEffect,
+  useState,
+} from "react";
+
+/* ==========================================
+   FIRESTORE
+========================================== */
 
 import {
   collection,
@@ -9,14 +20,47 @@ import {
 
 import { db } from "@/lib/firebase";
 
+/* ==========================================
+   DASHBOARD STATS COMPONENT
+
+   Purpose:
+   Displays dashboard statistics
+   for feedback management.
+
+   Statistics:
+   - Total Feedbacks
+   - Approved Feedbacks
+   - Pending Feedbacks
+   - Average Rating
+========================================== */
+
 export default function DashboardStats() {
 
-  const [stats, setStats] = useState({
-    total: 0,
-    approved: 0,
-    pending: 0,
-    average: 0,
-  });
+  /* ==========================================
+     DASHBOARD STATISTICS STATE
+
+     Stores all dashboard metrics.
+  ========================================== */
+
+  const [stats, setStats] =
+    useState({
+
+      total: 0,
+
+      approved: 0,
+
+      pending: 0,
+
+      average: 0,
+
+    });
+
+  /* ==========================================
+     INITIAL PAGE LOAD
+
+     Load statistics when component
+     first renders.
+  ========================================== */
 
   useEffect(() => {
 
@@ -24,100 +68,270 @@ export default function DashboardStats() {
 
   }, []);
 
-  const loadStats = async () => {
+  /* ==========================================
+     LOAD DASHBOARD STATISTICS
 
-    const snapshot = await getDocs(
-      collection(db, "feedbacks")
+     Reads feedback records from
+     Firestore and calculates
+     dashboard metrics.
+  ========================================== */
+
+/* ==========================================
+   LOAD DASHBOARD STATISTICS
+========================================== */
+
+const loadStats = async () => {
+
+  /* ==========================================
+     LOAD FEEDBACKS
+  ========================================== */
+
+  const feedbackSnapshot =
+    await getDocs(
+      collection(
+        db,
+        "feedbacks"
+      )
     );
 
-    const feedbacks =
-      snapshot.docs.map(doc => doc.data());
+  const feedbacks =
+    feedbackSnapshot.docs.map(
+      (doc) => doc.data()
+    );
 
-    const total =
-      feedbacks.length;
+  /* ==========================================
+     FEEDBACK CALCULATIONS
+  ========================================== */
 
-    const approved =
-      feedbacks.filter(
-        item => item.approved === true
-      ).length;
+  const totalFeedbacks =
+    feedbacks.length;
 
-    const pending =
-      feedbacks.filter(
-        item => !item.approved
-      ).length;
+  const approvedFeedbacks =
+    feedbacks.filter(
+      (item) =>
+        item.approved === true
+    ).length;
 
-    const average =
-      feedbacks.length > 0
-        ? (
-            feedbacks.reduce(
-              (sum, item) =>
-                sum + item.rating,
-              0
-            ) / feedbacks.length
-          ).toFixed(1)
-        : 0;
+  const pendingFeedbacks =
+    feedbacks.filter(
+      (item) =>
+        !item.approved
+    ).length;
 
-    setStats({
-      total,
-      approved,
-      pending,
-      average,
-    });
-  };
+  const averageRating =
 
-  return (
+    feedbacks.length > 0
 
-    <div className="grid md:grid-cols-4 gap-6">
+      ? (
 
-      <div className="bg-white/5 rounded-3xl p-6">
+          feedbacks.reduce(
 
-        <p className="text-gray-400">
-          Total Feedbacks
-        </p>
+            (sum, item) =>
 
-        <h2 className="text-4xl font-black mt-2">
-          {stats.total}
-        </h2>
+              sum +
+              item.rating,
 
-      </div>
+            0
 
-      <div className="bg-green-500/10 rounded-3xl p-6">
+          )
 
-        <p className="text-green-300">
-          Approved
-        </p>
+          /
 
-        <h2 className="text-4xl font-black mt-2">
-          {stats.approved}
-        </h2>
+          feedbacks.length
 
-      </div>
+        ).toFixed(1)
 
-      <div className="bg-yellow-500/10 rounded-3xl p-6">
+      : 0;
 
-        <p className="text-yellow-300">
-          Pending
-        </p>
+  /* ==========================================
+     LOAD SERVICES
+  ========================================== */
 
-        <h2 className="text-4xl font-black mt-2">
-          {stats.pending}
-        </h2>
+  const serviceSnapshot =
+    await getDocs(
+      collection(
+        db,
+        "services"
+      )
+    );
 
-      </div>
+  const services =
+    serviceSnapshot.docs.map(
+      (doc) => doc.data()
+    );
 
-      <div className="bg-blue-500/10 rounded-3xl p-6">
+  /* ==========================================
+     SERVICE CALCULATIONS
+  ========================================== */
 
-        <p className="text-blue-300">
-          Average Rating
-        </p>
+  const totalServices =
+    services.length;
 
-        <h2 className="text-4xl font-black mt-2">
-          ⭐ {stats.average}
-        </h2>
+  const activeServices =
+    services.filter(
+      (service) =>
+        service.active
+    ).length;
+
+  const featuredServices =
+    services.filter(
+      (service) =>
+        service.featured
+    ).length;
+
+  const inactiveServices =
+    services.filter(
+      (service) =>
+        !service.active
+    ).length;
+
+  /* ==========================================
+     UPDATE DASHBOARD STATE
+  ========================================== */
+
+  setStats({
+
+    totalFeedbacks,
+
+    approvedFeedbacks,
+
+    pendingFeedbacks,
+
+    averageRating,
+
+    totalServices,
+
+    activeServices,
+
+    featuredServices,
+
+    inactiveServices,
+
+  });
+
+};
+
+  /* ==========================================
+     USER INTERFACE
+  ========================================== */
+
+return (
+
+  <div className="space-y-10">
+
+    {/* ==========================================
+        FEEDBACK STATISTICS
+    ========================================== */}
+
+    <div>
+
+      <h3 className="text-2xl font-bold mb-4">
+        Feedback Overview
+      </h3>
+
+      <div className="grid md:grid-cols-4 gap-6">
+
+        <div className="bg-white/5 rounded-3xl p-6">
+          <p className="text-gray-400">
+            Total Feedbacks
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.totalFeedbacks}
+          </h2>
+        </div>
+
+        <div className="bg-green-500/10 rounded-3xl p-6">
+          <p className="text-green-300">
+            Approved
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.approvedFeedbacks}
+          </h2>
+        </div>
+
+        <div className="bg-yellow-500/10 rounded-3xl p-6">
+          <p className="text-yellow-300">
+            Pending
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.pendingFeedbacks}
+          </h2>
+        </div>
+
+        <div className="bg-blue-500/10 rounded-3xl p-6">
+          <p className="text-blue-300">
+            Average Rating
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            ⭐ {stats.averageRating}
+          </h2>
+        </div>
 
       </div>
 
     </div>
 
-  );
+    {/* ==========================================
+        SERVICE STATISTICS
+    ========================================== */}
+
+    <div>
+
+      <h3 className="text-2xl font-bold mb-4">
+        Service Overview
+      </h3>
+
+      <div className="grid md:grid-cols-4 gap-6">
+
+        <div className="bg-white/5 rounded-3xl p-6">
+          <p className="text-gray-400">
+            Total Services
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.totalServices}
+          </h2>
+        </div>
+
+        <div className="bg-green-500/10 rounded-3xl p-6">
+          <p className="text-green-300">
+            Active
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.activeServices}
+          </h2>
+        </div>
+
+        <div className="bg-yellow-500/10 rounded-3xl p-6">
+          <p className="text-yellow-300">
+            Featured
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.featuredServices}
+          </h2>
+        </div>
+
+        <div className="bg-red-500/10 rounded-3xl p-6">
+          <p className="text-red-300">
+            Inactive
+          </p>
+
+          <h2 className="text-4xl font-black mt-2">
+            {stats.inactiveServices}
+          </h2>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+);
 }
