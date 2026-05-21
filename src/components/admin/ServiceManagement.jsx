@@ -76,6 +76,14 @@ export default function ServiceManagement() {
         setFeatured] =
     useState(false);
 
+   /* ==========================================
+      EDIT IMAGE UPLOAD STATE
+    ========================================== */
+
+    const [editUploading,
+          setEditUploading] =
+      useState(false);
+
   /* ================================
      EDIT SERVICE MODAL
   ================================ */
@@ -175,6 +183,7 @@ export default function ServiceManagement() {
     setMaxPrice("");
     setPriceText("");
     setImage("");
+    setImagePreview("");
     setDescription("");
     setFeatured(false);
 
@@ -353,7 +362,7 @@ export default function ServiceManagement() {
   5. Display preview
 */
 
-const handleImageUpload =
+{/* const handleImageUpload =
   async (e) => {
 
     // Get selected file
@@ -374,7 +383,7 @@ const handleImageUpload =
         Example:
         services/
         1717000000-photo.jpg
-      */
+      
       const storageRef = ref(
         storage,
         `services/${Date.now()}-${file.name}`
@@ -414,7 +423,149 @@ const handleImageUpload =
       // Stop upload state
       setUploading(false);
     }
+  };*/}
+
+    /* ==========================================
+   IMAGE UPLOAD FUNCTION
+
+   Upload image to Firebase Storage
+   and save URL for Firestore.
+========================================== */
+
+const handleImageUpload =
+  async (e) => {
+
+    const file =
+      e.target.files[0];
+
+    if (!file) return;
+
+    try {
+
+      setUploading(true);
+
+      /*
+        Create unique filename
+
+        Example:
+        services/
+        17123456-photo.jpg
+      */
+
+      const imageRef = ref(
+        storage,
+        `services/${Date.now()}-${file.name}`
+      );
+
+      /*
+        Upload image
+      */
+
+      await uploadBytes(
+        imageRef,
+        file
+      );
+
+      /*
+        Get public image URL
+      */
+
+      const downloadURL =
+        await getDownloadURL(
+          imageRef
+        );
+
+      /*
+        Save image URL
+      */
+
+      setImage(
+        downloadURL
+      );
+
+      /*
+        Display preview
+      */
+
+      setImagePreview(
+        downloadURL
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Upload Error:",
+        error
+      );
+
+      alert(
+        "Image upload failed."
+      );
+
+    } finally {
+
+      setUploading(false);
+
+    }
+
   };
+
+  /* ==========================================
+   EDIT IMAGE UPLOAD
+
+   Upload new image while
+   editing existing service.
+========================================== */
+
+const handleEditImageUpload =
+  async (e) => {
+
+    const file =
+      e.target.files[0];
+
+    if (!file) return;
+
+    try {
+
+      setEditUploading(true);
+
+      const imageRef = ref(
+        storage,
+        `services/${Date.now()}-${file.name}`
+      );
+
+      await uploadBytes(
+        imageRef,
+        file
+      );
+
+      const downloadURL =
+        await getDownloadURL(
+          imageRef
+        );
+
+      setEditImage(
+        downloadURL
+      );
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+      alert(
+        "Image upload failed"
+      );
+
+    } finally {
+
+      setEditUploading(false);
+
+    }
+
+  };
+
 
   /* ================================
      UI
@@ -539,23 +690,80 @@ return (
           />
         </div>
 
-        {/* IMAGE */}
+         {/* ==========================================
+              SERVICE IMAGE UPLOAD
+          ========================================== */}
 
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
-            Image URL
-          </label>
+          <div className="md:col-span-2">
 
-          <input
-            type="text"
-            value={image}
-            onChange={(e) =>
-              setImage(e.target.value)
-            }
-            placeholder="https://example.com/image.jpg"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
-          />
-        </div>
+            <label
+              className="
+                block
+                text-sm
+                font-medium
+                text-zinc-300
+                mb-2
+              "
+            >
+              Service Image
+            </label>
+
+            {/* FILE PICKER */}
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="
+                w-full
+                bg-zinc-800
+                border
+                border-zinc-700
+                rounded-xl
+                p-3
+                text-white
+              "
+            />
+
+            {/* UPLOAD STATUS */}
+
+            {uploading && (
+
+              <p
+                className="
+                  mt-3
+                  text-blue-400
+                "
+              >
+                Uploading image...
+              </p>
+
+            )}
+
+            {/* IMAGE PREVIEW */}
+
+            {imagePreview && (
+
+              <div className="mt-4">
+
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="
+                    h-48
+                    w-full
+                    object-cover
+                    rounded-xl
+                    border
+                    border-zinc-700
+                  "
+                />
+
+              </div>
+
+            )}
+
+          </div>
 
         {/* DESCRIPTION */}
 
@@ -738,17 +946,26 @@ return (
 
     {editingService && (
 
-      <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+      <div className="
+        fixed
+        inset-0
+        bg-black/50
+        z-50
+        overflow-y-auto
+        p-4
+      ">
 
         <div className="
-          bg-zinc-900
-          border
-          border-zinc-700
-          rounded-2xl
-          p-6
-          w-full
-          max-w-2xl
-        ">
+            bg-zinc-900
+            border
+            border-zinc-700
+            rounded-2xl
+            p-6
+            w-full
+            max-w-4xl
+            mx-auto
+            my-10
+          ">
 
           <h2 className="text-2xl font-bold text-white mb-6">
             Edit Service
@@ -783,14 +1000,88 @@ return (
               className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
             />
 
-            <input
-              type="text"
-              value={editImage}
-              onChange={(e) =>
-                setEditImage(e.target.value)
-              }
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
-            />
+
+              {/* ==========================================
+                  SERVICE IMAGE
+              ========================================== */}
+
+              <div>
+
+                <label
+                  className="
+                    block
+                    text-zinc-300
+                    mb-2
+                  "
+                >
+                  Service Image
+                </label>
+
+                {/* CURRENT IMAGE */}
+
+                {editImage && (
+
+                  <img
+                    src={editImage}
+                    alt="Service"
+                    className="
+                      w-full
+                      h-64
+                      object-cover
+                      rounded-xl
+                      border
+                      border-zinc-700
+                      mb-4
+                      p-3
+                    "
+                  />
+
+                )}
+
+                {/* CHANGE IMAGE BUTTON */}
+
+                <label
+                  className="
+                    inline-flex
+                    items-center
+                    px-4
+                    py-3
+                    bg-blue-600
+                    hover:bg-blue-700
+                    text-white
+                    rounded-xl
+                    cursor-pointer
+                    transition
+                  "
+                >
+                  📷 Change Image
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditImageUpload}
+                    className="hidden"
+                  />
+                </label>
+
+             
+
+                {/* STATUS */}
+
+                {editUploading && (
+
+                  <p
+                    className="
+                      mt-2
+                      text-blue-400
+                    "
+                  >
+                    Uploading image...
+                  </p>
+
+                )}
+
+              </div>
 
             <textarea
               rows={5}
