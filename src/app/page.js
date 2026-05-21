@@ -2,7 +2,7 @@
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PopupButton } from "react-calendly";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   Calendar,
   Phone,
@@ -20,6 +20,14 @@ import {
   Presentation,
 } from "lucide-react";
 
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
 
 export default function JKServicePage() {
   const [mobileMenu, setMobileMenu] = React.useState(false);
@@ -27,6 +35,7 @@ export default function JKServicePage() {
   const [bookingModal, setBookingModal] = React.useState(false);
   const [bookingModalGS, setBookingModalGS] = React.useState(false);
   const [selectedService, setSelectedService] = React.useState("");
+  
   const [openFAQ, setOpenFAQ] = React.useState([]);
   const galleryRef = useRef(null);
 
@@ -1330,9 +1339,9 @@ export default function JKServicePage() {
 
         <div className="overflow-hidden">
           <img
-            src="/images/percy.jpg"
+            src="/images/percy2.png"
             alt="Videographer"
-            className="w-full h-130 object-cover group-hover:scale-105 transition duration-700"
+            className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
           />
         </div>
 

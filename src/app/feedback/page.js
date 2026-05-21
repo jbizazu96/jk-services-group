@@ -33,6 +33,7 @@ export default function FeedbackPage() {
             service,
             feedback,
             rating,
+            approved: false,
             createdAt: new Date(),
           });
       
