@@ -1,6 +1,14 @@
 "use client";
 
+/* ================================
+   REACT
+================================ */
+
 import { useEffect, useState } from "react";
+
+/* ================================
+   FIREBASE
+================================ */
 
 import {
   collection,
@@ -13,17 +21,78 @@ import {
 
 import { db } from "@/lib/firebase";
 
+/* ================================
+   COMPONENT
+================================ */
+
 export default function ServiceManagement() {
+
+  /* ================================
+     SERVICES LIST
+  ================================ */
 
   const [services, setServices] = useState([]);
 
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("Events");
-  const [minPrice, setMinPrice] =  useState("");
-  const [maxPrice, setMaxPrice] =  useState("");
-  const [description, setDescription] = useState("");
+  /* ================================
+     ADD SERVICE FORM
+  ================================ */
 
-  const [featured, setFeatured] = useState(false);
+  const [name, setName] = useState("");
+
+  const [category, setCategory] =
+    useState("Events");
+
+  const [minPrice, setMinPrice] =
+    useState("");
+
+  const [maxPrice, setMaxPrice] =
+    useState("");
+
+  const [priceText, setPriceText] =
+    useState("");
+
+  const [image, setImage] =
+    useState("");
+
+  const [description,
+        setDescription] =
+    useState("");
+
+  const [featured,
+        setFeatured] =
+    useState(false);
+
+  /* ================================
+     EDIT SERVICE MODAL
+  ================================ */
+
+  const [editingService,
+        setEditingService] =
+    useState(null);
+
+  const [editName,
+        setEditName] =
+    useState("");
+
+  const [editCategory,
+        setEditCategory] =
+    useState("Events");
+
+  const [editDescription,
+        setEditDescription] =
+    useState("");
+
+  const [editPriceText,
+        setEditPriceText] =
+    useState("");
+
+  const [editImage,
+        setEditImage] =
+    useState("");
+
+  /* ================================
+     LOAD SERVICES FROM FIRESTORE
+  ================================ */
 
   const loadServices = async () => {
 
@@ -31,17 +100,29 @@ export default function ServiceManagement() {
       collection(db, "services")
     );
 
-    setServices(
-      snapshot.docs.map((item) => ({
+    const items = snapshot.docs.map(
+      (item) => ({
         id: item.id,
         ...item.data(),
-      }))
+      })
     );
+
+    setServices(items);
   };
 
+  /* ================================
+     INITIAL PAGE LOAD
+  ================================ */
+
   useEffect(() => {
+
     loadServices();
+
   }, []);
+
+  /* ================================
+     ADD NEW SERVICE
+  ================================ */
 
   const addService = async () => {
 
@@ -52,35 +133,67 @@ export default function ServiceManagement() {
       {
         name,
         category,
-        minPrice: Number(minPrice),
-        maxPrice: Number(maxPrice),
+
+        minPrice:
+          Number(minPrice),
+
+        maxPrice:
+          Number(maxPrice),
+
+        priceText,
+
+        image,
+
         description,
+
         active: true,
+
         featured,
-        createdAt: new Date(),
+
+        createdAt:
+          new Date(),
       }
     );
 
     setName("");
+    setCategory("Events");
     setMinPrice("");
     setMaxPrice("");
+    setPriceText("");
+    setImage("");
     setDescription("");
     setFeatured(false);
 
     loadServices();
   };
 
+  /* ================================
+     DELETE SERVICE
+  ================================ */
+
   const deleteService = async (id) => {
 
-    if (!confirm("Delete service?"))
+    if (
+      !confirm(
+        "Delete service?"
+      )
+    )
       return;
 
     await deleteDoc(
-      doc(db, "services", id)
+      doc(
+        db,
+        "services",
+        id
+      )
     );
 
     loadServices();
   };
+
+  /* ================================
+     ENABLE / DISABLE SERVICE
+  ================================ */
 
   const toggleActive = async (
     id,
@@ -88,7 +201,11 @@ export default function ServiceManagement() {
   ) => {
 
     await updateDoc(
-      doc(db, "services", id),
+      doc(
+        db,
+        "services",
+        id
+      ),
       {
         active: !current,
       }
@@ -97,192 +214,346 @@ export default function ServiceManagement() {
     loadServices();
   };
 
-  const toggleFeatured = async (
-    id,
-    current
+  /* ================================
+     FEATURE / UNFEATURE SERVICE
+  ================================ */
+
+  const toggleFeatured =
+    async (
+      id,
+      current
+    ) => {
+
+      await updateDoc(
+        doc(
+          db,
+          "services",
+          id
+        ),
+        {
+          featured:
+            !current,
+        }
+      );
+
+      loadServices();
+    };
+
+  /* ================================
+     OPEN EDIT MODAL
+  ================================ */
+
+  const openEdit = (
+    service
   ) => {
 
+    setEditingService(
+      service
+    );
+
+    setEditName(
+      service.name || ""
+    );
+
+    setEditCategory(
+      service.category ||
+      "Events"
+    );
+
+    setEditDescription(
+      service.description ||
+      ""
+    );
+
+    setEditPriceText(
+      service.priceText ||
+      ""
+    );
+
+    setEditImage(
+      service.image || ""
+    );
+  };
+
+  /* ================================
+     SAVE EDITED SERVICE
+  ================================ */
+
+  const saveEdit = async () => {
+
     await updateDoc(
-      doc(db, "services", id),
+      doc(
+        db,
+        "services",
+        editingService.id
+      ),
       {
-        featured: !current,
+        name: editName,
+
+        category:
+          editCategory,
+
+        description:
+          editDescription,
+
+        priceText:
+          editPriceText,
+
+        image:
+          editImage,
       }
     );
+
+    setEditingService(null);
 
     loadServices();
   };
 
-  return (
-    <div>
+  /* ================================
+     UI
+  ================================ */
 
-      <h2 className="text-4xl font-black mb-8">
+return (
+  <div className="min-h-screen bg-black p-6">
+
+    {/* =====================================
+        PAGE HEADER
+    ===================================== */}
+
+    <div className="mb-8">
+      <h1 className="text-4xl font-bold text-white">
         Service Management
+      </h1>
+
+      <p className="text-gray-600 mt-2">
+        Add, edit and manage all services
+      </p>
+    </div>
+
+    {/* =====================================
+        ADD SERVICE FORM
+    ===================================== */}
+<div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 mb-10">
+    
+
+      <h2 className="text-2xl font-semibold text-white mb-6">
+        Add New Service
       </h2>
 
-      {/* ADD SERVICE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-      <div className="
-        bg-white/5
-        border border-white/10
-        rounded-3xl
-        p-6
-        mb-10
-      ">
+        {/* SERVICE NAME */}
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Service Name
+          </label>
 
-          <input
-            placeholder="Service Name"
+           <input
+            type="text"
             value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
-            className="bg-black/30 p-4 rounded-xl"
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Service Name"
+            className="w-full rounded-xl border border-zinc-700 bg-zinc-800 text-white p-3 placeholder:text-zinc-400"
           />
+        </div>
+
+        {/* CATEGORY */}
+
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Category
+          </label>
 
           <select
             value={category}
-            onChange={(e) =>
-              setCategory(e.target.value)
-            }
-            className="bg-black/30 p-4 rounded-xl"
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full rounded-xl border border-zinc-700 bg-zinc-800 text-white p-3"
           >
-            <option>Events</option>
-            <option>IT</option>
-            <option>Media</option>
-            <option>Entertainment</option>
+            <option value="Events">Events</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Transportation">Transportation</option>
+            <option value="IT Services">IT Services</option>
+            <option value="Consulting">Consulting</option>
           </select>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
+        {/* MIN PRICE */}
 
-        <input
-            placeholder="Minimum Price"
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Min Price
+          </label>
+
+          <input
+            type="number"
             value={minPrice}
             onChange={(e) =>
-            setMinPrice(e.target.value)
+              setMinPrice(e.target.value)
             }
-            className="
-            bg-black/30
-            p-4
-            rounded-xl
-            "
-        />
+            placeholder="100"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
+          />
+        </div>
 
-        <input
-            placeholder="Maximum Price"
+        {/* MAX PRICE */}
+
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Max Price
+          </label>
+
+          <input
+            type="number"
             value={maxPrice}
             onChange={(e) =>
-            setMaxPrice(e.target.value)
+              setMaxPrice(e.target.value)
             }
-            className="
-            bg-black/30
-            p-4
-            rounded-xl
-            "
-        />
-
-        </div>
-
-        </div>
-
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) =>
-            setDescription(e.target.value)
-          }
-          className="
-            bg-black/30
-            p-4
-            rounded-xl
-            w-full
-            mt-4
-          "
-        />
-
-        <label className="
-          flex
-          items-center
-          gap-3
-          mt-4
-        ">
-          <input
-            type="checkbox"
-            checked={featured}
-            onChange={(e) =>
-              setFeatured(
-                e.target.checked
-              )
-            }
+            placeholder="500"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
           />
-          Featured Service
-        </label>
+        </div>
 
-        <button
-          onClick={addService}
-          className="
-            mt-6
-            bg-yellow-500
-            text-black
-            px-6
-            py-3
-            rounded-xl
-            font-bold
-          "
-        >
-          Add Service
-        </button>
+        {/* PRICE TEXT */}
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Price Display
+          </label>
+
+          <input
+            type="text"
+            value={priceText}
+            onChange={(e) =>
+              setPriceText(e.target.value)
+            }
+            placeholder="$100 - $500"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {/* IMAGE */}
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Image URL
+          </label>
+
+          <input
+            type="text"
+            value={image}
+            onChange={(e) =>
+              setImage(e.target.value)
+            }
+            placeholder="https://example.com/image.jpg"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+
+        {/* DESCRIPTION */}
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Description
+          </label>
+
+          <textarea
+            rows={5}
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
+            placeholder="Describe your service..."
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
+          />
+        </div>
 
       </div>
 
-      {/* SERVICES */}
+      {/* FEATURED */}
 
-      <div className="
-        grid
-        lg:grid-cols-2
-        gap-6
-      ">
+      <div className="flex items-center gap-3 mt-5">
 
-        {services.map((service) => (
+        <input
+          type="checkbox"
+          checked={featured}
+          onChange={(e) =>
+            setFeatured(e.target.checked)
+          }
+          className="h-5 w-5"
+        />
 
-          <div
-            key={service.id}
-            className="
-              bg-white/5
-              border border-white/10
-              rounded-3xl
-              p-6
-            "
-          >
+        <span className="text-zinc-300">
+          Featured Service
+        </span>
 
-            <h3 className="text-2xl font-bold">
-              {service.name}
-            </h3>
+      </div>
 
-            <p className="text-yellow-400 mt-2">
+      {/* BUTTON */}
+
+      <button
+        onClick={addService}
+        className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition"
+      >
+        Add Service
+      </button>
+
+    </div>
+
+    {/* =====================================
+        SERVICES GRID
+    ===================================== */}
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {services.map((service) => (
+
+        <div
+          key={service.id}
+          className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-blue-500 transition"
+        >
+
+          {service.image && (
+            <img
+              src={service.image}
+              alt={service.name}
+              className="w-full h-52 object-cover"
+            />
+          )}
+
+          <div className="p-5">
+
+            <div className="flex justify-between items-start">
+
+              <h3 className="text-xl font-bold text-white">
+                {service.name}
+              </h3>
+
+              {service.featured && (
+                <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">
+                  Featured
+                </span>
+              )}
+
+            </div>
+
+            <p className="text-sm text-gray-400 mt-1">
               {service.category}
             </p>
 
-            <p className="text-3xl font-black mt-2">
-
-            ${service.minPrice}
-
-            {" - "}
-
-            ${service.maxPrice}
-
-            </p>
-
-            <p className="text-gray-400 mt-4">
+            <p className="text-zinc-300 mt-4">
               {service.description}
             </p>
 
-            <div className="
-              flex
-              gap-3
-              mt-6
-              flex-wrap
-            ">
+            <div className="mt-4 text-blue-600 font-bold">
+              {service.priceText}
+            </div>
+
+            {/* BUTTONS */}
+
+            <div className="flex flex-wrap gap-2 mt-5">
+
+              {/* Active / Inactive */}
 
               <button
                 onClick={() =>
@@ -291,17 +562,18 @@ export default function ServiceManagement() {
                     service.active
                   )
                 }
-                className="
-                  bg-blue-500
-                  px-4
-                  py-2
-                  rounded-xl
-                "
+                className={`px-4 py-2 rounded-lg text-white ${
+                  service.active
+                    ? "bg-green-600"
+                    : "bg-gray-600"
+                }`}
               >
                 {service.active
-                  ? "Disable"
-                  : "Enable"}
+                  ? "Active"
+                  : "Inactive"}
               </button>
+
+              {/* Featured */}
 
               <button
                 onClick={() =>
@@ -310,31 +582,35 @@ export default function ServiceManagement() {
                     service.featured
                   )
                 }
-                className="
-                  bg-yellow-500
-                  text-black
-                  px-4
-                  py-2
-                  rounded-xl
-                "
+                className={`px-4 py-2 rounded-lg text-white ${
+                  service.featured
+                    ? "bg-yellow-500"
+                    : "bg-zinc-700"
+                }`}
               >
                 {service.featured
-                  ? "Featured"
-                  : "Make Featured"}
+                  ? "★ Featured"
+                  : "☆ Feature"}
               </button>
+
+              {/* Edit */}
 
               <button
                 onClick={() =>
-                  deleteService(
-                    service.id
-                  )
+                  openEdit(service)
                 }
-                className="
-                  bg-red-500
-                  px-4
-                  py-2
-                  rounded-xl
-                "
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white"
+              >
+                Edit
+              </button>
+
+              {/* Delete */}
+
+              <button
+                onClick={() =>
+                  deleteService(service.id)
+                }
+                className="px-4 py-2 rounded-lg bg-red-600 text-white"
               >
                 Delete
               </button>
@@ -343,10 +619,103 @@ export default function ServiceManagement() {
 
           </div>
 
-        ))}
+        </div>
+
+      ))}
+
+    </div>
+
+    {/* =====================================
+        EDIT MODAL
+    ===================================== */}
+
+    {editingService && (
+
+      <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+
+        <div className="bg-zinc-900 rounded-2xl border border-zinc-700">
+
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Edit Service
+          </h2>
+
+          <div className="space-y-4">
+
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) =>
+                setEditName(e.target.value)
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
+            />
+
+            <input
+              type="text"
+              value={editCategory}
+              onChange={(e) =>
+                setEditCategory(e.target.value)
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
+            />
+
+            <input
+              type="text"
+              value={editPriceText}
+              onChange={(e) =>
+                setEditPriceText(e.target.value)
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
+            />
+
+            <input
+              type="text"
+              value={editImage}
+              onChange={(e) =>
+                setEditImage(e.target.value)
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
+            />
+
+            <textarea
+              rows={5}
+              value={editDescription}
+              onChange={(e) =>
+                setEditDescription(
+                  e.target.value
+                )
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
+            />
+
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6">
+
+            <button
+              onClick={() =>
+                setEditingService(null)
+              }
+              className="px-5 py-3 rounded-xl border border-gray-300 text-white"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={saveEdit}
+              className="px-5 py-3 rounded-xl bg-blue-600 text-white"
+            >
+              Save Changes
+            </button>
+
+          </div>
+
+        </div>
 
       </div>
 
-    </div>
-  );
+    )}
+
+  </div>
+);
 }
