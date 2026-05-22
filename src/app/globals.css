@@ -37,3 +37,15 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* ==========================================
+   HIDE SCROLLBAR
+========================================== */
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}

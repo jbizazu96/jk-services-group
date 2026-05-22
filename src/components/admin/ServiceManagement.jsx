@@ -1064,8 +1064,6 @@ return (
                   />
                 </label>
 
-             
-
                 {/* STATUS */}
 
                 {editUploading && (

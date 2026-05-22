@@ -28,6 +28,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import Testimonials from "@/components/admin/Testimonials";
 
 export default function JKServicePage() {
 
@@ -1419,6 +1420,8 @@ export default function JKServicePage() {
           </div>
         </section>
 
+
+
     {/* ================= TESTIMONIALS ================= */}
           <section
             id="testimonials"
@@ -1507,213 +1510,26 @@ export default function JKServicePage() {
               </p>
             </div>
 
-            {/* TESTIMONIAL CARDS */}
-            <div className="
-              relative
-              z-10
-              max-w-7xl
-              mx-auto
-              px-6
-              mt-20
-              grid
-              md:grid-cols-2
-              lg:grid-cols-3
-              gap-8
-            ">
+          
+               {/* ==========================================
+                  FIRESTORE TESTIMONIALS
+              ========================================== */}
 
-              {/* CARD 1 */}
-              <div className="
-                bg-white/5
-                border
-                border-white/10
-                backdrop-blur-xl
-                rounded-[32px]
-                p-8
-                transition
-                duration-500
-                hover:-translate-y-2
-                hover:border-yellow-500/40
-                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-              ">
+              <div
+                className="
+                  relative
+                  z-10
+                  max-w-7xl
+                  mx-auto
+                  px-6
+                  mt-20
+                "
+              >
 
-                {/* STARS */}
-                <div className="flex gap-1 text-yellow-400 text-xl mb-6">
-                  ★★★★★
-                </div>
+                <Testimonials />
 
-                {/* MESSAGE */}
-                <p className="
-                  text-gray-300
-                  leading-relaxed
-                  text-lg
-                ">
-                  “J&K Service Group transformed our wedding into
-                  something unforgettable. Their professionalism,
-                  organization, and energy exceeded our expectations.”
-                </p>
-
-                {/* CLIENT */}
-                <div className="mt-8 flex items-center gap-4">
-
-                  <div className="
-                    w-14
-                    h-14
-                    rounded-full
-                    bg-gradient-to-br
-                    from-yellow-400
-                    to-yellow-600
-                    flex
-                    items-center
-                    justify-center
-                    text-black
-                    font-black
-                    text-lg
-                  ">
-                    A
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-xl">
-                      Amanda & Kevin
-                    </h4>
-
-                    <p className="text-gray-400">
-                      Wedding Clients
-                    </p>
-                  </div>
-
-                </div>
               </div>
 
-              {/* CARD 2 */}
-              <div className="
-                bg-white/5
-                border
-                border-white/10
-                backdrop-blur-xl
-                rounded-[32px]
-                p-8
-                transition
-                duration-500
-                hover:-translate-y-2
-                hover:border-blue-500/40
-                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-              ">
-
-                {/* STARS */}
-                <div className="flex gap-1 text-yellow-400 text-xl mb-6">
-                  ★★★★★
-                </div>
-
-                {/* MESSAGE */}
-                <p className="
-                  text-gray-300
-                  leading-relaxed
-                  text-lg
-                ">
-                  “Their networking and IT support solved problems
-                  we struggled with for months. Reliable, fast,
-                  and extremely knowledgeable.”
-                </p>
-
-                {/* CLIENT */}
-                <div className="mt-8 flex items-center gap-4">
-
-                  <div className="
-                    w-14
-                    h-14
-                    rounded-full
-                    bg-gradient-to-br
-                    from-blue-400
-                    to-blue-600
-                    flex
-                    items-center
-                    justify-center
-                    text-white
-                    font-black
-                    text-lg
-                  ">
-                    M
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-xl">
-                      Michael Brown
-                    </h4>
-
-                    <p className="text-gray-400">
-                      Business Owner
-                    </p>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* CARD 3 */}
-              <div className="
-                bg-white/5
-                border
-                border-white/10
-                backdrop-blur-xl
-                rounded-[32px]
-                p-8
-                transition
-                duration-500
-                hover:-translate-y-2
-                hover:border-yellow-500/40
-                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-              ">
-
-                {/* STARS */}
-                <div className="flex gap-1 text-yellow-400 text-xl mb-6">
-                  ★★★★★
-                </div>
-
-                {/* MESSAGE */}
-                <p className="
-                  text-gray-300
-                  leading-relaxed
-                  text-lg
-                ">
-                  “The DJ and MC services brought incredible energy
-                  to our conference. Guests were engaged and the
-                  atmosphere was exceptional.”
-                </p>
-
-                {/* CLIENT */}
-                <div className="mt-8 flex items-center gap-4">
-
-                  <div className="
-                    w-14
-                    h-14
-                    rounded-full
-                    bg-gradient-to-br
-                    from-yellow-400
-                    to-orange-500
-                    flex
-                    items-center
-                    justify-center
-                    text-black
-                    font-black
-                    text-lg
-                  ">
-                    S
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-xl">
-                      Sarah Johnson
-                    </h4>
-
-                    <p className="text-gray-400">
-                      Conference Organizer
-                    </p>
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
           </section>
 
         {/* ================= FAQ SECTION ================= */}
