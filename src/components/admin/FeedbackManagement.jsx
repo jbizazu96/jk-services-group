@@ -1,384 +1,479 @@
 "use client";
 
+/* ==========================================
+   REACT
+========================================== */
+
 import { useEffect, useState } from "react";
+
+/* ==========================================
+   FIREBASE
+========================================== */
 
 import {
   collection,
   getDocs,
   updateDoc,
-  doc,
   deleteDoc,
+  doc,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
+/* ==========================================
+   FEEDBACK MANAGEMENT
+========================================== */
+
 export default function FeedbackManagement() {
 
-  const [feedbacks, setFeedbacks] = useState([]);
+  /* ==========================================
+     STATE
+  ========================================== */
+
+  const [feedbacks, setFeedbacks] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  /* ==========================================
+     LOAD FEEDBACKS
+  ========================================== */
+
+  useEffect(() => {
+
+    loadFeedbacks();
+
+  }, []);
 
   const loadFeedbacks = async () => {
 
-    const snapshot = await getDocs(
-      collection(db, "feedbacks")
-    );
+    try {
 
-    const items = snapshot.docs.map((item) => ({
-      id: item.id,
-      ...item.data(),
-    }));
+      const snapshot =
+        await getDocs(
+          collection(
+            db,
+            "feedbacks"
+          )
+        );
 
-    setFeedbacks(items);
+      const items =
+        snapshot.docs.map(
+          (item) => ({
+            id: item.id,
+            ...item.data(),
+          })
+        );
+
+      setFeedbacks(items);
+
+    } catch (error) {
+
+      console.error(
+        "Feedback Error:",
+        error
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   };
 
-  useEffect(() => {
-    loadFeedbacks();
-  }, []);
+  /* ==========================================
+     TOGGLE APPROVAL
+  ========================================== */
 
-/* ==========================================
-   TOGGLE FEEDBACK APPROVAL
+  const toggleApproval = async (
+    id,
+    currentStatus
+  ) => {
 
-   Purpose:
-   Switch feedback between
-   Approved and Pending.
+    try {
 
-   Approved  -> Pending
-   Pending   -> Approved
-========================================== */
+      await updateDoc(
 
-const toggleApproval = async (
+        doc(
+          db,
+          "feedbacks",
+          id
+        ),
 
-  id,
+        {
+          approved:
+            currentStatus === true
+              ? false
+              : true,
+        }
 
-  currentStatus
+      );
 
-) => {
+      await loadFeedbacks();
 
-  try {
+    } catch (error) {
 
-    /* ==========================================
-       UPDATE FIRESTORE DOCUMENT
-    ========================================== */
+      console.error(
+        error
+      );
 
-    await updateDoc(
+    }
+
+  };
+
+  /* ==========================================
+     DELETE FEEDBACK
+  ========================================== */
+
+  const deleteFeedback = async (
+    id
+  ) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Delete this feedback?"
+      );
+
+    if (!confirmDelete)
+      return;
+
+    await deleteDoc(
 
       doc(
         db,
         "feedbacks",
         id
-      ),
+      )
 
-      {
-        approved:
-          currentStatus === true
-            ? false
-            : true,
-      }
-
-    );
-
-    /* ==========================================
-       REFRESH FEEDBACKS
-    ========================================== */
-
-    await loadFeedbacks();
-
-  } catch (error) {
-
-    console.error(
-      "Approval Error:",
-      error
-    );
-
-  }
-
-};
-
-  const deleteFeedback = async (id) => {
-
-    if (!confirm("Delete feedback?")) return;
-
-    await deleteDoc(
-      doc(db, "feedbacks", id)
     );
 
     loadFeedbacks();
+
   };
 
   return (
-    
+
     <div>
 
-        
-        {/* ==========================================
-              PAGE HEADER
-          ========================================== */}
+      {/* ==========================================
+          HEADER
+      ========================================== */}
 
-          <div
+      <div
+        className="
+          flex
+          justify-between
+          items-center
+          mb-8
+        "
+      >
+
+        <div>
+
+          <h2
             className="
-              flex
-              justify-between
-              items-center
-              mb-8
+              text-4xl
+              font-black
             "
           >
+            Feedback Management
+          </h2>
 
-            <div>
+          <p
+            className="
+              text-zinc-400
+              mt-2
+            "
+          >
+            Manage customer reviews and
+            testimonials.
+          </p>
 
-              <h2
-                className="
-                  text-4xl
-                  font-black
-                "
-              >
-                Feedback Management
-              </h2>
+        </div>
 
-              <p
-                className="
-                  text-zinc-400
-                  mt-2
-                "
-              >
-                Manage customer reviews and
-                website testimonials.
-              </p>
+        <div
+          className="
+            bg-zinc-900
+            border
+            border-zinc-800
+            px-5
+            py-3
+            rounded-xl
+          "
+        >
+          Total:
+          {" "}
+          {feedbacks.length}
+        </div>
 
-            </div>
+      </div>
 
-            {/* TOTAL FEEDBACK COUNT */}
+      {/* ==========================================
+          TABLE
+      ========================================== */}
 
-            <div
-              className="
-                bg-zinc-900
-                px-4
-                py-2
-                rounded-xl
-                border
-                border-zinc-800
-              "
-            >
-              Total:
-              {" "}
-              {feedbacks.length}
-            </div>
+      <div
+        className="
+          bg-zinc-900
+          border
+          border-zinc-800
+          rounded-3xl
+          overflow-hidden
+        "
+      >
 
+        {/* TABLE HEADER */}
+
+        <div
+          className="
+            grid
+            grid-cols-12
+            gap-4
+
+            bg-black/30
+
+            px-6
+            py-4
+
+            font-bold
+            text-zinc-400
+          "
+        >
+
+          <div className="col-span-3">
+            Customer
           </div>
 
-  
+          <div className="col-span-2">
+            Service
+          </div>
 
-      <div className="space-y-6">
+          <div className="col-span-2">
+            Rating
+          </div>
 
-        {/* ==========================================
-            FEEDBACK CARD
+          <div className="col-span-2">
+            Status
+          </div>
 
-            Displays:
-            - Customer Name
-            - Service Name
-            - Rating
-            - Feedback Message
-            - Approval Status
-            - Action Buttons
-        ========================================== */}
+          <div className="col-span-3">
+            Actions
+          </div>
 
-        {feedbacks.map((item) => (
-          <div
-            key={item.id}
-            className="
-              bg-zinc-900
-              border
-              border-zinc-800
-              rounded-3xl
-              p-6
-              shadow-xl
-              hover:border-blue-500/30
-              transition
-            "
+        </div>
 
-          >
+        {/* ROWS */}
 
-            <div className="flex justify-between">
+        {loading ? (
 
-              <div>
+          <div className="p-8">
+            Loading...
+          </div>
 
-                <h3 className="text-2xl font-bold">
-                  {item.name}
-                </h3>
+        ) : (
 
-                <p className="text-yellow-400">
-                  {item.service}
-                </p>
+          feedbacks.map((item) => (
 
-                {/* ==========================================
-                    CUSTOMER RATING
+            <div
 
-                    Example:
-                    ⭐⭐⭐⭐⭐
-                ========================================== */}
+              key={item.id}
+
+              className="
+                grid
+                grid-cols-12
+                gap-4
+
+                px-6
+                py-5
+
+                border-t
+                border-zinc-800
+
+                items-center
+
+                hover:bg-white/5
+                transition
+              "
+
+            >
+
+              {/* CUSTOMER */}
+
+              <div className="col-span-3">
 
                 <div
                   className="
-                    mt-3
-                    text-yellow-400
+                    font-bold
                   "
                 >
-
-                  {"⭐".repeat(
-                    item.rating
-                  )}
-
+                  {item.name}
                 </div>
 
-                <p className="mt-4 text-gray-300">
+                <div
+                  className="
+                    text-sm
+                    text-zinc-500
+                    mt-1
+                    line-clamp-1
+                  "
+                >
                   {item.feedback}
-                </p>
+                </div>
 
-               {/* ==========================================
-                  APPROVAL STATUS
-              ========================================== */}
+              </div>
 
-              <div className="mt-4">
+              {/* SERVICE */}
 
-                {item.approved ? (
+              <div
+                className="
+                  col-span-2
+                  text-yellow-400
+                "
+              >
+                {item.service}
+              </div>
+
+              {/* RATING */}
+
+              <div
+                className="
+                  col-span-2
+                  text-yellow-400
+                "
+              >
+                {"⭐".repeat(
+                  item.rating || 0
+                )}
+              </div>
+
+              {/* STATUS */}
+
+              <div className="col-span-2">
+
+                {item.approved === true ? (
 
                   <span
                     className="
-                      inline-flex
-                      items-center
                       px-3
                       py-1
+
                       rounded-full
+
                       bg-green-500/20
                       text-green-400
+
                       text-sm
-                      font-semibold
                     "
                   >
-                    ✓ Approved
+                    Approved
                   </span>
 
                 ) : (
 
                   <span
                     className="
-                      inline-flex
-                      items-center
                       px-3
                       py-1
+
                       rounded-full
+
                       bg-yellow-500/20
                       text-yellow-400
+
                       text-sm
-                      font-semibold
                     "
                   >
-                    ⏳ Pending
+                    Pending
                   </span>
 
                 )}
 
               </div>
 
-              </div>
+              {/* ACTIONS */}
 
-              <div className="flex gap-3">
-
-               {/* ==========================================
-                    APPROVE / DISAPPROVE BUTTON
-
-                    Green:
-                    Pending -> Approve
-
-                    Yellow:
-                    Approved -> Disapprove
-                ========================================== */}
+              <div
+                className="
+                  col-span-3
+                  flex
+                  gap-3
+                "
+              >
 
                 <button
 
                   onClick={() =>
-
                     toggleApproval(
-
                       item.id,
-
                       item.approved
-
                     )
-
                   }
 
                   className={`
-
                     px-4
                     py-2
+
                     rounded-xl
-                    font-bold
+
+                    font-semibold
+
                     transition
 
                     ${
-
-                      item.approved
+                      item.approved === true
 
                         ? "bg-yellow-500 hover:bg-yellow-600"
 
                         : "bg-green-500 hover:bg-green-600"
-
                     }
-
                   `}
                 >
 
-                  {
-
-                    item.approved
-
-                      ? "Disapprove"
-
-                      : "Approve"
-
-                  }
+                  {item.approved === true
+                    ? "Disapprove"
+                    : "Approve"}
 
                 </button>
 
-                {/* ==========================================
-                      DELETE FEEDBACK BUTTON
+                <button
 
-                      Permanently removes feedback
-                      from Firestore.
-                  ========================================== */}
+                  onClick={() =>
+                    deleteFeedback(
+                      item.id
+                    )
+                  }
 
-                  <button
+                  className="
+                    px-4
+                    py-2
 
-                    onClick={() =>
-                      deleteFeedback(
-                        item.id
-                      )
-                    }
+                    rounded-xl
 
-                    className="
-                      bg-red-500
-                      hover:bg-red-600
-                      px-4
-                      py-2
-                      rounded-xl
-                      font-bold
-                      transition
-                    "
-                  >
+                    bg-red-500
+                    hover:bg-red-600
 
-                    Delete
+                    font-semibold
 
-                  </button>
+                    transition
+                  "
+                >
+                  Delete
+                </button>
 
               </div>
 
             </div>
 
-          </div>
+          ))
 
-        ))}
+        )}
 
       </div>
 
     </div>
+
   );
+
 }
