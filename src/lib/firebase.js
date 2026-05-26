@@ -71,7 +71,7 @@ export const auth =
 export const storage =
   getStorage(
     app,
-    "gs://jk-services-group.appspot.com"
+    "gs://jk-services-group.firebasestorage.app"
   );
   console.log(
   "Storage Bucket:",
