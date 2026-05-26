@@ -66,9 +66,13 @@ export const auth =
    Used for service image uploads
 ========================================== */
 
+{/*export const storage =
+  getStorage(app);*/}
 export const storage =
-  getStorage(app);
-
+  getStorage(
+    app,
+    "gs://jk-services-group.appspot.com"
+  );
   console.log(
   "Storage Bucket:",
   firebaseConfig.storageBucket
