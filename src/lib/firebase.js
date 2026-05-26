@@ -68,3 +68,8 @@ export const auth =
 
 export const storage =
   getStorage(app);
+
+  console.log(
+  "Storage Bucket:",
+  firebaseConfig.storageBucket
+);
