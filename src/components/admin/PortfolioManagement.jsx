@@ -39,31 +39,19 @@ import { storage } from "@/lib/firebase";
    COMPONENT
 ================================ */
 
-export default function ServiceManagement() {
+export default function portfolioManagement() {
 
   /* ================================
      SERVICES LIST
   ================================ */
 
-  const [services, setServices] = useState([]);
+  const [portfolioCategories, setPortfolioCategories] = useState([]);
 
   /* ================================
      ADD SERVICE FORM
   ================================ */
 
   const [name, setName] = useState("");
-
-  const [category, setCategory] =
-    useState("Events");
-
-  const [minPrice, setMinPrice] =
-    useState("");
-
-  const [maxPrice, setMaxPrice] =
-    useState("");
-
-  const [priceText, setPriceText] =
-    useState("");
 
   const [image, setImage] =
     useState("");
@@ -96,16 +84,8 @@ export default function ServiceManagement() {
         setEditName] =
     useState("");
 
-  const [editCategory,
-        setEditCategory] =
-    useState("Events");
-
   const [editDescription,
         setEditDescription] =
-    useState("");
-
-  const [editPriceText,
-        setEditPriceText] =
     useState("");
 
   const [editImage,
@@ -116,10 +96,10 @@ export default function ServiceManagement() {
      LOAD SERVICES FROM FIRESTORE
   ================================ */
 
-  const loadServices = async () => {
+  const loadPortfolioCategories = async () => {
 
     const snapshot = await getDocs(
-      collection(db, "services")
+      collection(db, "portfolioCategories")
     );
 
     const items = snapshot.docs.map(
@@ -129,7 +109,7 @@ export default function ServiceManagement() {
       })
     );
 
-    setServices(items);
+    setPortfolioCategories(items);
   };
 
   /* ================================
@@ -138,7 +118,7 @@ export default function ServiceManagement() {
 
   useEffect(() => {
 
-    loadServices();
+    loadPortfolioCategories();
 
   }, []);
 
@@ -146,23 +126,14 @@ export default function ServiceManagement() {
      ADD NEW SERVICE
   ================================ */
 
-  const addService = async () => {
+  const addPortfolioCategory = async () => {
 
     if (!name) return;
 
     await addDoc(
-      collection(db, "services"),
+      collection(db, "portfolioCategories"),
       {
         name,
-        category,
-
-        minPrice:
-          Number(minPrice),
-
-        maxPrice:
-          Number(maxPrice),
-
-        priceText,
 
         image,
 
@@ -178,23 +149,19 @@ export default function ServiceManagement() {
     );
 
     setName("");
-    setCategory("Events");
-    setMinPrice("");
-    setMaxPrice("");
-    setPriceText("");
     setImage("");
     setImagePreview("");
     setDescription("");
     setFeatured(false);
 
-    loadServices();
+    loadPortfolioCategories();
   };
 
   /* ================================
      DELETE SERVICE
   ================================ */
 
-  const deleteService = async (id) => {
+  const deletePortfolioCategory = async (id) => {
 
     if (
       !confirm(
@@ -206,12 +173,12 @@ export default function ServiceManagement() {
     await deleteDoc(
       doc(
         db,
-        "services",
+        "portfolioCategories",
         id
       )
     );
 
-    loadServices();
+    loadPortfolioCategories();
   };
 
   /* ================================
@@ -226,7 +193,7 @@ export default function ServiceManagement() {
     await updateDoc(
       doc(
         db,
-        "services",
+        "portfolioCategories",
         id
       ),
       {
@@ -234,7 +201,7 @@ export default function ServiceManagement() {
       }
     );
 
-    loadServices();
+    loadPortfolioCategories();
   };
 
   /* ================================
@@ -250,7 +217,7 @@ export default function ServiceManagement() {
       await updateDoc(
         doc(
           db,
-          "services",
+          "portfolioCategories",
           id
         ),
         {
@@ -259,7 +226,7 @@ export default function ServiceManagement() {
         }
       );
 
-      loadServices();
+      loadPortfolioCategories();
     };
 
   /* ================================
@@ -278,18 +245,8 @@ export default function ServiceManagement() {
       service.name || ""
     );
 
-    setEditCategory(
-      service.category ||
-      "Events"
-    );
-
     setEditDescription(
       service.description ||
-      ""
-    );
-
-    setEditPriceText(
-      service.priceText ||
       ""
     );
 
@@ -307,20 +264,14 @@ export default function ServiceManagement() {
     await updateDoc(
       doc(
         db,
-        "services",
+        "portfolioCategories",
         editingService.id
       ),
       {
         name: editName,
 
-        category:
-          editCategory,
-
         description:
           editDescription,
-
-        priceText:
-          editPriceText,
 
         image:
           editImage,
@@ -329,7 +280,7 @@ export default function ServiceManagement() {
 
     setEditingService(null);
 
-    loadServices();
+    loadPortfolioCategories();
   };
 
       /* ==========================================
@@ -369,13 +320,13 @@ const handleImageUpload =
         Create unique filename
 
         Example:
-        services/
+        portfolioCategories/
         17123456-photo.jpg
       */
 
       const imageRef = ref(
         storage,
-        `services/${Date.now()}-${file.name}`
+        `portfolio/${Date.now()}-${file.name}`
       );
 
       /*
@@ -452,7 +403,7 @@ const handleEditImageUpload =
 
       const imageRef = ref(
         storage,
-        `services/${Date.now()}-${file.name}`
+        `portfolioCategories/${Date.now()}-${file.name}`
       );
 
       await uploadBytes(
@@ -501,11 +452,11 @@ return (
 
     <div className="mb-8">
       <h1 className="text-4xl font-bold text-white">
-        Service Management
+        Portfolio Management
       </h1>
 
       <p className="text-gray-600 mt-2">
-        Add, edit and manage all services
+        Add, edit and manage all portfolioCategories
       </p>
     </div>
 
@@ -515,101 +466,25 @@ return (
 <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 mb-10">
     
 
-      <h2 className="text-2xl font-semibold text-white mb-6">
-        Add New Service
-      </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         {/* SERVICE NAME */}
 
         <div>
           <label className="block text-sm font-medium text-zinc-300 mb-2">
-            Service Name
+            Name
           </label>
 
            <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Service Name"
+            placeholder="Name"
             className="w-full rounded-xl border border-zinc-700 bg-zinc-800 text-white p-3 placeholder:text-zinc-400"
           />
         </div>
 
-        {/* CATEGORY */}
 
-        <div>
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
-            Category
-          </label>
-
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full rounded-xl border border-zinc-700 bg-zinc-800 text-white p-3"
-          >
-            <option value="Events">Events</option>
-            <option value="Cleaning">Music</option>
-            <option value="Transportation">Media</option>
-            <option value="IT Services">IT Services</option>
-            <option value="Consulting">Consulting</option>
-          </select>
-        </div>
-
-        {/* MIN PRICE */}
-
-        <div>
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
-            Min Price
-          </label>
-
-          <input
-            type="number"
-            value={minPrice}
-            onChange={(e) =>
-              setMinPrice(e.target.value)
-            }
-            placeholder="100"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
-          />
-        </div>
-
-        {/* MAX PRICE */}
-
-        <div>
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
-            Max Price
-          </label>
-
-          <input
-            type="number"
-            value={maxPrice}
-            onChange={(e) =>
-              setMaxPrice(e.target.value)
-            }
-            placeholder="500"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
-          />
-        </div>
-
-        {/* PRICE TEXT */}
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
-            Price Display
-          </label>
-
-          <input
-            type="text"
-            value={priceText}
-            onChange={(e) =>
-              setPriceText(e.target.value)
-            }
-            placeholder="$100 - $500"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400 focus:outline-none focus:border-blue-500"
-          />
-        </div>
 
          {/* ==========================================
               SERVICE IMAGE UPLOAD
@@ -626,7 +501,7 @@ return (
                 mb-2
               "
             >
-              Service Image
+              Portfolio Image
             </label>
 
             {/* FILE PICKER */}
@@ -720,7 +595,7 @@ return (
         />
 
         <span className="text-zinc-300">
-          Featured Service
+          Featured Category
         </span>
 
       </div>
@@ -728,10 +603,10 @@ return (
       {/* BUTTON */}
 
       <button
-        onClick={addService}
+        onClick={addPortfolioCategory}
         className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition"
       >
-        Add Service
+        Add Category
       </button>
 
     </div>
@@ -742,7 +617,7 @@ return (
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      {services.map((service) => (
+      {portfolioCategories.map((service) => (
 
         <div
           key={service.id}
@@ -773,17 +648,9 @@ return (
 
             </div>
 
-            <p className="text-sm text-gray-400 mt-1">
-              {service.category}
-            </p>
-
             <p className="text-zinc-300 mt-4">
               {service.description}
             </p>
-
-            <div className="mt-4 text-blue-600 font-bold">
-              {service.priceText}
-            </div>
 
             {/* BUTTONS */}
 
@@ -844,7 +711,7 @@ return (
 
               <button
                 onClick={() =>
-                  deleteService(service.id)
+                  deletePortfolioCategory(service.id)
                 }
                 className="px-4 py-2 rounded-lg bg-red-600 text-white"
               >
@@ -889,7 +756,7 @@ return (
           ">
 
           <h2 className="text-2xl font-bold text-white mb-6">
-            Edit Service
+            Edit Category
           </h2>
 
           <div className="space-y-4">
@@ -902,25 +769,6 @@ return (
               }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
             />
-
-            <input
-              type="text"
-              value={editCategory}
-              onChange={(e) =>
-                setEditCategory(e.target.value)
-              }
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
-            />
-
-            <input
-              type="text"
-              value={editPriceText}
-              onChange={(e) =>
-                setEditPriceText(e.target.value)
-              }
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white placeholder:text-zinc-400"
-            />
-
 
               {/* ==========================================
                   SERVICE IMAGE
@@ -935,7 +783,7 @@ return (
                     mb-2
                   "
                 >
-                  Service Image
+                  Portfolio Image
                 </label>
 
                 {/* CURRENT IMAGE */}

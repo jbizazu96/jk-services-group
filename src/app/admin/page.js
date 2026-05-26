@@ -18,6 +18,10 @@ import DashboardStats from "@/components/admin/DashboardStats";
 
 import ServiceManagement from "@/components/admin/ServiceManagement";
 
+import PortfolioManagement from "@/components/admin/PortfolioManagement";
+
+import PortfolioItemsManagement from "@/components/admin/PortfolioItemsManagement";
+
 /* ==========================================
    AUTH FUNCTIONS
 ========================================== */
@@ -216,6 +220,44 @@ export default function AdminPage() {
                 🛠 Services
               </button>
 
+              {/* PORTFOLIO */}
+
+              <button
+                onClick={() =>
+                  setActiveTab(
+                    "portfolio"
+                  )
+                }
+                className="
+                  w-full
+                  text-left
+                  p-4
+                  rounded-xl
+                  hover:bg-white/10
+                  transition
+                "
+              >
+                🖼 Portfolio Categories
+              </button>
+
+                  <button
+                onClick={() =>
+                  setActiveTab(
+                    "portfolioItems"
+                  )
+                }
+                className="
+                  w-full
+                  text-left
+                  p-4
+                  rounded-xl
+                  hover:bg-white/10
+                  transition
+                "
+              >
+                🎬 Portfolio Items
+              </button>
+
             </div>
 
           </div>
@@ -361,6 +403,27 @@ export default function AdminPage() {
             "services" && (
 
             <ServiceManagement />
+
+          )}
+
+          {/* ==========================================
+              PORTFOLIO MANAGEMENT
+          ========================================== */}
+
+          {activeTab === "portfolio" && (
+
+            <PortfolioManagement />
+
+          )}
+
+          {/* ==========================================
+            PORTFOLIO ITEMS
+          ========================================== */}
+
+            {activeTab ===
+            "portfolioItems" && (
+
+            <PortfolioItemsManagement />
 
           )}
 

@@ -143,47 +143,89 @@ const loadStats = async () => {
 
       : 0;
 
-  /* ==========================================
-     LOAD SERVICES
-  ========================================== */
+        /* ==========================================
+          LOAD SERVICES
+        ========================================== */
 
-  const serviceSnapshot =
-    await getDocs(
-      collection(
-        db,
-        "services"
-      )
-    );
+        const serviceSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "services"
+            )
+          );
 
-  const services =
-    serviceSnapshot.docs.map(
-      (doc) => doc.data()
-    );
+        const services =
+          serviceSnapshot.docs.map(
+            (doc) => doc.data()
+          );
 
-  /* ==========================================
-     SERVICE CALCULATIONS
-  ========================================== */
+        /* ==========================================
+          SERVICE CALCULATIONS
+        ========================================== */
 
-  const totalServices =
-    services.length;
+        const totalServices =
+          services.length;
 
-  const activeServices =
-    services.filter(
-      (service) =>
-        service.active
-    ).length;
+        const activeServices =
+          services.filter(
+            (service) =>
+              service.active
+          ).length;
 
-  const featuredServices =
-    services.filter(
-      (service) =>
-        service.featured
-    ).length;
+        const featuredServices =
+          services.filter(
+            (service) =>
+              service.featured
+          ).length;
 
-  const inactiveServices =
-    services.filter(
-      (service) =>
-        !service.active
-    ).length;
+        const inactiveServices =
+          services.filter(
+            (service) =>
+              !service.active
+          ).length;
+
+        /* ==========================================
+          LOAD PORTFOLIO CATEGORIES
+        ========================================== */
+
+        const portfolioSnapshot =
+          await getDocs(
+            collection(
+              db,
+              "portfolioCategories"
+            )
+          );
+
+        const portfolioCategories =
+          portfolioSnapshot.docs.map(
+            (doc) => doc.data()
+          );
+
+       /* ==========================================
+        PORTFOLIO CALCULATIONS
+      ========================================== */
+
+      const totalPortfolioCategories =
+        portfolioCategories.length;
+
+      const activePortfolioCategories =
+        portfolioCategories.filter(
+          (item) =>
+            item.active
+        ).length;
+
+      const featuredPortfolioCategories =
+        portfolioCategories.filter(
+          (item) =>
+            item.featured
+        ).length;
+
+      const inactivePortfolioCategories =
+        portfolioCategories.filter(
+          (item) =>
+            !item.active
+        ).length;
 
   /* ==========================================
      UPDATE DASHBOARD STATE
@@ -192,20 +234,19 @@ const loadStats = async () => {
   setStats({
 
     totalFeedbacks,
-
     approvedFeedbacks,
-
     pendingFeedbacks,
-
     averageRating,
 
     totalServices,
-
     activeServices,
-
     featuredServices,
-
     inactiveServices,
+
+    totalPortfolioCategories,
+    activePortfolioCategories,
+    featuredPortfolioCategories,
+    inactivePortfolioCategories,
 
   });
 
@@ -330,6 +371,94 @@ return (
       </div>
 
     </div>
+
+         {/* ==========================================
+            PORTFOLIO STATISTICS
+        ========================================== */}
+
+        <div>
+
+          <h3 className="text-2xl font-bold mb-4">
+            Portfolio Overview
+          </h3>
+
+          <div className="grid md:grid-cols-4 gap-6">
+
+            <div className="
+              bg-white/5
+              rounded-3xl
+              p-6
+            ">
+              <p className="text-gray-400">
+                Total Categories
+              </p>
+
+              <h2 className="
+                text-4xl
+                font-black
+                mt-2
+              ">
+                {stats.totalPortfolioCategories}
+              </h2>
+            </div>
+
+            <div className="
+              bg-green-500/10
+              rounded-3xl
+              p-6
+            ">
+              <p className="text-green-300">
+                Active
+              </p>
+
+              <h2 className="
+                text-4xl
+                font-black
+                mt-2
+              ">
+                {stats.activePortfolioCategories}
+              </h2>
+            </div>
+
+            <div className="
+              bg-yellow-500/10
+              rounded-3xl
+              p-6
+            ">
+              <p className="text-yellow-300">
+                Featured
+              </p>
+
+              <h2 className="
+                text-4xl
+                font-black
+                mt-2
+              ">
+                {stats.featuredPortfolioCategories}
+              </h2>
+            </div>
+
+            <div className="
+              bg-red-500/10
+              rounded-3xl
+              p-6
+            ">
+              <p className="text-red-300">
+                Inactive
+              </p>
+
+              <h2 className="
+                text-4xl
+                font-black
+                mt-2
+              ">
+                {stats.inactivePortfolioCategories}
+              </h2>
+            </div>
+
+          </div>
+
+        </div>
 
   </div>
 
