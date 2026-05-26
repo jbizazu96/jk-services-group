@@ -87,27 +87,68 @@ export default function JKServicePage() {
 
   };
 
+  /* ================================
+   PORTFOLIO CATEGORIES
+================================ */
+
+const [
+  portfolioCategories,
+  setPortfolioCategories,
+] = useState([]);
+  
+/* ================================
+   LOAD PORTFOLIO CATEGORIES
+================================ */
+
+const loadPortfolioCategories =
+  async () => {
+
+    const q = query(
+      collection(
+        db,
+        "portfolioCategories"
+      ),
+      where(
+        "active",
+        "==",
+        true
+      )
+    );
+
+    const snapshot =
+      await getDocs(q);
+
+    const items =
+      snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+    setPortfolioCategories(
+      items
+    );
+};
   {/* ========== MAKE POP WINDOW TO DISAPPEAR ========== */}
     useEffect(() => {
 
-  loadServices();
+            loadServices();
+           loadPortfolioCategories();
+            const handleScroll = () => {
+              setMobileMenu(false);
+              setDonationMenu(false);
+            };
 
-  const handleScroll = () => {
-    setMobileMenu(false);
-    setDonationMenu(false);
-  };
+            window.addEventListener(
+              "scroll",
+              handleScroll
+            );
 
-  window.addEventListener(
-    "scroll",
-    handleScroll
-  );
-
-  return () => {
-    window.removeEventListener(
-      "scroll",
-      handleScroll
-    );
-  };
+            return () => {
+              window.removeEventListener(
+                "scroll",
+                handleScroll
+              );
+            };
 
 }, []);
 
@@ -745,85 +786,85 @@ export default function JKServicePage() {
         p-8
       ">
 
-        <div className="mb-4">
+          <div className="mb-4">
 
-           <p className="
-            text-white/70
-            uppercase
-            tracking-widest
-            text-xs
-            font-semibold
-            mb-1
+            <p className="
+              text-white/70
+              uppercase
+              tracking-widest
+              text-xs
+              font-semibold
+              mb-1
+            ">
+              Price Range
+            </p>
+
+            <span className="
+              bg-yellow-500
+              text-black
+              px-4
+              py-2
+              rounded-full
+              text-sm
+              font-bold
+            ">
+
+              {service.priceText}
+
+            </span>
+
+          </div>
+
+          <h3 className="
+            text-3xl
+            font-black
+            mb-4
+            text-white
           ">
-            Price Range
-          </p>
+            {service.name}
+          </h3>
 
-          <span className="
-            bg-yellow-500
-            text-black
-            px-4
-            py-2
-            rounded-full
-            text-sm
-            font-bold
-          ">
+          {/* ========== THIS SHOW THE SERVICE TYPE IN THE CARD ============== */}
+          {/* <p className="
+              text-yellow-400
+              font-semibold
+              mb-4
+            ">
+              {service.category}
+            </p> 
+            */} 
 
-            {service.priceText}
+            <p className="
+              text-gray-300
+              leading-relaxed
+              mb-8
+            ">
+              {service.description}
+            </p>
 
-          </span>
+            <button
+              onClick={() => {
+                setSelectedService(
+                  service.name
+                );
+                setBookingModal(true);
+              }}
+              className="
+                w-full
+                bg-yellow-500
+                hover:bg-yellow-400
+                text-black
+                py-4
+                rounded-2xl
+                font-bold
+                text-lg
+                transition
+              "
+            >
+              Book Now
+            </button>
 
         </div>
-
-        <h3 className="
-          text-3xl
-          font-black
-          mb-4
-          text-white
-        ">
-          {service.name}
-        </h3>
-
-      {/* ========== THIS SHOW THE SERVICE TYPE IN THE CARD ============== */}
-       {/* <p className="
-          text-yellow-400
-          font-semibold
-          mb-4
-        ">
-          {service.category}
-        </p> 
-        */} 
-
-        <p className="
-          text-gray-300
-          leading-relaxed
-          mb-8
-        ">
-          {service.description}
-        </p>
-
-        <button
-          onClick={() => {
-            setSelectedService(
-              service.name
-            );
-            setBookingModal(true);
-          }}
-          className="
-            w-full
-            bg-yellow-500
-            hover:bg-yellow-400
-            text-black
-            py-4
-            rounded-2xl
-            font-bold
-            text-lg
-            transition
-          "
-        >
-          Book Now
-        </button>
-
-      </div>
 
     </div>
 
@@ -878,14 +919,14 @@ export default function JKServicePage() {
           <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
 
           <span className="text-yellow-300 tracking-wide text-sm uppercase font-semibold">
-            Our Moments
+            Our Portfolio
           </span>
         </div>
 
         {/* TITLE */}
         <h2 className="text-5xl md:text-6xl font-black leading-tight">
-          Events &
-          <span className="text-yellow-400"> Experiences</span>
+         Projects &
+          <span className="text-yellow-400"> Portfolio</span>
         </h2>
       </div>
 
@@ -896,9 +937,9 @@ export default function JKServicePage() {
         max-w-xl
         leading-relaxed
       ">
-        Explore highlights from weddings, conferences,
-        networking installations, DJ performances,
-        photography sessions, and unforgettable moments.
+        Browse our portfolio categories and explore
+        completed projects, events, installations,
+        photography, videography, and digital solutions.
       </p>
 
     </div>
@@ -1007,112 +1048,144 @@ export default function JKServicePage() {
   "></div>
 
   {/* SCROLL AREA */}
-  <div
-    ref={galleryRef}
-    className="
-      overflow-x-auto
-      scrollbar-hide
-      snap-x
-      snap-mandatory
-      relative
-      z-20
-    "
-  >
+  {/* ================================
+    PORTFOLIO CAROUSEL
+================================ */}
 
-    <div className="flex gap-8 px-6 w-max pb-4">
+<div
+  ref={galleryRef}
+  className="
+    overflow-x-auto
+    scrollbar-hide
+    snap-x
+    snap-mandatory
+    relative
+    z-20
+  "
+>
 
-      {/* IMAGE */}
-      <img
-        src="/images/me4.JPG"
-        alt="Wedding"
-        className="
-          w-[380px]
-          h-[520px]
-          object-cover
-          rounded-[36px]
-          flex-shrink-0
-          snap-center
-          hover:scale-[1.02]
-          transition
-          duration-500
-          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
-        "
-      />
+  {/* ================================
+      PORTFOLIO CARDS
+  ================================ */}
 
-      {/* IMAGE */}
-      <img
-        src="/images/Me3.JPG"
-        alt="Networking"
-        className="
-          w-[380px]
-          h-[520px]
-          object-cover
-          rounded-[36px]
-          flex-shrink-0
-          snap-center
-          hover:scale-[1.02]
-          transition
-          duration-500
-          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
-        "
-      />
+  <div className="
+    flex
+    gap-8
+    px-20
+    pb-6
+    min-w-max
+  ">
 
-      {/* IMAGE */}
-      <img
-        src="/images/meoffice.JPG"
-        alt="Office"
-        className="
-          w-[800px]
-          h-[520px]
-          object-cover
-          rounded-[36px]
-          flex-shrink-0
-          snap-center
-          hover:scale-[1.02]
-          transition
-          duration-500
-          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
-        "
-      />
+    {portfolioCategories.map(
+      (category) => (
 
-      {/* IMAGE */}
-      <img
-        src="/images/me5.JPG"
-        alt="Event"
-        className="
-          w-[380px]
-          h-[520px]
-          object-cover
-          rounded-[36px]
-          flex-shrink-0
-          snap-center
-          hover:scale-[1.02]
-          transition
-          duration-500
-          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
-        "
-      />
+        <div
+          key={category.id}
+          onClick={() =>
+            window.location.href =
+              `/portfolio/${encodeURIComponent(
+                category.name
+              )}`
+          }
+          className="
+            group
+            relative
+            w-[380px]
+            h-[500px]
+            rounded-[36px]
+            overflow-hidden
+            border
+            border-white/10
+            hover:border-yellow-500/40
+            transition
+            duration-500
+            cursor-pointer
+            snap-center
+          "
+        >
 
-      {/* VIDEO */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="
-          w-[380px]
-          h-[520px]
-          object-cover
-          rounded-[36px]
-          flex-shrink-0
-          snap-center
-          shadow-[0_20px_60px_rgba(0,0,0,0.45)]
-        "
-      >
-        <source src="/videos/usvideo.MP4" type="video/mp4" />
-      </video>
+          {/* ================================
+              CATEGORY IMAGE
+          ================================ */}
 
-    </div>
+          <img
+            src={category.image}
+            alt={category.name}
+            className="
+              absolute
+              inset-0
+              w-full
+              h-full
+              object-cover
+              group-hover:scale-105
+              transition
+              duration-700
+            "
+          />
+
+          {/* ================================
+              IMAGE OVERLAY
+          ================================ */}
+
+          <div className="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black
+            via-black/60
+            to-transparent
+          "></div>
+
+          {/* ================================
+              CARD CONTENT
+          ================================ */}
+
+          <div className="
+            absolute
+            bottom-0
+            left-0
+            right-0
+            p-8
+            z-10
+          ">
+
+            <h3 className="
+              text-3xl
+              font-black
+              text-white
+              mb-4
+            ">
+              {category.name}
+            </h3>
+
+            <p className="
+              text-gray-300
+              mb-6
+            ">
+              {category.description}
+            </p>
+
+            <div className="
+              inline-flex
+              items-center
+              gap-2
+              text-yellow-400
+              font-bold
+            ">
+              View Portfolio →
+            </div>
+
+          </div>
+
+        </div>
+
+      )
+    )}
+
+  </div>
+
+
+
   </div>
 </section>
 {/* ================= TEAM SECTION ================= */}
