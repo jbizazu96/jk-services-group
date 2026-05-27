@@ -16,15 +16,15 @@ export const metadata = {
   metadataBase: new URL("https://myjkservices.com"),
 
   title: {
-    default: "J&K Service Group",
-    template: "%s | J&K Service Group",
+    default: "J&K Services Group",
+    template: "%s | J&K Services Group",
   },
 
   description:
-    "J&K Service Group provides premium event planning, MC services, DJ entertainment, photography, videography, networking installation, IT consulting, and conference solutions.",
+    "J&K Services Group provides premium event planning, MC services, DJ entertainment, photography, videography, networking installation, IT consulting, and conference solutions.",
 
   keywords: [
-    "J&K Service Group",
+    "J&K Services Group",
     "MC services",
     "DJ services",
     "event planning",
@@ -40,24 +40,24 @@ export const metadata = {
 
   authors: [
     {
-      name: "J&K Service Group",
+      name: "J&K Services Group",
       url: "https://myjkservices.com",
     },
   ],
 
-  creator: "J&K Service Group",
+  creator: "J&K Services Group",
 
-  publisher: "J&K Service Group",
+  publisher: "J&K Services Group",
 
   openGraph: {
-    title: "J&K Service Group",
+    title: "J&K Services Group",
 
     description:
       "Professional event planning, DJ entertainment, networking solutions, photography, videography, and IT consulting.",
 
     url: "https://myjkservices.com",
 
-    siteName: "J&K Service Group",
+    siteName: "J&K Services Group",
 
     locale: "en_US",
 
@@ -65,10 +65,10 @@ export const metadata = {
 
     images: [
       {
-        url: "/images/logo.png",
+        url: "/images/logo1.png",
         width: 1200,
         height: 630,
-        alt: "J&K Service Group",
+        alt: "J&K Services Group",
       },
     ],
   },
@@ -76,12 +76,12 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
 
-    title: "J&K Service Group",
+    title: "J&K Services Group",
 
     description:
       "Professional event planning, networking, IT consulting, photography, videography, and DJ services.",
 
-    images: ["/images/logo.png"],
+    images: ["/images/logo1.png"],
   },
 
   robots: {

@@ -130,23 +130,47 @@ export default function portfolioManagement() {
 
     if (!name) return;
 
-    await addDoc(
-      collection(db, "portfolioCategories"),
-      {
-        name,
+          /* ==========================================
+            CREATE URL FRIENDLY SLUG
 
-        image,
+            Example:
 
-        description,
+            DJ Entertainment
+            becomes
+            dj-entertainment
+          ========================================== */
 
-        active: true,
+          const slug =
+            name
+              .toLowerCase()
+              .replace(/&/g, "and")
+              .replace(/\s+/g, "-")
+              .replace(/[^\w-]/g, "");
 
-        featured,
+          /* ==========================================
+            SAVE CATEGORY TO FIRESTORE
+          ========================================== */
 
-        createdAt:
-          new Date(),
-      }
-    );
+          await addDoc(
+            collection(db, "portfolioCategories"),
+            {
+              name,
+
+              /* URL FRIENDLY NAME */
+              slug,
+
+              image,
+
+              description,
+
+              active: true,
+
+              featured,
+
+              createdAt:
+                new Date(),
+            }
+          );
 
     setName("");
     setImage("");

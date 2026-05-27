@@ -1,133 +1,169 @@
 "use client";
 
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { PopupButton } from "react-calendly";
-import React, { useRef, useEffect, useState } from "react";
-import {
-  Calendar,
-  Phone,
-  Mail,
-  Menu,
-  X,
-  ChevronRight,
-  Mic,
-  Music,
-  Camera,
-  Users,
-  Network,
-  Wrench,
-  PenTool,
-  Presentation,
-} from "lucide-react";
+  import { SpeedInsights } from "@vercel/speed-insights/next";
+  import { PopupButton } from "react-calendly";
+  import React, { useRef, useEffect, useState } from "react";
+  import {
+        Calendar,
+        Phone,
+        Mail,
+        Menu,
+        X,
+        ChevronRight,
+        Mic,
+        Music,
+        Camera,
+        Users,
+        Network,
+        Wrench,
+        PenTool,
+        Presentation,
+        } from "lucide-react";
 
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+  import {
+          collection,
+          getDocs,
+          query,
+          where,
+          } from "firebase/firestore";
 
-import { db } from "@/lib/firebase";
-import Testimonials from "@/components/admin/Testimonials";
-
-export default function JKServicePage() {
-
-  const [mobileMenu, setMobileMenu] =
-    useState(false);
-
-  const [donationMenu, setDonationMenu] =
-    useState(false);
-
-  const [bookingModal, setBookingModal] =
-    useState(false);
-
-  const [bookingModalGS, setBookingModalGS] =
-    useState(false);
-
-  const [selectedService, setSelectedService] =
-    useState("");
-
-  const [openFAQ, setOpenFAQ] =
-    useState([]);
-
-  const [services, setServices] =
-    useState([]);
-
-  const galleryRef =
-    useRef(null);
-
-  const loadServices = async () => {
-
-    try {
-
-      const q = query(
-        collection(db, "services"),
-        where("active", "==", true)
-      );
-
-      const snapshot =
-        await getDocs(q);
-
-      const items =
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-      setServices(items);
-
-    } catch (error) {
-
-      console.error(
-        "Service Error:",
-        error
-      );
-
-    }
-
-  };
-
-  /* ================================
-   PORTFOLIO CATEGORIES
-================================ */
-
-const [
-  portfolioCategories,
-  setPortfolioCategories,
-] = useState([]);
+  import { db } from "@/lib/firebase";
+  import Testimonials from "@/components/admin/Testimonials";
+  import Link from "next/link";
+  import { useRouter } from "next/navigation";
   
-/* ================================
-   LOAD PORTFOLIO CATEGORIES
-================================ */
+                export default function JKServicePage() {
 
-const loadPortfolioCategories =
-  async () => {
+                const [mobileMenu, setMobileMenu] =
+                  useState(false);
 
-    const q = query(
-      collection(
-        db,
-        "portfolioCategories"
-      ),
-      where(
-        "active",
-        "==",
-        true
-      )
-    );
+                const [donationMenu, setDonationMenu] =
+                  useState(false);
 
-    const snapshot =
-      await getDocs(q);
+                const [bookingModal, setBookingModal] =
+                  useState(false);
 
-    const items =
-      snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+                const [bookingModalGS, setBookingModalGS] =
+                  useState(false);
 
-    setPortfolioCategories(
-      items
-    );
-};
+                const [selectedService, setSelectedService] =
+                  useState("");
+
+                const [openFAQ, setOpenFAQ] =
+                  useState([]);
+
+                const [services, setServices] =
+                  useState([]);
+
+                const galleryRef =
+                  useRef(null);
+
+                const loadServices = async () => {
+
+                  try {
+
+                    const q = query(
+                      collection(db, "services"),
+                      where("active", "==", true)
+                    );
+
+                    const snapshot =
+                      await getDocs(q);
+
+                    const items =
+                      snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                      }));
+
+                    setServices(items);
+
+                  } catch (error) {
+
+                    console.error(
+                      "Service Error:",
+                      error
+                    );
+
+                  }
+
+                };
+
+                      /* ================================
+                      PORTFOLIO CATEGORIES
+                    ================================ */
+
+                    const [
+                      portfolioCategories,
+                      setPortfolioCategories,
+                    ] = useState([]);
+                      
+                    /* ================================
+                      LOAD PORTFOLIO CATEGORIES
+                    ================================ */
+
+                    const loadPortfolioCategories =
+                      async () => {
+
+                        const q = query(
+                          collection(
+                            db,
+                            "portfolioCategories"
+                          ),
+                          where(
+                            "active",
+                            "==",
+                            true
+                          )
+                        );
+
+                        const snapshot =
+                          await getDocs(q);
+
+                        const items =
+                          snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data(),
+                          }));
+
+                        setPortfolioCategories(
+                          items
+                        );
+                    };
+
+                    /* ==========================================
+                      REFRESH DATA WHEN PAGE BECOMES VISIBLE
+
+                      Fixes browser back button cache issues
+                    ========================================== */
+
+                    useEffect(() => {
+
+                      const handleFocus = () => {
+
+                        loadServices();
+
+                        loadPortfolioCategories();
+
+                      };
+
+                      window.addEventListener(
+                        "focus",
+                        handleFocus
+                      );
+
+                      return () => {
+
+                        window.removeEventListener(
+                          "focus",
+                          handleFocus
+                        );
+
+                      };
+
+                    }, []);
+
+
   {/* ========== MAKE POP WINDOW TO DISAPPEAR ========== */}
     useEffect(() => {
 
@@ -156,9 +192,9 @@ const loadPortfolioCategories =
 
     const faqData = [
       {
-        question: "Who is J&K Service Group?",
+        question: "Who is J&K Services Group?",
         answer:
-          "J&K Service Group is a professional multi-service company specializing in event services, networking and IT solutions, photography, videography, DJ entertainment, business consulting, and conference support. Our mission is to deliver premium experiences and reliable solutions tailored to every client’s needs.",
+          "J&K Services Group is a professional multi-service company specializing in event services, networking and IT solutions, photography, videography, DJ entertainment, business consulting, and conference support. Our mission is to deliver premium experiences and reliable solutions tailored to every client’s needs.",
       },
     
       {
@@ -217,14 +253,14 @@ const loadPortfolioCategories =
           {/* LOGO */}
           <div className="flex items-center gap-3">
             <img
-              src="/images/logo.png"
-              alt="J&K Service Group"
+              src="/images/logo1.png"
+              alt="J&K Services Group"
               className="w-14 h-14 object-contain"
             />
 
             <div>
               <h1 className="text-2xl font-bold tracking-wide">
-                J&K Service Group
+                J&K Services Group
               </h1>
 
               <p className="text-sm text-gray-300">
@@ -377,9 +413,82 @@ const loadPortfolioCategories =
               <a href="#about">About</a>
               <a href="#contact">Contact</a>
 
-              <button className="bg-yellow-500 text-black py-3 rounded-full font-semibold">
-                Book Now
-              </button>
+                  <button
+                  onClick={() => setDonationMenu(!donationMenu)}
+                  className="
+                    bg-yellow-500
+                    hover:bg-yellow-400
+                    text-black
+                    font-semibold
+                    px-6
+                    py-3
+                    rounded-full
+                    transition
+                    shadow-2xl
+                  "
+                >
+                  Donate
+                </button>
+
+
+          {donationMenu && (
+            <div className="
+              absolute
+              right-0
+              mt-4
+              w-64
+              bg-black/95
+              backdrop-blur-xl
+              border
+              border-white/10
+              rounded-3xl
+              p-5
+              shadow-2xl
+              z-50
+            ">
+
+                <h3 className="text-xl font-bold mb-4">
+                  Support Our Mission
+                </h3>
+
+                <div className="flex flex-col gap-3">
+
+                  <a
+                    href="https://buy.stripe.com/8x27sF8IK6at7O5gM5grS00"
+                    target="_blank"
+                    className="bg-yellow-500 text-black text-center py-3 rounded-xl font-semibold hover:bg-yellow-400 transition"
+                  >
+                    Donate $10
+                  </a>
+
+                  <a
+                    href="https://buy.stripe.com/fZueV7aQS1Udc4l3ZjgrS03"
+                    target="_blank"
+                    className="bg-white/10 text-white text-center py-3 rounded-xl hover:bg-white hover:text-black transition"
+                  >
+                    Donate $25
+                  </a>
+
+                  <a
+                    href="https://buy.stripe.com/3cI7sF3oqfL39Wd1RbgrS04"
+                    target="_blank"
+                    className="bg-white/10 text-white text-center py-3 rounded-xl hover:bg-white hover:text-black transition"
+                  >
+                    Donate $50
+                  </a>
+
+                  <a
+                    href="https://donate.stripe.com/6oU3cp3oq9mF4BTbrLgrS05"
+                    target="_blank"
+                    className="border border-yellow-500 text-yellow-400 text-center py-3 rounded-xl hover:bg-yellow-500 hover:text-black transition"
+                  >
+                    Custom Amount
+                  </a>
+
+                </div>
+              </div>
+            )}
+
             </div>
           </div>
         )}
@@ -422,7 +531,7 @@ const loadPortfolioCategories =
               opacity-[0.10]
             "
           >
-            <source src="/videos/net1.mp4" type="video/mp4" />
+            <source src="/videos/" type="video/mp4" />
           </video>
 
           {/* MAIN CONTENT */}
@@ -474,7 +583,7 @@ const loadPortfolioCategories =
               ">
                 From unforgettable weddings and conferences to
                 enterprise-grade networking and IT solutions —
-                J&K Service Group delivers professionalism,
+                J&K Services Group delivers professionalism,
                 creativity, and excellence.
               </p>
 
@@ -581,7 +690,7 @@ const loadPortfolioCategories =
 
                 {/* LOGO */}
                 <img
-                  src="/images/logo.png"
+                  src="/images/logo1.png"
                   alt="Logo"
                   className="w-52 md:w-64 lg:w-72 mx-auto"
                 />
@@ -1081,11 +1190,18 @@ const loadPortfolioCategories =
 
         <div
           key={category.id}
+          /* ==========================================
+            OPEN PORTFOLIO CATEGORY
+
+            Use slug instead of name
+          ========================================== */
+
           onClick={() =>
-            window.location.href =
-              `/portfolio/${encodeURIComponent(
-                category.name
-              )}`
+            <Link
+                href={`/portfolio/${category.slug}`}
+              >
+                ...
+            </Link>
           }
           className="
             group
@@ -1390,8 +1506,8 @@ const loadPortfolioCategories =
                 <div className="relative bg-white/5 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl overflow-hidden">
 
                   <img
-                    src="/images/logo.png"
-                    alt="J&K Service Group"
+                    src="/images/logo1.png"
+                    alt="J&K Services Group"
                     className="
                       w-full
                       max-w-[450px]
@@ -2159,8 +2275,8 @@ const loadPortfolioCategories =
           {/* BRAND */}
           <div>
             <img
-              src="/images/logo.png"
-              alt="logo"
+              src="/images/logo1.png"
+              alt="logo1"
               className="w-24 mb-6"
             />
 
@@ -2230,7 +2346,7 @@ const loadPortfolioCategories =
 
         {/* BOTTOM */}
         <div className="border-t border-white/10 py-6 text-center text-gray-500">
-          © 2026 J&K Service Group. All rights reserved.
+          © 2026 J&K Services Group. All rights reserved.
         </div>
       </footer>
     </main>

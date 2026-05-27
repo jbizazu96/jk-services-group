@@ -632,37 +632,80 @@ PortfolioItemsManagement() {
           "
         >
 
-          {item.mediaType ===
-          "photo" ? (
+                {/* ==========================
+                    PHOTO
+                ========================== */}
 
-            <img
-              src={item.mediaUrl}
-              alt={item.title}
-              className="
-                max-h-[400px]
-                w-auto
-                object-contain
-                rounded-xl
-              "
-            />
+                {item.mediaType === "photo" ? (
 
-          ) : (
+                  item.mediaUrl ? (
 
-            <video
-              controls
-              className="
-               max-h-[400px]
-                max-w-full
-                w-full
-                rounded-xl
-              "
-            >
-              <source
-                src={item.mediaUrl}
-              />
-            </video>
+                    <img
+                      src={item.mediaUrl}
+                      alt={item.title}
+                      className="
+                        w-full
+                        h-72
+                        object-cover
+                      "
+                    />
 
-          )}
+                  ) : (
+
+                    <div
+                      className="
+                        h-72
+                        flex
+                        items-center
+                        justify-center
+                        bg-zinc-800
+                        text-zinc-400
+                      "
+                    >
+                      Image Not Available
+                    </div>
+
+                  )
+
+                ) : (
+
+                  /* ==========================
+                    VIDEO
+                  ========================== */
+
+                  item.mediaUrl ? (
+
+                    <video
+                      controls
+                      className="
+                        w-full
+                        h-72
+                        object-cover
+                      "
+                    >
+                      <source
+                        src={item.mediaUrl}
+                      />
+                    </video>
+
+                  ) : (
+
+                    <div
+                      className="
+                        h-72
+                        flex
+                        items-center
+                        justify-center
+                        bg-zinc-800
+                        text-zinc-400
+                      "
+                    >
+                      Video Not Available
+                    </div>
+
+                  )
+
+                )}
 
         </div>
 
