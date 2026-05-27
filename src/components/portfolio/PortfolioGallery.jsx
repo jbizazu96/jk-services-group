@@ -5,6 +5,7 @@
 ========================================== */
 
 import {
+  useRef,
   useState,
 } from "react";
 
@@ -15,6 +16,12 @@ import {
 import {
   motion,
 } from "framer-motion";
+
+/* ==========================================
+   NEXT IMAGE
+========================================== */
+
+import Image from "next/image";
 
 /* ==========================================
    PORTFOLIO GALLERY COMPONENT
@@ -34,9 +41,140 @@ PortfolioGallery({
     setSelectedImage,
   ] = useState(null);
 
+  /* ==========================================
+      FILTER STATE
+    ========================================== */
+
+    const [
+      activeFilter,
+      setActiveFilter,
+    ] = useState("all");
+
+    
+  /* ==========================================
+      VIDEO REFERENCES
+    ========================================== */
+
+    const videoRefs =
+      useRef({});
+
+       /* ==========================================
+          FILTERED PORTFOLIO ITEMS
+        ========================================== */
+
+        const filteredItems =
+          portfolioItems.filter(
+            (item) => {
+
+              if (
+                activeFilter === "all"
+              ) {
+                return true;
+              }
+
+              return (
+                item.mediaType ===
+                activeFilter
+              );
+
+            }
+          );
+
+
   return (
 
     <>
+
+    {/* =====================================
+            FILTER BUTTONS
+        ===================================== */}
+
+        <div
+          className="
+            flex
+            items-center
+            gap-4
+            mb-12
+            flex-wrap
+          "
+        >
+
+          {/* ALL */}
+
+          <button
+            onClick={() =>
+              setActiveFilter(
+                "all"
+              )
+            }
+            className={`
+              px-6
+              py-3
+              rounded-full
+              font-semibold
+              transition-all
+
+              ${
+                activeFilter === "all"
+                  ? "bg-black text-white"
+                  : "bg-zinc-200 text-black hover:bg-zinc-300"
+              }
+            `}
+          >
+            All
+          </button>
+
+          {/* PHOTOS */}
+
+          <button
+            onClick={() =>
+              setActiveFilter(
+                "photo"
+              )
+            }
+            className={`
+              px-6
+              py-3
+              rounded-full
+              font-semibold
+              transition-all
+
+              ${
+                activeFilter === "photo"
+                  ? "bg-black text-white"
+                  : "bg-zinc-200 text-black hover:bg-zinc-300"
+              }
+            `}
+          >
+            Photos
+          </button>
+
+          {/* VIDEOS */}
+
+          <button
+            onClick={() =>
+              setActiveFilter(
+                "video"
+              )
+            }
+            className={`
+              px-6
+              py-3
+              rounded-full
+              font-semibold
+              transition-all
+
+              ${
+                activeFilter === "video"
+                  ? "bg-black text-white"
+                  : "bg-zinc-200 text-black hover:bg-zinc-300"
+              }
+            `}
+          >
+            Videos
+          </button>
+
+        </div>
 
       {/* =====================================
           GALLERY GRID
@@ -63,11 +201,45 @@ PortfolioGallery({
         "
       >
 
-        {portfolioItems.map(
+        {filteredItems.map(
           (item) => (
 
             <motion.div
               key={item.id}
+
+            onMouseEnter={() => {
+
+              if (
+                item.mediaType === "video" &&
+                videoRefs.current[item.id]
+              ) {
+
+                videoRefs
+                  .current[item.id]
+                  .play();
+
+              }
+
+            }}
+
+            onMouseLeave={() => {
+
+              if (
+                item.mediaType === "video" &&
+                videoRefs.current[item.id]
+              ) {
+
+                videoRefs
+                  .current[item.id]
+                  .pause();
+
+                videoRefs
+                  .current[item.id]
+                  .currentTime = 0;
+
+              }
+
+            }}
 
               variants={{
                 hidden: {
@@ -90,6 +262,7 @@ PortfolioGallery({
                   item
                 )
               }
+              
             >
 
               {/* ==========================
@@ -118,13 +291,59 @@ PortfolioGallery({
                 {item.mediaType ===
                 "photo" ? (
 
-                  <img
-                    src={
-                      item.mediaUrl
-                    }
-                    alt={
-                      item.title
-                    }
+                 <div
+                    className="
+                      relative
+                      w-full
+                      h-[420px]
+                    "
+                  >
+
+                    <Image
+                      src={item.mediaUrl}
+                      alt={item.title}
+
+                      fill
+
+                      className="
+                        object-cover
+
+                        group-hover:scale-[1.03]
+
+                        transition-transform
+                        duration-700
+                      "
+
+                      sizes="
+                        (max-width: 768px) 100vw,
+                        (max-width: 1280px) 50vw,
+                        33vw
+                      "
+
+                      priority={false}
+                    />
+
+                  </div>
+
+                ) : (
+
+                /* ==========================
+                    VIDEO
+                ========================== */
+
+                  <video
+
+                    ref={(element) => {
+
+                      videoRefs.current[item.id] =
+                        element;
+
+                    }}
+
+                    muted
+                    playsInline
+                    loop
+                    preload="metadata"
                     className="
                       w-full
                       h-[420px]
@@ -134,22 +353,6 @@ PortfolioGallery({
 
                       transition-transform
                       duration-700
-                    "
-                  />
-
-                ) : (
-
-                /* ==========================
-                    VIDEO
-                ========================== */
-
-                  <video
-                    muted
-                    playsInline
-                    className="
-                      w-full
-                      h-[420px]
-                      object-cover
                     "
                   >
                     <source

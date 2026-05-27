@@ -18,6 +18,8 @@
   import Link from "next/link";
 
   import PortfolioGallery from "@/components/portfolio/PortfolioGallery";
+
+  import Image from "next/image";
   /* ==========================================
     LOAD PORTFOLIO CATEGORY
   ========================================== */
@@ -157,6 +159,8 @@
                     })
                   );
 
+                  const featuredHeroItem = serializedPortfolioItems[0];
+
                       /* ==========================================
                         DEBUG
                       ========================================== */
@@ -197,16 +201,25 @@
                       HERO BACKGROUND IMAGE
                   ================================ */}
 
-                  <img
-                    src={category.image}
+                  <Image
+
+                    src={
+                      featuredHeroItem?.mediaUrl ||
+                      category.image
+                    }
+
                     alt={category.name}
+
+                    fill
+
+                    priority
+
                     className="
                       absolute
                       inset-0
-                      w-full
-                      h-full
                       object-cover
                     "
+
                   />
 
                   {/* ================================
