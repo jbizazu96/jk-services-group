@@ -1,351 +1,337 @@
 /* ==========================================
-   PORTFOLIO CATEGORY PAGE
+    PORTFOLIO CATEGORY PAGE
 
-   Displays all portfolio items
-   that belong to a selected
-   portfolio category.
-========================================== */
-
-import {
-  collection,
-  getDocs,
-} from "firebase/firestore";
-
-import {
-  db,
-} from "@/lib/firebase";
-
-import Link from "next/link";
-
-/* ==========================================
-   LOAD PORTFOLIO CATEGORY
-========================================== */
-
-async function getCategory(
-  slug
-) {
-
-  const snapshot =
-    await getDocs(
-      collection(
-        db,
-        "portfolioCategories"
-      )
-    );
-
-  const categories =
-    snapshot.docs.map(
-      (doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })
-    );
-
-  return categories.find(
-    (item) =>
-      item.slug === slug
-  );
-}
-
-/* ==========================================
-   LOAD PORTFOLIO ITEMS
-========================================== */
-
-async function getPortfolioItems(
-  categoryName
-) {
-
-  const snapshot =
-    await getDocs(
-      collection(
-        db,
-        "portfolioItems"
-      )
-    );
-
-  const items =
-    snapshot.docs.map(
-      (doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })
-    );
-
-  return items.filter(
-    (item) =>
-      item.category ===
-      categoryName
-  );
-}
-
-/* ==========================================
-   PAGE COMPONENT
-========================================== */
-
-export default async function
-PortfolioCategoryPage({
-  params,
-}) {
-
-  /* ==========================================
-     NEXT.JS 15
-
-     Params are now async
+    Displays all portfolio items
+    that belong to a selected
+    portfolio category.
   ========================================== */
 
-  const {
-    category: categorySlug,
-  } = await params;
+  import {
+    collection,
+    getDocs,
+  } from "firebase/firestore";
 
-  const category =
-    await getCategory(
-      categorySlug
-    );
+  import {
+    db,
+  } from "@/lib/firebase";
 
-  /* ==========================
-     CATEGORY NOT FOUND
-  ========================== */
+  import Link from "next/link";
 
-  if (!category) {
+  import PortfolioGallery from "@/components/portfolio/PortfolioGallery";
+  /* ==========================================
+    LOAD PORTFOLIO CATEGORY
+  ========================================== */
 
-    return (
+        async function getCategory(
+          slug
+        ) {
 
-      
-      <div
-        className="
-          min-h-screen
-          flex
-          items-center
-          justify-center
-          text-white
-        "
-      >
-        Category Not Found
-      </div>
+          const snapshot =
+            await getDocs(
+              collection(
+                db,
+                "portfolioCategories"
+              )
+            );
 
-    );
-  }
+          const categories =
+            snapshot.docs.map(
+              (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })
+            );
 
-  const portfolioItems =
-    await getPortfolioItems(
-      category.name
-    );
+          return categories.find(
+            (item) =>
+              item.slug === slug
+          );
+        }
 
-        /* ==========================================
-          DEBUG
-        ========================================== */
+              /* ==========================================
+                LOAD PORTFOLIO ITEMS
+              ========================================== */
 
-        console.log(
-          "Category Name:",
-          category.name
-        );
+              async function getPortfolioItems(
+                categoryName
+              ) {
 
-        console.log(
-          "Portfolio Items:",
-          portfolioItems
-        );
+                const snapshot =
+                  await getDocs(
+                    collection(
+                      db,
+                      "portfolioItems"
+                    )
+                  );
 
-  return (
+                const items =
+                  snapshot.docs.map(
+                    (doc) => ({
+                      id: doc.id,
+                      ...doc.data(),
+                    })
+                  );
 
-    <div
-      className="
-        min-h-screen
-        bg-black
-        text-white
-      "
-    >
+                return items.filter(
+                  (item) =>
+                    item.category ===
+                    categoryName
+                );
+              }
 
-      {/* =====================================
-          HERO SECTION
-      ===================================== */}
+              /* ==========================================
+                PAGE COMPONENT
+              ========================================== */
 
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-6
-          py-16
-        "
-      >
+              export default async function
+              PortfolioCategoryPage({
+                params,
+              }) {
 
-        {/* =====================================
-            BACK BUTTON
-        ===================================== */}
+                /* ==========================================
+                  NEXT.JS 15
 
-        <Link
-          href="/#gallery"
-          className="
-            inline-flex
-            items-center
-            gap-2
-            mb-8
-            text-yellow-400
-            hover:text-yellow-300
-            font-semibold
-            transition
-          "
-        >
-          ← Back To Portfolio
-        </Link>
+                  Params are now async
+                ========================================== */
 
-        <h1
-          className="
-            text-5xl
-            font-bold
-            mb-4
-          "
-        >
-          {category.name}
-        </h1>
+                const {
+                  category: categorySlug,
+                } = await params;
 
-        <p
-          className="
-            text-zinc-400
-            text-lg
-          "
-        >
-          {category.description}
-        </p>
+                const category =
+                  await getCategory(
+                    categorySlug
+                  );
 
-      </div>
+                /* ==========================
+                  CATEGORY NOT FOUND
+                ========================== */
+
+                if (!category) {
+
+                  return (
+
+                    
+                    <div
+                      className="
+                        min-h-screen
+                        flex
+                        items-center
+                        justify-center
+                        text-white
+                      "
+                    >
+                      Category Not Found
+                    </div>
+
+                  );
+                }
+
+                /* ==========================================
+                  LOAD PORTFOLIO ITEMS
+                ========================================== */
+
+                const portfolioItems =
+                  await getPortfolioItems(
+                    category.name
+                  );
+
+                /* ==========================================
+                  CONVERT FIRESTORE OBJECTS
+
+                  Client Components only accept
+                  plain serializable objects
+                ========================================== */
+
+                const serializedPortfolioItems =
+                  portfolioItems.map(
+                    (item) => ({
+
+                      ...item,
+
+                      createdAt:
+                        item.createdAt
+                          ? item.createdAt.toDate().toISOString()
+                          : null,
+
+                    })
+                  );
+
+                      /* ==========================================
+                        DEBUG
+                      ========================================== */
+
+                      console.log(
+                        "Category Name:",
+                        category.name
+                      );
+
+                      console.log(
+                        "Portfolio Items:",
+                        portfolioItems
+                      );
+
+                  return (
+
+                    <div
+                      className="
+                        min-h-screen
+                        bg-white
+                        text-white
+                      "
+                    >
+                {/* =====================================
+                    HERO SECTION
+                ===================================== */}
+
+                <div
+                  className="
+                    relative
+                    h-[360px]
+                    md:h-[420px]
+                    overflow-hidden
+                  "
+                >
+
+                  {/* ================================
+                      HERO BACKGROUND IMAGE
+                  ================================ */}
+
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="
+                      absolute
+                      inset-0
+                      w-full
+                      h-full
+                      object-cover
+                    "
+                  />
+
+                  {/* ================================
+                      DARK OVERLAY
+                  ================================ */}
+
+                  <div
+                    className="
+                      absolute
+                      inset-0
+                      bg-black/70
+                    "
+                  ></div>
+
+                  {/* ================================
+                      HERO CONTENT
+                  ================================ */}
+
+                  <div
+                    className="
+                      relative
+                      z-10
+                      max-w-6xl
+                      mx-auto
+                      px-6
+                      h-full
+                      flex
+                      flex-col
+                      justify-center
+                    "
+                  >
+
+                    {/* BACK BUTTON */}
+
+                    <Link
+                      href="/#gallery"
+                      className="
+                        inline-flex
+                        items-center
+                        gap-2
+                        mb-8
+                        text-yellow-400
+                        hover:text-yellow-300
+                        font-semibold
+                        transition
+                      "
+                    >
+                      ← Back To Portfolio
+                    </Link>
+
+                    {/* CATEGORY TITLE */}
+
+                    <h1
+                      className="
+                        text-6xl
+                        md:text-6xl
+                        font-black
+                        text-white
+                        mb-6
+                      "
+                    >
+                      {category.name}
+                    </h1>
+
+                    {/* CATEGORY DESCRIPTION */}
+
+                    <p
+                      className="
+                        text-xl
+                        text-gray-300
+                        max-w-2xl
+                      "
+                    >
+                      {category.description}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                      {/* =====================================
+                        HERO BOTTOM CURVE
+                    ===================================== */}
+
+                    <div
+                      className="
+                        relative
+                        -mt-16
+                        z-20
+                        bg-white
+                        rounded-t-[40px]
+                        min-h-[120px]
+                      "
+                    ></div>
 
       {/* =====================================
           PORTFOLIO ITEMS GRID
       ===================================== */}
 
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-6
-          pb-20
-        "
-      >
-
-        <div
+              <div
           className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            lg:grid-cols-3
-            gap-8
+            bg-white
+            relative
+            z-30
           "
         >
 
-          {portfolioItems.map(
-            (item) => (
+          <div
+            className="
+              max-w-6xl
+              mx-auto
+              px-6
+              pb-24
+            "
+          >
 
-              <div
-                key={item.id}
-                className="
-                  bg-zinc-900
-                  border
-                  border-zinc-800
-                  rounded-2xl
-                  overflow-hidden
-                "
-              >
-
-                {/* ==========================
-                    PHOTO
-                ========================== */}
-
-                {item.mediaType ===
-                "photo" ? (
-
-                  <img
-                    src={
-                      item.mediaUrl
-                    }
-                    alt={
-                      item.title
-                    }
-                    className="
-                      w-full
-                      h-72
-                      object-cover
-                    "
-                  />
-
-                ) : (
-
-              /* ==========================
-                VIDEO
-              ========================== */
-
-              item.mediaUrl ? (
-
-                <video
-                  controls
-                  className="
-                    w-full
-                    h-72
-                    object-cover
-                  "
-                >
-                  <source
-                    src={item.mediaUrl}
-                  />
-                </video>
-
-              ) : (
-
-                <div
-                  className="
-                    h-72
-                    flex
-                    items-center
-                    justify-center
-                    bg-zinc-800
-                    text-zinc-400
-                  "
-                >
-                  Video Missing
-                </div>
-
-              )
-
-                )}
-
-                {/* ==========================
-                    ITEM DETAILS
-                ========================== */}
-
-                <div
-                  className="
-                    p-5
-                  "
-                >
-
-                  <h2
-                    className="
-                      text-xl
-                      font-bold
-                      mb-3
-                    "
-                  >
-                    {item.title}
-                  </h2>
-
-                  <p
-                    className="
-                      text-zinc-400
-                    "
-                  >
-                    {item.description}
-                  </p>
-
-                </div>
-
-              </div>
-
-            )
-          )}
-
-        </div>
+          <PortfolioGallery
+            portfolioItems={
+              serializedPortfolioItems
+            }
+          />
 
       </div>
 
+    </div>
     </div>
 
   );

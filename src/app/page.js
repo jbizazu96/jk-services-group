@@ -88,7 +88,7 @@
                   }
 
                 };
-
+                    const router = useRouter();
                       /* ================================
                       PORTFOLIO CATEGORIES
                     ================================ */
@@ -1197,11 +1197,9 @@
           ========================================== */
 
           onClick={() =>
-            <Link
-                href={`/portfolio/${category.slug}`}
-              >
-                ...
-            </Link>
+            router.push(
+              `/portfolio/${category.slug}`
+            )
           }
           className="
             group
