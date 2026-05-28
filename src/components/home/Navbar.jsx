@@ -622,17 +622,36 @@ export default function Navbar() {
 
                         target="_blank"
 
-                        className="
-                            bg-yellow-500
-                            hover:bg-yellow-400
-                            text-black
-                            text-center
-                            py-3
-                            rounded-2xl
-                            transition
-                            font-semibold
-                            shadow-[0_10px_30px_rgba(234,179,8,0.25)]
-                          "
+                       className={`
+                              text-center
+                              py-3
+                              rounded-2xl
+                              transition
+                              font-semibold
+
+                              ${
+                                type === "yellow"
+                                  ? `
+                                    bg-yellow-500
+                                    hover:bg-yellow-400
+                                    text-black
+                                  `
+                                  : type === "outline"
+                                  ? `
+                                    border
+                                    border-yellow-500
+                                    text-yellow-400
+                                    hover:bg-yellow-500
+                                    hover:text-black
+                                  `
+                                  : `
+                                    bg-white/10
+                                    text-white
+                                    hover:bg-white
+                                    hover:text-black
+                                  `
+                              }
+                            `}
                       >
                         {label}
 
