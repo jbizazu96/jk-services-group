@@ -29,13 +29,17 @@ export default function Navbar() {
 
   useEffect(() => {
 
-    const handleScroll = () => {
+      const handleScroll = () => {
 
-      setScrolled(window.scrollY > 40);
+        setScrolled(window.scrollY > 40);
 
-      setDonationMenu(false);
+        /* CLOSE DONATION MENU */
+        setDonationMenu(false);
 
-    };
+        /* CLOSE MOBILE MENU */
+        setMobileMenu(false);
+
+      };
 
     window.addEventListener(
       "scroll",
@@ -615,15 +619,16 @@ export default function Navbar() {
                         target="_blank"
 
                         className="
-                          bg-white/10
-                          hover:bg-yellow-500
-                          hover:text-black
-                          text-white
-                          text-center
-                          py-3
-                          rounded-2xl
-                          transition
-                        "
+                            bg-yellow-500
+                            hover:bg-yellow-400
+                            text-black
+                            text-center
+                            py-3
+                            rounded-2xl
+                            transition
+                            font-semibold
+                            shadow-[0_10px_30px_rgba(234,179,8,0.25)]
+                          "
                       >
                         {label}
 
