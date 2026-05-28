@@ -10,6 +10,10 @@ const nextConfig = {
 
     remotePatterns: [
 
+      /* =====================================
+          FIREBASE STORAGE
+      ===================================== */
+
       {
         protocol: "https",
 
@@ -21,7 +25,18 @@ const nextConfig = {
         protocol: "https",
 
         hostname:
-          "*.firebasestorage.app",
+          "**.firebasestorage.app",
+      },
+
+      /* =====================================
+          UNSPLASH
+      ===================================== */
+
+      {
+        protocol: "https",
+
+        hostname:
+          "images.unsplash.com",
       },
 
     ],

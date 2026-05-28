@@ -20,6 +20,9 @@
   import PortfolioGallery from "@/components/portfolio/PortfolioGallery";
 
   import Image from "next/image";
+
+  import PortfolioHero from "@/components/portfolio/PortfolioHero";
+
   /* ==========================================
     LOAD PORTFOLIO CATEGORY
   ========================================== */
@@ -177,129 +180,29 @@
 
                   return (
 
-                    <div
+                     
+
+                        <div
                       className="
                         min-h-screen
                         bg-white
                         text-white
                       "
                     >
-                {/* =====================================
-                    HERO SECTION
-                ===================================== */}
+              <PortfolioHero
 
-                <div
-                  className="
-                    relative
-                    h-[360px]
-                    md:h-[420px]
-                    overflow-hidden
-                  "
-                >
+                    title={category.name}
 
-                  {/* ================================
-                      HERO BACKGROUND IMAGE
-                  ================================ */}
+                    description={
+                      category.description
+                    }
 
-                  <Image
-
-                    src={
+                    image={
                       featuredHeroItem?.mediaUrl ||
                       category.image
                     }
 
-                    alt={category.name}
-
-                    fill
-
-                    priority
-
-                    className="
-                      absolute
-                      inset-0
-                      object-cover
-                    "
-
                   />
-
-                  {/* ================================
-                      DARK OVERLAY
-                  ================================ */}
-
-                  <div
-                    className="
-                      absolute
-                      inset-0
-                      bg-black/70
-                    "
-                  ></div>
-
-                  {/* ================================
-                      HERO CONTENT
-                  ================================ */}
-
-                  <div
-                    className="
-                      relative
-                      z-10
-                      max-w-6xl
-                      mx-auto
-                      px-6
-                      h-full
-                      flex
-                      flex-col
-                      justify-center
-                    "
-                  >
-
-                    {/* BACK BUTTON */}
-
-                    <Link
-                      href="/#gallery"
-                      className="
-                        inline-flex
-                        items-center
-                        gap-2
-                        mb-8
-                        text-yellow-400
-                        hover:text-yellow-300
-                        font-semibold
-                        transition
-                      "
-                    >
-                      ← Back To Portfolio
-                    </Link>
-
-                    {/* CATEGORY TITLE */}
-
-                    <h1
-                      className="
-                        text-6xl
-                        md:text-6xl
-                        font-black
-                        text-white
-                        mb-6
-                      "
-                    >
-                      {category.name}
-                    </h1>
-
-                    {/* CATEGORY DESCRIPTION */}
-
-                    <p
-                      className="
-                        text-xl
-                        text-gray-300
-                        max-w-2xl
-                      "
-                    >
-                      {category.description}
-                    </p>
-
-                  </div>
-
-                </div>
-
                       {/* =====================================
                         HERO BOTTOM CURVE
                     ===================================== */}
@@ -346,6 +249,5 @@
 
     </div>
     </div>
-
   );
 }
