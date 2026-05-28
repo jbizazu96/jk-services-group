@@ -1,32 +1,21 @@
+
 "use client";
 
-/*
-|--------------------------------------------------------------------------
-| CINEMATIC SERVICE REQUESTS V3
-|--------------------------------------------------------------------------
-|
-| FILE:
-| /components/admin/ServiceRequests.jsx
-|
-| PREMIUM FEATURES:
-| - Cinematic Dashboard UI
-| - Atmospheric Glow System
-| - Premium Stats
-| - Search + Filters
-| - Glassmorphism Cards
-| - Luxury Modal
-| - Uploaded Files Gallery
-| - Mobile Optimized
-| - Enterprise Layout
-|
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   JKSERVICES V3 PREMIUM CRM
+   FILE: /components/admin/ServiceRequests.jsx
+   DESCRIPTION:
+   Premium cinematic service requests dashboard
+   with Firebase realtime sync + SaaS portal modal
+========================================================= */
 
 import {
   useEffect,
   useMemo,
   useState,
 } from "react";
+
+import { createPortal } from "react-dom";
 
 import {
   motion,
@@ -38,43 +27,55 @@ import {
   query,
   orderBy,
   onSnapshot,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
-import {
+import { toast } from "sonner";
 
+import {
   Search,
   FolderOpen,
-  Calendar,
-  MapPin,
   Clock3,
-  Mail,
-  Phone,
-  User,
-  X,
   Sparkles,
   CheckCircle2,
   Loader2,
   Eye,
-  Briefcase,
   ImageIcon,
-
+  Save,
+  Trash2,
+  Download,
+  X,
+  BadgeCheck,
 } from "lucide-react";
 
-/*
-|--------------------------------------------------------------------------
-| MAIN COMPONENT
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   STATUS OPTIONS
+========================================================= */
+
+const STATUS_OPTIONS = [
+  "pending",
+  "reviewing",
+  "quoted",
+  "approved",
+  "in_progress",
+  "completed",
+  "cancelled",
+];
+
+/* =========================================================
+   MAIN COMPONENT
+========================================================= */
 
 export default function ServiceRequests() {
 
-  /*
-  |--------------------------------------------------------------------------
-  | STATES
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     STATES
+  ===================================================== */
 
   const [requests, setRequests] =
     useState([]);
@@ -91,11 +92,15 @@ export default function ServiceRequests() {
   const [statusFilter, setStatusFilter] =
     useState("all");
 
-  /*
-  |--------------------------------------------------------------------------
-  | FETCH REQUESTS
-  |--------------------------------------------------------------------------
-  */
+  const [saving, setSaving] =
+    useState(false);
+
+  const [deleting, setDeleting] =
+    useState(false);
+
+  /* =====================================================
+     FETCH REQUESTS
+  ===================================================== */
 
   useEffect(() => {
 
@@ -122,11 +127,9 @@ export default function ServiceRequests() {
 
   }, []);
 
-  /*
-  |--------------------------------------------------------------------------
-  | FILTERED REQUESTS
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     FILTER REQUESTS
+  ===================================================== */
 
   const filteredRequests = useMemo(() => {
 
@@ -162,6 +165,7 @@ export default function ServiceRequests() {
         matchesSearch &&
         matchesStatus
       );
+
     });
 
   }, [
@@ -170,11 +174,9 @@ export default function ServiceRequests() {
     statusFilter,
   ]);
 
-  /*
-  |--------------------------------------------------------------------------
-  | STATS
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     STATS
+  ===================================================== */
 
   const totalRequests =
     requests.length;
@@ -198,11 +200,9 @@ export default function ServiceRequests() {
         r.status === "completed"
     ).length;
 
-  /*
-  |--------------------------------------------------------------------------
-  | STATUS STYLES
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     STATUS STYLES
+  ===================================================== */
 
   const getStatusStyles = (status) => {
 
@@ -236,6 +236,13 @@ export default function ServiceRequests() {
           border-purple-500/20
         `;
 
+      case "cancelled":
+        return `
+          bg-red-500/15
+          text-red-300
+          border-red-500/20
+        `;
+
       default:
         return `
           bg-blue-500/15
@@ -245,11 +252,116 @@ export default function ServiceRequests() {
     }
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | LOADING
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     SAVE REQUEST
+  ===================================================== */
+
+  const handleSaveRequest =
+    async () => {
+
+      try {
+
+        setSaving(true);
+
+        const requestRef = doc(
+          db,
+          "serviceRequests",
+          selectedRequest.id
+        );
+
+        await updateDoc(
+          requestRef,
+          {
+            customerName:
+              selectedRequest.customerName || "",
+
+            email:
+              selectedRequest.email || "",
+
+            phone:
+              selectedRequest.phone || "",
+
+            serviceType:
+              selectedRequest.serviceType || "",
+
+            description:
+              selectedRequest.description || "",
+
+            status:
+              selectedRequest.status || "pending",
+
+            updatedAt:
+              serverTimestamp(),
+          }
+        );
+
+        toast.success(
+          "Request updated successfully"
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast.error(
+          "Failed to update request"
+        );
+
+      } finally {
+
+        setSaving(false);
+      }
+    };
+
+  /* =====================================================
+     DELETE REQUEST
+  ===================================================== */
+
+  const handleDeleteRequest =
+    async () => {
+
+      const confirmDelete =
+        window.confirm(
+          "Delete this request permanently?"
+        );
+
+      if (!confirmDelete) return;
+
+      try {
+
+        setDeleting(true);
+
+        await deleteDoc(
+          doc(
+            db,
+            "serviceRequests",
+            selectedRequest.id
+          )
+        );
+
+        toast.success(
+          "Request deleted successfully"
+        );
+
+        setSelectedRequest(null);
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast.error(
+          "Failed to delete request"
+        );
+
+      } finally {
+
+        setDeleting(false);
+      }
+    };
+
+  /* =====================================================
+     LOADING SCREEN
+  ===================================================== */
 
   if (loading) {
 
@@ -277,483 +389,310 @@ export default function ServiceRequests() {
   }
 
   return (
-    <div className="relative">
+    <>
+      <div className="relative">
 
-      {/* GLOW */}
-      <div
-        className="
-          absolute
-          top-0
-          right-0
-          h-[400px]
-          w-[400px]
-          rounded-full
-          bg-yellow-500/10
-          blur-[120px]
-          pointer-events-none
-        "
-      ></div>
+        {/* BACKGROUND GLOW */}
 
-      {/* HEADER */}
-      <div
-        className="
-          flex
-          flex-col
-          xl:flex-row
-          xl:items-center
-          xl:justify-between
-          gap-8
-          mb-12
-        "
-      >
+        <div
+          className="
+            absolute
+            top-0
+            right-0
+            h-[400px]
+            w-[400px]
+            rounded-full
+            bg-yellow-500/10
+            blur-[120px]
+            pointer-events-none
+          "
+        />
 
-        {/* LEFT */}
-        <div>
+        {/* HEADER */}
 
-          <div
-            className="
-              inline-flex
-              items-center
-              gap-2
-              bg-yellow-500/10
-              border
-              border-yellow-500/20
-              rounded-full
-              px-4
-              py-2
-              mb-5
-            "
-          >
-
-            <Sparkles
-              className="
-                h-4
-                w-4
-                text-yellow-400
-              "
-            />
-
-            <span
-              className="
-                text-yellow-300
-                text-sm
-                font-semibold
-              "
-            >
-
-              Client Intake Pipeline
-
-            </span>
-
-          </div>
-
-          <h2
-            className="
-              text-5xl
-              font-black
-              leading-tight
-            "
-          >
-
-            Service Requests
-
-          </h2>
-
-          <p
-            className="
-              text-gray-400
-              text-lg
-              mt-4
-              max-w-2xl
-            "
-          >
-
-            Manage incoming luxury client
-            requests, uploaded assets,
-            project details, and workflows.
-
-          </p>
-
-        </div>
-
-        {/* SEARCH */}
         <div
           className="
             flex
             flex-col
-            md:flex-row
-            gap-4
+            xl:flex-row
+            xl:items-center
+            xl:justify-between
+            gap-8
+            mb-12
           "
         >
 
-          {/* SEARCH */}
+          {/* LEFT */}
+
+          <div>
+
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-2
+                bg-yellow-500/10
+                border
+                border-yellow-500/20
+                rounded-full
+                px-4
+                py-2
+                mb-5
+              "
+            >
+
+              <Sparkles
+                className="
+                  h-4
+                  w-4
+                  text-yellow-400
+                "
+              />
+
+              <span
+                className="
+                  text-yellow-300
+                  text-sm
+                  font-semibold
+                "
+              >
+
+                Client Intake Pipeline
+
+              </span>
+
+            </div>
+
+            <h2
+              className="
+                text-5xl
+                font-black
+              "
+            >
+
+              Service Requests
+
+            </h2>
+
+          </div>
+
+          {/* SEARCH + FILTER */}
+
           <div
             className="
-              relative
-              w-full
-              md:w-[320px]
+              flex
+              flex-col
+              md:flex-row
+              gap-4
             "
           >
 
-            <Search
-              className="
-                absolute
-                left-4
-                top-1/2
-                -translate-y-1/2
-                h-5
-                w-5
-                text-gray-500
-              "
-            />
+            {/* SEARCH */}
 
-            <input
-              type="text"
-              placeholder="Search requests..."
-              value={search}
+            <div
+              className="
+                relative
+                w-full
+                md:w-[320px]
+              "
+            >
+
+              <Search
+                className="
+                  absolute
+                  left-4
+                  top-1/2
+                  -translate-y-1/2
+                  h-5
+                  w-5
+                  text-gray-500
+                "
+              />
+
+              <input
+                type="text"
+                placeholder="Search requests..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                className="
+                  w-full
+                  rounded-2xl
+                  border
+                  border-white/10
+                  bg-white/5
+                  py-4
+                  pl-12
+                  pr-4
+                  outline-none
+                "
+              />
+
+            </div>
+
+            {/* FILTER */}
+
+            <select
+              value={statusFilter}
               onChange={(e) =>
-                setSearch(e.target.value)
+                setStatusFilter(
+                  e.target.value
+                )
               }
               className="
-                w-full
                 rounded-2xl
                 border
                 border-white/10
                 bg-white/5
-                backdrop-blur-xl
+                px-5
                 py-4
-                pl-12
-                pr-4
-                text-white
                 outline-none
-                placeholder:text-gray-500
-                focus:border-yellow-500/30
-              "
-            />
-          </div>
-
-          {/* FILTER */}
-          <select
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(
-                e.target.value
-              )
-            }
-            className="
-              rounded-2xl
-              border
-              border-white/10
-              bg-white/5
-              backdrop-blur-xl
-              px-5
-              py-4
-              text-white
-              outline-none
-            "
-          >
-
-            <option value="all">
-              All Status
-            </option>
-
-            <option value="pending">
-              Pending
-            </option>
-
-            <option value="reviewing">
-              Reviewing
-            </option>
-
-            <option value="quoted">
-              Quoted
-            </option>
-
-            <option value="approved">
-              Approved
-            </option>
-
-            <option value="completed">
-              Completed
-            </option>
-
-          </select>
-        </div>
-      </div>
-
-      {/* STATS */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          xl:grid-cols-4
-          gap-6
-          mb-12
-        "
-      >
-
-        <StatCard
-          title="Total Requests"
-          value={totalRequests}
-          icon={
-            <FolderOpen
-              className="
-                h-6
-                w-6
-              "
-            />
-          }
-        />
-
-        <StatCard
-          title="Pending"
-          value={pendingRequests}
-          icon={
-            <Clock3
-              className="
-                h-6
-                w-6
-              "
-            />
-          }
-        />
-
-        <StatCard
-          title="Reviewing"
-          value={reviewingRequests}
-          icon={
-            <Eye
-              className="
-                h-6
-                w-6
-              "
-            />
-          }
-        />
-
-        <StatCard
-          title="Completed"
-          value={completedRequests}
-          icon={
-            <CheckCircle2
-              className="
-                h-6
-                w-6
-              "
-            />
-          }
-        />
-
-      </div>
-
-      {/* EMPTY */}
-      {filteredRequests.length === 0 && (
-
-        <div
-          className="
-            rounded-[32px]
-            border
-            border-white/10
-            bg-white/5
-            backdrop-blur-2xl
-            p-20
-            text-center
-          "
-        >
-
-          <FolderOpen
-            className="
-              h-16
-              w-16
-              text-yellow-400
-              mx-auto
-              mb-6
-            "
-          />
-
-          <h3
-            className="
-              text-3xl
-              font-bold
-              mb-4
-            "
-          >
-
-            No Requests Found
-
-          </h3>
-
-          <p
-            className="
-              text-gray-400
-              text-lg
-            "
-          >
-
-            Incoming client requests
-            will appear here.
-
-          </p>
-
-        </div>
-      )}
-
-      {/* GRID */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          2xl:grid-cols-3
-          gap-6
-        "
-      >
-
-        {filteredRequests.map(
-          (request, index) => (
-
-            <motion.div
-
-              key={request.id}
-
-              initial={{
-                opacity: 0,
-                y: 30,
-              }}
-
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-
-              transition={{
-                delay: index * 0.04,
-              }}
-
-              whileHover={{
-                y: -6,
-              }}
-
-              onClick={() =>
-                setSelectedRequest(request)
-              }
-
-              className="
-                group
-                relative
-                overflow-hidden
-                rounded-[32px]
-                border
-                border-white/10
-                bg-white/5
-                backdrop-blur-2xl
-                p-7
-                cursor-pointer
-                transition-all
-                duration-500
-                hover:border-yellow-500/20
-                hover:bg-white/[0.07]
-                hover:shadow-[0_20px_80px_rgba(234,179,8,0.12)]
               "
             >
 
-              {/* GLOW */}
-              <div
-                className="
-                  absolute
-                  inset-0
-                  bg-gradient-to-br
-                  from-yellow-500/[0.03]
-                  via-transparent
-                  to-transparent
-                  opacity-0
-                  group-hover:opacity-100
-                  transition-opacity
-                  duration-500
-                "
-              ></div>
+              <option value="all">
+                All Status
+              </option>
 
-              {/* TOP */}
-              <div
+              {STATUS_OPTIONS.map((status) => (
+
+                <option
+                  key={status}
+                  value={status}
+                >
+
+                  {status}
+
+                </option>
+
+              ))}
+
+            </select>
+
+          </div>
+
+        </div>
+
+        {/* STATS */}
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            xl:grid-cols-4
+            gap-6
+            mb-12
+          "
+        >
+
+          <StatCard
+            title="Total Requests"
+            value={totalRequests}
+            icon={<FolderOpen className="h-6 w-6" />}
+          />
+
+          <StatCard
+            title="Pending"
+            value={pendingRequests}
+            icon={<Clock3 className="h-6 w-6" />}
+          />
+
+          <StatCard
+            title="Reviewing"
+            value={reviewingRequests}
+            icon={<Eye className="h-6 w-6" />}
+          />
+
+          <StatCard
+            title="Completed"
+            value={completedRequests}
+            icon={<CheckCircle2 className="h-6 w-6" />}
+          />
+
+        </div>
+
+        {/* REQUEST GRID */}
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            2xl:grid-cols-3
+            gap-6
+          "
+        >
+
+          {filteredRequests.map(
+            (request, index) => (
+
+              <motion.div
+
+                key={request.id}
+
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+
+                transition={{
+                  delay: index * 0.03,
+                }}
+
                 className="
-                  relative
-                  flex
-                  items-start
-                  justify-between
-                  mb-8
+                  rounded-[32px]
+                  border
+                  border-white/10
+                  bg-white/5
+                  backdrop-blur-2xl
+                  p-7
                 "
               >
 
-                <div>
+                {/* STATUS */}
 
-                  {/* STATUS */}
-                  <div className={`
-                    inline-flex
-                    items-center
-                    rounded-full
-                    border
-                    px-4
-                    py-2
-                    text-sm
-                    font-semibold
-                    capitalize
-                    ${getStatusStyles(
-                      request.status
-                    )}
-                  `}>
+                <div className={`
+                  inline-flex
+                  items-center
+                  rounded-full
+                  border
+                  px-4
+                  py-2
+                  text-sm
+                  font-semibold
+                  capitalize
+                  ${getStatusStyles(
+                    request.status
+                  )}
+                `}>
 
-                    {request.status ||
-                      "pending"}
-
-                  </div>
-
-                  {/* SERVICE */}
-                  <h3
-                    className="
-                      text-3xl
-                      font-black
-                      mt-5
-                      leading-tight
-                    "
-                  >
-
-                    {request.serviceType}
-
-                  </h3>
+                  {request.status || "pending"}
 
                 </div>
 
-                {/* ICON */}
-                <div
+                {/* TITLE */}
+
+                <h3
                   className="
-                    rounded-2xl
-                    bg-yellow-500/10
-                    border
-                    border-yellow-500/10
-                    p-4
-                    text-yellow-400
+                    text-3xl font-black mb-8 text-white
                   "
                 >
 
-                  <Briefcase
-                    className="
-                      h-6
-                      w-6
-                    "
-                  />
+                  {request.serviceType}
 
-                </div>
-              </div>
-
-              {/* CUSTOMER */}
-              <div className="relative">
+                </h3>
 
                 <p
                   className="
-                    text-2xl
-                    font-bold
-                    mb-4
+                    text-xl
+                    font-semibold
                   "
                 >
 
@@ -761,597 +700,747 @@ export default function ServiceRequests() {
 
                 </p>
 
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    text-gray-400
-                    mb-3
-                  "
-                >
-
-                  <MapPin
-                    className="
-                      h-4
-                      w-4
-                    "
-                  />
-
-                  <span>
-
-                    {request.city ||
-                      "Unknown"}
-
-                    {request.state
-                      ? `, ${request.state}`
-                      : ""}
-
-                  </span>
-
-                </div>
+                {/* FOOTER */}
 
                 <div
                   className="
-                    flex
-                    items-center
-                    gap-2
-                    text-gray-400
-                  "
-                >
-
-                  <Calendar
-                    className="
-                      h-4
-                      w-4
-                    "
-                  />
-
-                  <span>
-
-                    {request.createdAt
-                      ?.seconds
-
-                      ? new Date(
-                          request.createdAt.seconds * 1000
-                        ).toLocaleDateString()
-
-                      : "Recently"}
-
-                  </span>
-
-                </div>
-
-              </div>
-
-              {/* FOOTER */}
-              <div
-                className="
-                  relative
-                  mt-8
-                  pt-6
-                  border-t
-                  border-white/10
-                  flex
-                  items-center
-                  justify-between
-                "
-              >
-
-                <div>
-
-                  <p
-                    className="
-                      text-gray-500
-                      text-sm
-                      mb-1
-                    "
-                  >
-
-                    Uploaded Files
-
-                  </p>
-
-                  <p
-                    className="
-                      text-xl
-                      font-bold
-                    "
-                  >
-
-                    {request.uploads
-                      ?.length || 0}
-
-                  </p>
-
-                </div>
-
-                <div
-                  className="
-                    rounded-2xl
-                    bg-white/5
-                    border
+                    mt-6
+                    pt-6
+                    border-t
                     border-white/10
-                    px-5
-                    py-3
-                    text-sm
-                    font-semibold
+                    flex
+                    justify-between
+                    items-center
                   "
                 >
 
-                  View Request
+                  <div>
 
-                </div>
+                    <p className="text-gray-500 text-sm">
 
-              </div>
+                      Uploaded Files
 
-            </motion.div>
-          )
-        )}
-      </div>
+                    </p>
 
-      {/* MODAL */}
-      <AnimatePresence>
+                    <p className="font-bold text-xl">
 
-        {selectedRequest && (
-
-          <motion.div
-
-            initial={{
-              opacity: 0,
-            }}
-
-            animate={{
-              opacity: 1,
-            }}
-
-            exit={{
-              opacity: 0,
-            }}
-
-            className="
-              fixed
-              inset-0
-              z-50
-              bg-black/70
-              backdrop-blur-xl
-              overflow-y-auto
-              p-6
-            "
-          >
-
-            <div
-              className="
-                min-h-screen
-                flex
-                items-center
-                justify-center
-              "
-            >
-
-              {/* MODAL */}
-              <motion.div
-
-                initial={{
-                  opacity: 0,
-                  scale: 0.96,
-                }}
-
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                }}
-
-                exit={{
-                  opacity: 0,
-                  scale: 0.96,
-                }}
-
-                className="
-                  relative
-                  w-full
-                  max-w-7xl
-                  rounded-[40px]
-                  border
-                  border-white/10
-                  bg-[#0a0a0a]
-                  overflow-hidden
-                  shadow-[0_40px_120px_rgba(0,0,0,0.5)]
-                "
-              >
-
-                {/* GLOW */}
-                <div
-                  className="
-                    absolute
-                    top-0
-                    right-0
-                    h-[400px]
-                    w-[400px]
-                    rounded-full
-                    bg-yellow-500/10
-                    blur-[120px]
-                  "
-                ></div>
-
-                {/* CLOSE */}
-                <button
-                  onClick={() =>
-                    setSelectedRequest(null)
-                  }
-                  className="
-                    absolute
-                    top-8
-                    right-8
-                    z-20
-                    rounded-2xl
-                    border
-                    border-white/10
-                    bg-white/5
-                    p-4
-                    text-white
-                    hover:bg-white/10
-                  "
-                >
-
-                  <X
-                    className="
-                      h-5
-                      w-5
-                    "
-                  />
-
-                </button>
-
-                {/* CONTENT */}
-                <div
-                  className="
-                    relative
-                    z-10
-                    p-10
-                    lg:p-14
-                  "
-                >
-
-                  {/* TOP */}
-                  <div className="mb-14">
-
-                    <div className={`
-                      inline-flex
-                      items-center
-                      rounded-full
-                      border
-                      px-5
-                      py-2
-                      text-sm
-                      font-semibold
-                      capitalize
-                      mb-6
-                      ${getStatusStyles(
-                        selectedRequest.status
-                      )}
-                    `}>
-
-                      {selectedRequest.status ||
-                        "pending"}
-
-                    </div>
-
-                    <h2
-                      className="
-                        text-6xl
-                        font-black
-                        leading-tight
-                      "
-                    >
-
-                      {
-                        selectedRequest.serviceType
-                      }
-
-                    </h2>
-
-                    <p
-                      className="
-                        text-gray-400
-                        text-lg
-                        mt-6
-                      "
-                    >
-
-                      Request ID:
-                      {" "}
-                      {
-                        selectedRequest.requestId
-                      }
+                      {request.uploads?.length || 0}
 
                     </p>
 
                   </div>
 
-                  {/* GRID */}
-                  <div
+                  {/* VIEW BUTTON */}
+
+                  <button
+                    onClick={() =>
+                      setSelectedRequest(request)
+                    }
                     className="
-                      grid
-                      grid-cols-1
-                      xl:grid-cols-2
-                      gap-10
+                      flex
+                      items-center
+                      gap-2
+                      rounded-2xl
+                      border
+                      border-yellow-500/20
+                      bg-yellow-500/10
+                      px-5
+                      py-3
+                      text-sm
+                      font-semibold
+                      text-yellow-300
+                      hover:bg-yellow-500/20
+                      transition-all
                     "
                   >
 
-                    {/* CLIENT INFO */}
-                    <div>
+                    <Eye className="h-4 w-4" />
 
-                      <SectionTitle
-                        title="Client Information"
-                      />
+                    View Request
 
-                      <InfoCard
-                        icon={
-                          <User className="h-5 w-5" />
-                        }
-                        label="Customer"
-                        value={
-                          selectedRequest.customerName
-                        }
-                      />
+                  </button>
 
-                      <InfoCard
-                        icon={
-                          <Mail className="h-5 w-5" />
-                        }
-                        label="Email"
-                        value={
-                          selectedRequest.email
-                        }
-                      />
+                </div>
 
-                      <InfoCard
-                        icon={
-                          <Phone className="h-5 w-5" />
-                        }
-                        label="Phone"
-                        value={
-                          selectedRequest.phone
-                        }
-                      />
+              </motion.div>
+            )
+          )}
 
-                      <InfoCard
-                        icon={
-                          <MapPin className="h-5 w-5" />
-                        }
-                        label="Location"
-                        value={`
-                          ${selectedRequest.city || ""}
-                          ${selectedRequest.state
-                            ? `, ${selectedRequest.state}`
-                            : ""}
-                        `}
-                      />
+        </div>
 
-                    </div>
+      </div>
 
-                    {/* PROJECT DETAILS */}
-                    <div>
+      {/* =====================================================
+         PORTAL MODAL
+      ===================================================== */}
 
-                      <SectionTitle
-                        title="Project Details"
-                      />
+      {typeof window !== "undefined" &&
+        createPortal(
+
+          <AnimatePresence>
+
+            {selectedRequest && (
+
+              <motion.div
+
+                initial={{ opacity: 0 }}
+
+                animate={{ opacity: 1 }}
+
+                exit={{ opacity: 0 }}
+
+                className="
+                  fixed
+                  inset-0
+                  z-[999999]
+                  bg-black/80
+                  backdrop-blur-xl
+                  overflow-y-auto
+                  p-4
+                  md:p-8
+                "
+              >
+
+                {/* CENTER */}
+
+                <div
+                  className="
+                    min-h-screen
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+
+                  {/* MODAL */}
+
+                  <motion.div
+
+                    initial={{
+                      opacity: 0,
+                      scale: 0.96,
+                      y: 20,
+                    }}
+
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      y: 0,
+                    }}
+
+                    exit={{
+                      opacity: 0,
+                      scale: 0.96,
+                      y: 20,
+                    }}
+
+                    className="
+                      relative
+                      w-full
+                      max-w-7xl
+                      rounded-[40px]
+                      border
+                      border-white/10
+                      bg-[#111111]
+                      text-white
+                      overflow-hidden
+                    "
+                  >
+
+                    {/* CLOSE */}
+
+                    <button
+                      onClick={() =>
+                        setSelectedRequest(null)
+                      }
+                      className="
+                        absolute
+                        top-6
+                        right-6
+                        z-50
+                        rounded-2xl
+                        border
+                        border-white/10
+                        bg-white/5
+                        p-4
+                      "
+                    >
+
+                      <X className="h-5 w-5" />
+
+                    </button>
+
+                    {/* CONTENT */}
+
+                    <div className="p-6 lg:p-14">
+
+                      {/* HEADER */}
 
                       <div
                         className="
-                          rounded-[32px]
-                          border
-                          border-white/10
-                          bg-white/5
-                          backdrop-blur-xl
-                          p-8
+                          flex
+                          flex-col
+                          xl:flex-row
+                          xl:items-center
+                          xl:justify-between
+                          gap-8
+                          mb-14
                         "
                       >
 
-                        <p
+                        <div>
+
+                          <div className={`
+                            inline-flex
+                            items-center
+                            rounded-full
+                            border
+                            px-5
+                            py-2
+                            text-sm
+                            font-semibold
+                            capitalize
+                            mb-6
+                            ${getStatusStyles(
+                              selectedRequest.status
+                            )}
+                          `}>
+
+                            {selectedRequest.status}
+
+                          </div>
+
+                          <h2
+                            className="
+                              text-5xl font-black text-white
+                            "
+                          >
+
+                            {selectedRequest.serviceType}
+
+                          </h2>
+
+                        </div>
+
+                        {/* ACTIONS */}
+
+                        <div
                           className="
-                            whitespace-pre-wrap
-                            text-gray-300
-                            leading-relaxed
-                            text-lg
+                            flex
+                            flex-wrap
+                            gap-4
                           "
                         >
 
-                          {
-                            selectedRequest.description
-                            ||
-                            "No description provided."
-                          }
+                          <button
+                            onClick={
+                              handleSaveRequest
+                            }
+                            disabled={saving}
+                            className="
+                              flex
+                              items-center
+                              gap-2
+                              rounded-2xl
+                              bg-green-500/20
+                              border
+                              border-green-500/20
+                              px-6
+                              py-4
+                              font-semibold
+                              text-green-300
+                            "
+                          >
 
-                        </p>
+                            {saving ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                              <Save className="h-5 w-5" />
+                            )}
+
+                            Save Changes
+
+                          </button>
+
+                          <button
+                            onClick={
+                              handleDeleteRequest
+                            }
+                            disabled={deleting}
+                            className="
+                              flex
+                              items-center
+                              gap-2
+                              rounded-2xl
+                              bg-red-500/20
+                              border
+                              border-red-500/20
+                              px-6
+                              py-4
+                              font-semibold
+                              text-red-300
+                            "
+                          >
+
+                            {deleting ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-5 w-5" />
+                            )}
+
+                            Delete
+
+                          </button>
+
+                        </div>
 
                       </div>
 
-                    </div>
-
-                  </div>
-
-                  {/* FILES */}
-                  <div className="mt-16">
-
-                    <SectionTitle
-                      title="Uploaded Assets"
-                    />
-
-                    {selectedRequest.uploads
-                      ?.length > 0 ? (
+                      {/* GRID */}
 
                       <div
                         className="
                           grid
                           grid-cols-1
-                          md:grid-cols-2
-                          xl:grid-cols-3
-                          gap-6
+                          xl:grid-cols-2
+                          gap-10
                         "
                       >
 
-                        {selectedRequest.uploads.map(
-                          (file, index) => (
+                        {/* LEFT */}
 
-                            <a
+                        <div>
 
-                              key={index}
+                          <SectionTitle
+                            title="Edit Request"
+                          />
 
-                              href={file.url}
+                          <InputField
+                            label="Customer Name"
+                            value={
+                              selectedRequest.customerName || ""
+                            }
+                            onChange={(value) =>
+                              setSelectedRequest({
+                                ...selectedRequest,
+                                customerName: value,
+                              })
+                            }
+                          />
 
-                              target="_blank"
+                          <InputField
+                            label="Email"
+                            value={
+                              selectedRequest.email || ""
+                            }
+                            onChange={(value) =>
+                              setSelectedRequest({
+                                ...selectedRequest,
+                                email: value,
+                              })
+                            }
+                          />
 
-                              rel="noreferrer"
+                          <InputField
+                            label="Phone"
+                            value={
+                              selectedRequest.phone || ""
+                            }
+                            onChange={(value) =>
+                              setSelectedRequest({
+                                ...selectedRequest,
+                                phone: value,
+                              })
+                            }
+                          />
 
+                          <InputField
+                            label="Service Type"
+                            value={
+                              selectedRequest.serviceType || ""
+                            }
+                            onChange={(value) =>
+                              setSelectedRequest({
+                                ...selectedRequest,
+                                serviceType: value,
+                              })
+                            }
+                          />
+
+                          {/* STATUS */}
+
+                          <div className="mb-6">
+
+                            <label
                               className="
-                                group
-                                overflow-hidden
-                                rounded-[28px]
-                                border
-                                border-white/10
-                                bg-white/5
-                                backdrop-blur-xl
-                                transition-all
-                                duration-500
-                                hover:border-yellow-500/20
-                                hover:-translate-y-1
+                                block
+                                text-sm
+                                font-semibold
+                                text-gray-200
+                                mb-3
                               "
                             >
 
-                              {/* IMAGE */}
-                              {file.type?.startsWith(
-                                "image/"
-                              ) ? (
+                              Status
 
-                                <img
-                                  src={file.url}
-                                  alt={file.name}
-                                  className="
-                                    h-[260px]
-                                    w-full
-                                    object-cover
-                                  "
-                                />
+                            </label>
 
-                              ) : (
+                            <select
+                              value={
+                                selectedRequest.status || "pending"
+                              }
+                              onChange={(e) =>
+                                setSelectedRequest({
+                                  ...selectedRequest,
+                                  status: e.target.value,
+                                })
+                              }
+                              className="
+                                w-full
+                                rounded-2xl
+                                border
+                                border-white/10
+                                bg-white/5
+                                px-5
+                                py-4
+                                outline-none
+                              "
+                            >
 
-                                <div
-                                  className="
-                                    flex
-                                    h-[260px]
-                                    items-center
-                                    justify-center
-                                    bg-black/20
-                                  "
+                              {STATUS_OPTIONS.map((status) => (
+
+                                <option
+                                  key={status}
+                                  value={status}
                                 >
 
-                                  <ImageIcon
-                                    className="
-                                      h-12
-                                      w-12
-                                      text-yellow-400
-                                    "
-                                  />
+                                  {status}
 
-                                </div>
+                                </option>
+
+                              ))}
+
+                            </select>
+
+                          </div>
+
+                          {/* DESCRIPTION */}
+
+                          <div>
+
+                            <label
+                              className="
+                                block
+                                text-sm
+                                font-semibold
+                                text-gray-200
+                                mb-3
+                              "
+                            >
+
+                              Description
+
+                            </label>
+
+                            <textarea
+                              rows={8}
+                              value={
+                                selectedRequest.description || ""
+                              }
+                              onChange={(e) =>
+                                setSelectedRequest({
+                                  ...selectedRequest,
+                                  description:
+                                    e.target.value,
+                                })
+                              }
+                              className="
+                                w-full
+                                rounded-[28px]
+                                border
+                                border-white/10
+                                bg-[#1c1c1c]
+                                border-white/20
+                                text-white
+                                placeholder:text-gray-500
+                                px-5
+                                py-5
+                                outline-none
+                                resize-none
+                                transition-all
+                                focus:border-yellow-500/40
+                                focus:bg-[#1d1d1d]
+                              "
+                            />
+
+                          </div>
+
+                        </div>
+
+                        {/* RIGHT */}
+
+                        <div>
+
+                          <SectionTitle
+                            title="Uploaded Files"
+                          />
+
+                          {selectedRequest.uploads?.length > 0 ? (
+
+                            <div
+                              className="
+                                grid
+                                grid-cols-1
+                                gap-6
+                              "
+                            >
+
+                              {selectedRequest.uploads.map(
+                                (file, index) => (
+
+                                  <div
+
+                                    key={index}
+
+                                    className="
+                                      rounded-[28px]
+                                      border
+                                      border-white/10
+                                      bg-white/5
+                                      overflow-hidden
+                                    "
+                                  >
+
+                                    {/* IMAGE */}
+
+                                    {file.type?.startsWith(
+                                      "image/"
+                                    ) ? (
+
+                                      <img
+                                        src={file.url}
+                                        alt={file.name}
+                                        className="
+                                          h-[240px]
+                                          w-full
+                                          object-cover
+                                        "
+                                      />
+
+                                    ) : (
+
+                                      <div
+                                        className="
+                                          flex
+                                          h-[240px]
+                                          items-center
+                                          justify-center
+                                          bg-black/20
+                                        "
+                                      >
+
+                                        <ImageIcon
+                                          className="
+                                            h-14
+                                            w-14
+                                            text-yellow-400
+                                          "
+                                        />
+
+                                      </div>
+                                    )}
+
+                                    {/* FILE INFO */}
+
+                                    <div className="p-6">
+
+                                      <div
+                                        className="
+                                          flex
+                                          items-center
+                                          justify-between
+                                          gap-4
+                                        "
+                                      >
+
+                                        <div>
+
+                                          <p
+                                            className="
+                                              font-bold
+                                              text-lg
+                                              truncate
+                                            "
+                                          >
+
+                                            {file.name}
+
+                                          </p>
+
+                                          <p
+                                            className="
+                                              text-gray-200
+                                              mt-1
+                                            "
+                                          >
+
+                                            {(
+                                              file.size /
+                                              1024 /
+                                              1024
+                                            ).toFixed(2)} MB
+
+                                          </p>
+
+                                        </div>
+
+                                        <BadgeCheck
+                                          className="
+                                            h-6
+                                            w-6
+                                            text-green-400
+                                          "
+                                        />
+
+                                      </div>
+
+                                      {/* ACTIONS */}
+
+                                      <div
+                                        className="
+                                          flex
+                                          gap-4
+                                          mt-6
+                                        "
+                                      >
+
+                                        <a
+                                          href={file.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="
+                                            flex-1
+                                            flex
+                                            items-center
+                                            justify-center
+                                            gap-2
+                                            rounded-2xl
+                                            border
+                                            border-white/10
+                                            bg-white/5
+                                            px-5
+                                            py-3
+                                            text-sm
+                                            font-semibold
+                                          "
+                                        >
+
+                                          <Eye className="h-4 w-4" />
+
+                                          Open
+
+                                        </a>
+
+                                        <a
+                                          href={file.url}
+                                          download
+                                          className="
+                                            flex-1
+                                            flex
+                                            items-center
+                                            justify-center
+                                            gap-2
+                                            rounded-2xl
+                                            border
+                                            border-yellow-500/20
+                                            bg-yellow-500/10
+                                            px-5
+                                            py-3
+                                            text-sm
+                                            font-semibold
+                                            text-yellow-300
+                                          "
+                                        >
+
+                                          <Download className="h-4 w-4" />
+
+                                          Download
+
+                                        </a>
+
+                                      </div>
+
+                                    </div>
+
+                                  </div>
+                                )
                               )}
 
-                              {/* INFO */}
-                              <div className="p-6">
+                            </div>
 
-                                <p
-                                  className="
-                                    truncate
-                                    text-lg
-                                    font-bold
-                                  "
-                                >
+                          ) : (
 
-                                  {file.name}
+                            <div
+                              className="
+                                rounded-[32px]
+                                border
+                                border-white/10
+                                bg-white/5
+                                p-14
+                                text-center
+                              "
+                            >
 
-                                </p>
+                              <FolderOpen
+                                className="
+                                  h-16
+                                  w-16
+                                  text-yellow-400
+                                  mx-auto
+                                  mb-5
+                                "
+                              />
 
-                                <p
-                                  className="
-                                    text-gray-400
-                                    mt-2
-                                  "
-                                >
+                              <p
+                                className="
+                                  text-gray-200
+                                  text-lg
+                                "
+                              >
 
-                                  {(file.size / 1024 / 1024)
-                                    .toFixed(2)} MB
+                                No uploaded files
 
-                                </p>
+                              </p>
 
-                              </div>
+                            </div>
+                          )}
 
-                            </a>
-                          )
-                        )}
-
-                      </div>
-
-                    ) : (
-
-                      <div
-                        className="
-                          rounded-[32px]
-                          border
-                          border-white/10
-                          bg-white/5
-                          p-14
-                          text-center
-                        "
-                      >
-
-                        <FolderOpen
-                          className="
-                            h-14
-                            w-14
-                            text-yellow-400
-                            mx-auto
-                            mb-5
-                          "
-                        />
-
-                        <p
-                          className="
-                            text-gray-400
-                            text-lg
-                          "
-                        >
-
-                          No uploaded files.
-
-                        </p>
+                        </div>
 
                       </div>
-                    )}
 
-                  </div>
+                    </div>
+
+                  </motion.div>
 
                 </div>
 
               </motion.div>
+            )}
 
-            </div>
+          </AnimatePresence>,
 
-          </motion.div>
-        )}
+          document.body
+        )
+      }
 
-      </AnimatePresence>
-
-    </div>
+    </>
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| STAT CARD
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   STAT CARD
+========================================================= */
 
 function StatCard({
   title,
@@ -1362,8 +1451,6 @@ function StatCard({
   return (
     <div
       className="
-        relative
-        overflow-hidden
         rounded-[32px]
         border
         border-white/10
@@ -1373,23 +1460,8 @@ function StatCard({
       "
     >
 
-      {/* GLOW */}
       <div
         className="
-          absolute
-          top-0
-          right-0
-          h-32
-          w-32
-          rounded-full
-          bg-yellow-500/10
-          blur-[60px]
-        "
-      ></div>
-
-      <div
-        className="
-          relative
           flex
           items-center
           justify-between
@@ -1400,7 +1472,7 @@ function StatCard({
 
           <p
             className="
-              text-gray-400
+              text-gray-200
               text-sm
               mb-3
             "
@@ -1444,11 +1516,9 @@ function StatCard({
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| SECTION TITLE
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   SECTION TITLE
+========================================================= */
 
 function SectionTitle({
   title,
@@ -1469,77 +1539,62 @@ function SectionTitle({
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| INFO CARD
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   INPUT FIELD
+========================================================= */
 
-function InfoCard({
-  icon,
+function InputField({
   label,
   value,
+  onChange,
 }) {
 
   return (
-    <div
-      className="
-        flex
-        items-start
-        gap-5
-        rounded-[28px]
-        border
-        border-white/10
-        bg-white/5
-        backdrop-blur-xl
-        p-6
-        mb-5
-      "
-    >
+    <div className="mb-6">
 
-      <div
+      {/* LABEL */}
+
+      <label
         className="
-          rounded-2xl
-          border
-          border-yellow-500/20
-          bg-yellow-500/10
-          p-4
-          text-yellow-400
+          block
+          text-sm
+          font-semibold
+          text-white
+          mb-3
         "
       >
 
-        {icon}
+        {label}
 
-      </div>
+      </label>
 
-      <div>
+      {/* INPUT */}
 
-        <p
-          className="
-            text-gray-500
-            text-sm
-            mb-2
-          "
-        >
-
-          {label}
-
-        </p>
-
-        <p
-          className="
-            text-lg
-            font-semibold
-            text-white
-          "
-        >
-
-          {value || "N/A"}
-
-        </p>
-
-      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) =>
+          onChange(e.target.value)
+        }
+        className="
+          w-full
+          rounded-2xl
+          border
+          border-white/10
+          bg-[#1c1c1c]
+          border-white/20
+          text-white
+          placeholder:text-gray-500
+          px-5
+          py-4
+          outline-none
+          transition-all
+          focus:border-yellow-500/40
+          focus:bg-[#1d1d1d]
+        "
+      />
 
     </div>
   );
+
 }

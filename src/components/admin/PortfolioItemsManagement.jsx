@@ -1,5 +1,9 @@
 "use client";
 
+
+import EditPortfolioModal from "./EditPortfolioModal";
+
+
 /* =========================================
    REACT
 ========================================= */
@@ -37,6 +41,7 @@ import {
   Film,
   Images,
   Video,
+  PenIcon,
 } from "lucide-react";
 
 /* =========================================
@@ -104,6 +109,10 @@ export default function PortfolioItemsManagement() {
   /* =========================================
      STATES
   ========================================= */
+
+
+  const [editingItem, setEditingItem] =
+  useState(null);
 
   const [portfolioItems,
         setPortfolioItems] =
@@ -1432,6 +1441,32 @@ if (
 
                           Delete
                         </button>
+
+                       
+                        <button
+                          onClick={() =>
+                            setEditingItem(item)
+                          }
+                          className="
+                            flex
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-2xl
+                            bg-blue-600
+                            px-4
+                            py-3
+                            font-medium
+                            transition
+                            hover:bg-blue-500
+                          "
+                        >
+                           <PenIcon size={16} />
+
+                          Edit
+
+                        </button>
+
                       </div>
                     </div>
                   </motion.div>
@@ -1558,6 +1593,19 @@ if (
           </motion.div>
         )}
       </AnimatePresence>
+      
+     <EditPortfolioModal 
+      open={!!editingItem} 
+      onClose={() => 
+        setEditingItem(null) 
+      } 
+      item={editingItem} 
+      portfolioCategories={ portfolioCategories 
+
+      } 
+      onUpdated={() => { 
+        window.location.reload(); }} /> 
+
     </div>
   );
 }
@@ -1618,6 +1666,8 @@ function StatCard({
       <h3 className="mt-1 text-3xl font-black">
         {value}
       </h3>
+    
+
     </div>
   );
 }

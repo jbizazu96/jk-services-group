@@ -141,16 +141,17 @@ export default function AdminPage() {
           MAIN WRAPPER
       ========================================== */}
 
-      <main
-        className="
-          min-h-screen
-          bg-black
-          text-white
-          flex
-          relative
-          overflow-hidden
-        "
-      >
+            <main
+          className="
+            min-h-screen
+            bg-black
+            text-white
+            flex
+            relative
+            overflow-x-hidden
+            overflow-y-visible
+          "
+        >
 
         {/* ==========================================
             AMBIENT GLOW TOP RIGHT
@@ -163,7 +164,7 @@ export default function AdminPage() {
             right-0
             w-[500px]
             h-[500px]
-            bg-yellow-500/10
+            bg-purple-500/1ii0
             blur-[120px]
             rounded-full
             z-0
@@ -460,13 +461,12 @@ export default function AdminPage() {
         {/* ==========================================
             MAIN CONTENT
         ========================================== */}
-
         <section
           className="
             flex-1
             relative
             z-10
-            overflow-y-auto
+            overflow-visible
           "
         >
 

@@ -552,7 +552,7 @@ export default function DashboardStats() {
                 md:text-7xl
               ">
 
-                Cinematic
+                
                 {" "}
 
                 <span className="
@@ -564,7 +564,7 @@ export default function DashboardStats() {
                   text-transparent
                 ">
 
-                  Operations Center
+                  Dashboard
 
                 </span>
 

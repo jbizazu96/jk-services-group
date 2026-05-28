@@ -283,7 +283,7 @@ export default function ClientPortal() {
 
       setRequestId(generatedRequestId);
 
-      setSuccess(true);
+        setSuccess(true);
 
     } catch (error) {
 
@@ -357,15 +357,122 @@ export default function ClientPortal() {
             </p>
           </div>
 
-          <div className="flex justify-center">
+                        <div
+                className="
+                  flex
+                  flex-col
+                  sm:flex-row
+                  items-center
+                  justify-center
+                  gap-4
+                "
+              >
 
-            <button
-              onClick={() => setSuccess(false)}
-              className="rounded-2xl bg-gradient-to-r from-[#f5deb3] to-[#D4AF37] text-black px-8 py-4 font-semibold"
-            >
-              Submit Another Request
-            </button>
-          </div>
+                {/* SUBMIT ANOTHER */}
+                <button
+                  onClick={() => {
+
+                    setSuccess(false);
+
+                    /* RESET FORM */
+
+                    setFormData({
+
+                      customerName: "",
+                      email: "",
+                      phone: "",
+                      businessName: "",
+
+                      city: "",
+                      state: "",
+
+                      serviceType: "",
+
+                      projectTitle: "",
+                      description: "",
+
+                      eventDate: "",
+                      eventTime: "",
+                      eventLocation: "",
+
+                      audienceSize: "",
+
+                      websiteType: "",
+                      pagesNeeded: "",
+
+                      djStyle: "",
+                      mcStyle: "",
+
+                      photoType: "",
+                      videoType: "",
+
+                      flyerType: "",
+                      flyerPurpose: "",
+
+                      eventPlanningType: "",
+                      guestCount: "",
+                      themeStyle: "",
+
+                      additionalNotes: "",
+
+                    });
+
+                    /* RESET SERVICE */
+
+                    setSelectedService("");
+
+                    /* RESET FILES */
+
+                    setFiles([]);
+
+                  }}
+                  className="
+                    rounded-2xl
+                    bg-gradient-to-r
+                    from-[#f5deb3]
+                    to-[#D4AF37]
+                    text-black
+                    px-8
+                    py-4
+                    font-semibold
+                    transition-all
+                    duration-300
+                    hover:scale-[1.02]
+                  "
+                >
+
+                  Submit Another Request
+
+                </button>
+
+                {/* HOME PAGE */}
+                <button
+                  onClick={() => {
+
+                    window.location.href = "/";
+
+                  }}
+                  className="
+                    rounded-2xl
+                    border
+                    border-[#D4AF37]/30
+                    bg-white/70
+                    backdrop-blur-xl
+                    px-8
+                    py-4
+                    font-semibold
+                    text-[#111111]
+                    transition-all
+                    duration-300
+                    hover:bg-white
+                  "
+                >
+
+                  Home Page
+
+                </button>
+
+              </div>
         </motion.div>
       </div>
     );
@@ -1214,7 +1321,7 @@ function InputField({
         <input
           type={type}
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onChange}
           placeholder={placeholder}
           required={required}
@@ -1253,7 +1360,7 @@ function TextareaField({
       <textarea
         rows={rows}
         name={name}
-        value={value}
+        value={value || ""}
         onChange={onChange}
         required={required}
         placeholder={placeholder}

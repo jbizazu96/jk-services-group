@@ -1,5 +1,8 @@
+
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Toaster } from "sonner";
+
 import "./globals.css";
 
 /* =========================================
@@ -368,7 +371,31 @@ export default function RootLayout({
         "
       >
 
+        {/* ===================================
+            APP CONTENT
+        ==================================== */}
+
         {children}
+
+        {/* ===================================
+            GLOBAL TOAST SYSTEM
+        ==================================== */}
+
+        <Toaster
+          richColors
+          position="top-right"
+          theme="dark"
+          toastOptions={{
+            style: {
+              background:
+                "#0f0f0f",
+              border:
+                "1px solid rgba(255,255,255,0.08)",
+              color:
+                "#ffffff",
+            },
+          }}
+        />
 
       </body>
 

@@ -4,9 +4,13 @@
 
 import { initializeApp } from "firebase/app";
 
+
 import {
   getFirestore,
+  initializeFirestore,
 } from "firebase/firestore";
+
+
 
 import {
   getAuth,
@@ -52,8 +56,11 @@ const app =
    FIRESTORE DATABASE
 ========================================== */
 
-export const db =
-  getFirestore(app);
+
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+
 
 /* ==========================================
    FIREBASE AUTHENTICATION
