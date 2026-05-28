@@ -591,21 +591,25 @@ export default function Navbar() {
                       [
                         "Donate $10",
                         "https://buy.stripe.com/8x27sF8IK6at7O5gM5grS00",
+                        "yellow",
                       ],
 
                       [
                         "Donate $25",
                         "https://buy.stripe.com/fZueV7aQS1Udc4l3ZjgrS03",
+                        "dark",
                       ],
 
                       [
                         "Donate $50",
                         "https://buy.stripe.com/3cI7sF3oqfL39Wd1RbgrS04",
+                        "dark",
                       ],
 
                       [
                         "Custom Amount",
                         "https://donate.stripe.com/6oU3cp3oq9mF4BTbrLgrS05",
+                        "outline",
                       ],
 
                     ].map(([label, link]) => (
