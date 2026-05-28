@@ -674,14 +674,6 @@ export default function DashboardStats() {
           xl:grid-cols-5
         ">
 
-          <PremiumStatCard
-            icon={
-              <FolderOpen size={24} />
-            }
-            title="Requests"
-            value={stats.totalRequests}
-            subtitle="Client Pipeline"
-          />
 
           <PremiumStatCard
             icon={
@@ -690,6 +682,15 @@ export default function DashboardStats() {
             title="Feedbacks"
             value={stats.totalFeedbacks}
             subtitle="Customer Reviews"
+          />
+
+          <PremiumStatCard
+            icon={
+              <FolderOpen size={24} />
+            }
+            title="Requests"
+            value={stats.totalRequests}
+            subtitle="Client Pipeline"
           />
 
           <PremiumStatCard

@@ -88,12 +88,6 @@ export default function AdminPage() {
     },
 
     {
-      id: "requests",
-      label: "Service Requests",
-      icon: FolderOpen,
-    },
-
-    {
       id: "feedbacks",
       label: "Feedbacks",
       icon: MessageSquare,
@@ -106,15 +100,21 @@ export default function AdminPage() {
     },
 
     {
-      id: "portfolio",
-      label: "Portfolio Categories",
-      icon: Images,
+      id: "requests",
+      label: "Service Requests",
+      icon: FolderOpen,
     },
 
     {
       id: "portfolioItems",
       label: "Portfolio Items",
       icon: ImagePlus,
+    },
+
+    {
+      id: "portfolio",
+      label: "Portfolio Categories",
+      icon: Images,
     },
 
   ];

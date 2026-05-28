@@ -402,7 +402,7 @@ export default function ServiceRequests() {
             h-[400px]
             w-[400px]
             rounded-full
-            bg-yellow-500/10
+            
             blur-[120px]
             pointer-events-none
           "
@@ -426,40 +426,27 @@ export default function ServiceRequests() {
 
           <div>
 
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-2
-                bg-yellow-500/10
-                border
-                border-yellow-500/20
-                rounded-full
-                px-4
-                py-2
-                mb-5
-              "
-            >
+            <div className="
+            inline-flex 
+            items-center 
+            gap-2 
+            rounded-full 
+            border 
+            border-white/10 
+            bg-white/5 
+            px-4 
+            py-2 
+            text-sm 
+            text-zinc-300 
+            backdrop-blur-md mb-5
+            ">
 
               <Sparkles
-                className="
-                  h-4
-                  w-4
-                  text-yellow-400
-                "
-              />
+                size={16}
+                
+              />       
 
-              <span
-                className="
-                  text-yellow-300
-                  text-sm
-                  font-semibold
-                "
-              >
-
-                Client Intake Pipeline
-
-              </span>
+              Premium Admin Dashboard Client Intake Pipeline
 
             </div>
 
@@ -473,6 +460,10 @@ export default function ServiceRequests() {
               Service Requests
 
             </h2>
+            
+             <p className="mt-4 max-w-2xl text-zinc-400 text-lg">
+              Manage all J&K Services Group Services Request with premium cinematic admin controls.
+            </p>
 
           </div>
 

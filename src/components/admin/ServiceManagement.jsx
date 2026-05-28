@@ -1,12 +1,9 @@
 
 "use client";
 
-/* =========================================================
-   J&K SERVICES GROUP
-   PREMIUM SERVICE REQUESTS DASHBOARD
-   FULL REBUILD VERSION
-   READY TO PASTE
-========================================================= */
+/* =========================================
+   REACT
+========================================= */
 
 import {
   useEffect,
@@ -14,73 +11,86 @@ import {
   useState,
 } from "react";
 
-import { createPortal } from "react-dom";
+/* =========================================
+   FRAMER MOTION
+========================================= */
 
 import {
   motion,
   AnimatePresence,
 } from "framer-motion";
 
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  updateDoc,
-  deleteDoc,
-  doc,
-  serverTimestamp,
-} from "firebase/firestore";
-
-import { db } from "@/lib/firebase";
-
-import { toast } from "sonner";
+/* =========================================
+   ICONS
+========================================= */
 
 import {
-  Search,
-  FolderOpen,
-  Clock3,
+  Plus,
+  Star,
+  Trash2,
+  Pencil,
+  Upload,
   Sparkles,
   CheckCircle2,
-  Loader2,
-  Eye,
+  XCircle,
   ImageIcon,
-  Save,
-  Trash2,
-  Download,
+  Layers3,
+  DollarSign,
+  Search,
   X,
-  BadgeCheck,
 } from "lucide-react";
 
-/* =========================================================
-   STATUS OPTIONS
-========================================================= */
+/* =========================================
+   FIREBASE
+========================================= */
 
-const STATUS_OPTIONS = [
-  "pending",
-  "reviewing",
-  "quoted",
-  "approved",
-  "in_progress",
-  "completed",
-  "cancelled",
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  doc,
+  orderBy,
+  query,
+} from "firebase/firestore";
+
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+
+import {
+  db,
+  storage,
+} from "@/lib/firebase";
+
+/* =========================================
+   CATEGORY OPTIONS
+========================================= */
+
+const categories = [
+  "Events",
+  "Music",
+  "Media",
+  "IT Services",
+  "Consulting",
+  "Business",
 ];
 
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
+/* =========================================
+   COMPONENT
+========================================= */
 
-export default function ServiceRequests() {
+export default function ServiceManagement() {
 
-  /* =====================================================
+  /* =========================================
      STATES
-  ===================================================== */
+  ========================================= */
 
-  const [requests, setRequests] =
+  const [services, setServices] =
     useState([]);
-
-  const [selectedRequest, setSelectedRequest] =
-    useState(null);
 
   const [loading, setLoading] =
     useState(true);
@@ -88,1326 +98,1112 @@ export default function ServiceRequests() {
   const [search, setSearch] =
     useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState("all");
-
-  const [saving, setSaving] =
+  const [uploading, setUploading] =
     useState(false);
 
-  const [deleting, setDeleting] =
+  const [editUploading,
+        setEditUploading] =
     useState(false);
 
-  /* =====================================================
-     FETCH REQUESTS
-  ===================================================== */
+  const [editingService,
+        setEditingService] =
+    useState(null);
 
-  useEffect(() => {
+  /* =========================================
+     FORM STATE
+  ========================================= */
 
-    const q = query(
-      collection(db, "serviceRequests"),
-      orderBy("createdAt", "desc")
-    );
-
-    const unsubscribe =
-      onSnapshot(q, (snapshot) => {
-
-        const data =
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-
-        setRequests(data);
-
-        setLoading(false);
-      });
-
-    return () => unsubscribe();
-
-  }, []);
-
-  /* =====================================================
-     FILTER REQUESTS
-  ===================================================== */
-
-  const filteredRequests = useMemo(() => {
-
-    return requests.filter((request) => {
-
-      const matchesSearch =
-
-        request.customerName
-          ?.toLowerCase()
-          .includes(search.toLowerCase())
-
-        ||
-
-        request.serviceType
-          ?.toLowerCase()
-          .includes(search.toLowerCase());
-
-      const matchesStatus =
-
-        statusFilter === "all"
-
-          ? true
-
-          : request.status === statusFilter;
-
-      return (
-        matchesSearch &&
-        matchesStatus
-      );
-
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      category: "Events",
+      minPrice: "",
+      maxPrice: "",
+      priceText: "",
+      description: "",
+      image: "",
+      featured: false,
     });
 
-  }, [
-    requests,
-    search,
-    statusFilter,
-  ]);
+  /* =========================================
+     EDIT FORM STATE
+  ========================================= */
 
-  /* =====================================================
-     STATUS COLORS
-  ===================================================== */
+  const [editData, setEditData] =
+    useState({
+      name: "",
+      category: "Events",
+      priceText: "",
+      description: "",
+      image: "",
+    });
 
-  const getStatusStyles = (status) => {
+  /* =========================================
+     LOAD SERVICES
+  ========================================= */
 
-    switch (status) {
+  const loadServices = async () => {
 
-      case "reviewing":
-        return `
-          bg-amber-500/20
-          text-amber-300
-          border-amber-500/20
-        `;
+    try {
 
-      case "approved":
-        return `
-          bg-green-500/20
-          text-green-300
-          border-green-500/20
-        `;
+      setLoading(true);
 
-      case "completed":
-        return `
-          bg-emerald-500/20
-          text-emerald-300
-          border-emerald-500/20
-        `;
+      const q = query(
+        collection(db, "services"),
+        orderBy("createdAt", "desc")
+      );
 
-      case "quoted":
-        return `
-          bg-purple-500/20
-          text-purple-300
-          border-purple-500/20
-        `;
+      const snapshot =
+        await getDocs(q);
 
-      case "cancelled":
-        return `
-          bg-red-500/20
-          text-red-300
-          border-red-500/20
-        `;
+      const items = snapshot.docs.map(
+        (item) => ({
+          id: item.id,
+          ...item.data(),
+        })
+      );
 
-      default:
-        return `
-          bg-blue-500/20
-          text-blue-300
-          border-blue-500/20
-        `;
+      setServices(items);
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setLoading(false);
+
     }
   };
 
-  /* =====================================================
-     SAVE REQUEST
-  ===================================================== */
+  useEffect(() => {
 
-  const handleSaveRequest =
-    async () => {
+    loadServices();
 
-      try {
+  }, []);
 
-        setSaving(true);
+  /* =========================================
+     FILTERED SERVICES
+  ========================================= */
 
-        await updateDoc(
-          doc(
-            db,
-            "serviceRequests",
-            selectedRequest.id
-          ),
-          {
-            customerName:
-              selectedRequest.customerName || "",
+  const filteredServices =
+    useMemo(() => {
 
-            email:
-              selectedRequest.email || "",
+      return services.filter((service) =>
+        service.name
+          ?.toLowerCase()
+          .includes(search.toLowerCase())
+      );
 
-            phone:
-              selectedRequest.phone || "",
+    }, [services, search]);
 
-            serviceType:
-              selectedRequest.serviceType || "",
+  /* =========================================
+     HANDLE INPUT CHANGE
+  ========================================= */
 
-            description:
-              selectedRequest.description || "",
+  const handleChange =
+    (field, value) => {
 
-            status:
-              selectedRequest.status || "pending",
-
-            updatedAt:
-              serverTimestamp(),
-          }
-        );
-
-        toast.success(
-          "Request updated successfully"
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        toast.error(
-          "Failed to update request"
-        );
-
-      } finally {
-
-        setSaving(false);
-      }
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
     };
 
-  /* =====================================================
-     DELETE REQUEST
-  ===================================================== */
+  /* =========================================
+     HANDLE EDIT CHANGE
+  ========================================= */
 
-  const handleDeleteRequest =
-    async () => {
+  const handleEditChange =
+    (field, value) => {
 
-      const confirmDelete =
-        window.confirm(
-          "Delete this request permanently?"
-        );
-
-      if (!confirmDelete) return;
-
-      try {
-
-        setDeleting(true);
-
-        await deleteDoc(
-          doc(
-            db,
-            "serviceRequests",
-            selectedRequest.id
-          )
-        );
-
-        toast.success(
-          "Request deleted successfully"
-        );
-
-        setSelectedRequest(null);
-
-      } catch (error) {
-
-        console.error(error);
-
-        toast.error(
-          "Failed to delete request"
-        );
-
-      } finally {
-
-        setDeleting(false);
-      }
+      setEditData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
     };
 
-  /* =====================================================
-     LOADING
-  ===================================================== */
+  /* =========================================
+     IMAGE UPLOAD
+  ========================================= */
 
-  if (loading) {
+  const uploadImage = async (
+    file,
+    isEditing = false
+  ) => {
 
-    return (
-      <div
-        className="
-          flex
-          items-center
-          justify-center
-          py-32
-        "
-      >
+    if (!file) return;
 
-        <Loader2
-          className="
-            h-10
-            w-10
-            animate-spin
-            text-blue-400
-          "
-        />
+    try {
 
-      </div>
+      if (isEditing) {
+        setEditUploading(true);
+      } else {
+        setUploading(true);
+      }
+
+      const imageRef = ref(
+        storage,
+        `services/${Date.now()}-${file.name}`
+      );
+
+      await uploadBytes(
+        imageRef,
+        file
+      );
+
+      const downloadURL =
+        await getDownloadURL(imageRef);
+
+      if (isEditing) {
+
+        handleEditChange(
+          "image",
+          downloadURL
+        );
+
+      } else {
+
+        handleChange(
+          "image",
+          downloadURL
+        );
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Image upload failed.");
+
+    } finally {
+
+      setUploading(false);
+      setEditUploading(false);
+    }
+  };
+
+  /* =========================================
+     ADD SERVICE
+  ========================================= */
+
+  const addService = async () => {
+
+    if (!formData.name) {
+      return alert(
+        "Service name is required"
+      );
+    }
+
+    try {
+
+      await addDoc(
+        collection(db, "services"),
+        {
+          ...formData,
+
+          minPrice:
+            Number(formData.minPrice),
+
+          maxPrice:
+            Number(formData.maxPrice),
+
+          active: true,
+
+          createdAt: new Date(),
+        }
+      );
+
+      setFormData({
+        name: "",
+        category: "Events",
+        minPrice: "",
+        maxPrice: "",
+        priceText: "",
+        description: "",
+        image: "",
+        featured: false,
+      });
+
+      loadServices();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Failed to add service.");
+    }
+  };
+
+  /* =========================================
+     DELETE SERVICE
+  ========================================= */
+
+  const deleteService = async (id) => {
+
+    const confirmDelete =
+      confirm(
+        "Delete this service?"
+      );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      await deleteDoc(
+        doc(db, "services", id)
+      );
+
+      loadServices();
+
+    } catch (error) {
+
+      console.error(error);
+    }
+  };
+
+  /* =========================================
+     TOGGLE ACTIVE
+  ========================================= */
+
+  const toggleActive = async (
+    id,
+    current
+  ) => {
+
+    await updateDoc(
+      doc(db, "services", id),
+      {
+        active: !current,
+      }
     );
-  }
+
+    setServices((prev) =>
+  prev.map((item) =>
+    item.id === id
+      ? {
+          ...item,
+          active: !current,
+        }
+      : item
+  )
+);
+  };
+
+  /* =========================================
+     TOGGLE FEATURED
+  ========================================= */
+
+const toggleFeatured =
+  async (
+    id,
+    current
+  ) => {
+
+    try {
+
+      await updateDoc(
+        doc(
+          db,
+          "services",
+          id
+        ),
+        {
+          featured: !current,
+        }
+      );
+
+      setServices((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                featured: !current,
+              }
+            : item
+        )
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+};
+
+  /* =========================================
+     OPEN EDIT
+  ========================================= */
+
+  const openEdit = (service) => {
+
+    setEditingService(service);
+
+    setEditData({
+      name: service.name || "",
+      category:
+        service.category || "Events",
+      priceText:
+        service.priceText || "",
+      description:
+        service.description || "",
+      image: service.image || "",
+    });
+  };
+
+  /* =========================================
+     SAVE EDIT
+  ========================================= */
+
+  const saveEdit = async () => {
+
+    try {
+
+      await updateDoc(
+        doc(
+          db,
+          "services",
+          editingService.id
+        ),
+        {
+          ...editData,
+        }
+      );
+
+      setEditingService(null);
+
+      loadServices();
+
+    } catch (error) {
+
+      console.error(error);
+    }
+  };
+
+  /* =========================================
+     STATS
+  ========================================= */
+
+  const activeServices =
+    services.filter(
+      (item) => item.active
+    ).length;
+
+  const featuredServices =
+    services.filter(
+      (item) => item.featured
+    ).length;
+
+  /* =========================================
+     UI
+  ========================================= */
 
   return (
-    <>
-      {/* =====================================================
-          MAIN PAGE
-      ===================================================== */}
 
-      <div className="relative">
+    <div className="relative min-h-screen overflow-hidden bg-black text-white p-6 md:p-8">
 
-        {/* GLOW EFFECTS */}
+      {/* =====================================
+          BACKGROUND GLOW
+      ===================================== */}
 
-        <div className="absolute top-0 left-0 h-[300px] w-[300px] rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
-        <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
 
-        {/* HEADER */}
+        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-purple-500/10 blur-3xl" />
+      </div>
 
-        <div
-          className="
-            flex
-            flex-col
-            xl:flex-row
-            xl:items-center
-            xl:justify-between
-            gap-8
-            mb-12
-          "
-        >
+      <div className="relative z-10">
 
-          {/* LEFT */}
+        {/* =====================================
+            HEADER
+        ===================================== */}
+
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
 
           <div>
 
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-full
-                border
-                border-blue-500/20
-                bg-blue-500/10
-                px-4
-                py-2
-                mb-5
-              "
-            >
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300 backdrop-blur-md mb-5">
 
-              <Sparkles
-                className="
-                  h-4
-                  w-4
-                  text-blue-400
-                "
-              />
+              <Sparkles size={16} />
 
-              <span
-                className="
-                  text-sm
-                  font-semibold
-                  text-blue-300
-                "
-              >
-
-                Premium Client Requests
-
-              </span>
-
+              Premium Admin Dashboard
             </div>
 
-            <h2
-              className="
-                text-5xl
-                font-black
-                tracking-tight
-              "
-            >
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight">
+              Service Management
+            </h1>
 
-              Service Requests
-
-            </h2>
-
+            <p className="mt-4 max-w-2xl text-zinc-400 text-lg">
+              Manage all J&K Services Group offerings with premium cinematic admin controls.
+            </p>
           </div>
 
-          {/* SEARCH + FILTER */}
+          <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
 
-          <div
-            className="
-              flex
-              flex-col
-              md:flex-row
-              gap-4
-            "
+            <StatCard
+              icon={<Layers3 size={22} />}
+              title="Total"
+              value={services.length}
+            />
+
+            <StatCard
+              icon={<Star size={22} />}
+              title="Featured"
+              value={featuredServices}
+            />
+
+            <StatCard
+              icon={<CheckCircle2 size={22} />}
+              title="Active"
+              value={activeServices}
+            />
+
+            <StatCard
+              icon={<DollarSign size={22} />}
+              title="Premium"
+              value="Luxury"
+            />
+
+          </div>
+        </div>
+
+        {/* =====================================
+            FORM + SEARCH
+        ===================================== */}
+
+        <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-8">
+
+          {/* =====================================
+              ADD SERVICE PANEL
+          ===================================== */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sticky top-6 h-fit"
           >
+
+            <div className="flex items-center gap-3 mb-8">
+
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/20 border border-blue-500/20">
+                <Plus />
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold">
+                  Add Service
+                </h2>
+
+                <p className="text-sm text-zinc-500">
+                  Create premium offerings.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+
+              <InputField
+                label="Service Name"
+                value={formData.name}
+                onChange={(e) =>
+                  handleChange(
+                    "name",
+                    e.target.value
+                  )
+                }
+                placeholder="Photography & Videography"
+              />
+
+              <div>
+                <label className="mb-2 block text-sm text-zinc-400">
+                  Category
+                </label>
+
+                <select
+                  value={formData.category}
+                  onChange={(e) =>
+                    handleChange(
+                      "category",
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                >
+
+                  {categories.map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+
+                <InputField
+                  label="Min Price"
+                  type="number"
+                  value={formData.minPrice}
+                  onChange={(e) =>
+                    handleChange(
+                      "minPrice",
+                      e.target.value
+                    )
+                  }
+                  placeholder="100"
+                />
+
+                <InputField
+                  label="Max Price"
+                  type="number"
+                  value={formData.maxPrice}
+                  onChange={(e) =>
+                    handleChange(
+                      "maxPrice",
+                      e.target.value
+                    )
+                  }
+                  placeholder="1000"
+                />
+              </div>
+
+              <InputField
+                label="Price Display"
+                value={formData.priceText}
+                onChange={(e) =>
+                  handleChange(
+                    "priceText",
+                    e.target.value
+                  )
+                }
+                placeholder="$500 - $2500"
+              />
+
+              {/* IMAGE UPLOAD */}
+
+              <div>
+
+                <label className="mb-2 block text-sm text-zinc-400">
+                  Service Image
+                </label>
+
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center transition hover:border-blue-500/50 hover:bg-blue-500/5">
+
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
+                    <Upload size={28} />
+                  </div>
+
+                  <div>
+                    <p className="font-medium">
+                      Upload service image
+                    </p>
+
+                    <p className="mt-1 text-sm text-zinc-500">
+                      PNG, JPG or WEBP
+                    </p>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) =>
+                      uploadImage(
+                        e.target.files[0]
+                      )
+                    }
+                  />
+                </label>
+
+                {uploading && (
+                  <p className="mt-3 text-sm text-blue-400">
+                    Uploading image...
+                  </p>
+                )}
+
+                {formData.image && (
+                  <img
+                    src={formData.image}
+                    alt="Preview"
+                    className="mt-5 h-52 w-full rounded-2xl object-cover border border-white/10"
+                  />
+                )}
+              </div>
+
+              <div>
+
+                <label className="mb-2 block text-sm text-zinc-400">
+                  Description
+                </label>
+
+                <textarea
+                  rows={5}
+                  value={formData.description}
+                  onChange={(e) =>
+                    handleChange(
+                      "description",
+                      e.target.value
+                    )
+                  }
+                  placeholder="Describe this service..."
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+
+                <div>
+                  <p className="font-medium">
+                    Featured Service
+                  </p>
+
+                  <p className="text-sm text-zinc-500">
+                    Highlight on homepage.
+                  </p>
+                </div>
+
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) =>
+                    handleChange(
+                      "featured",
+                      e.target.checked
+                    )
+                  }
+                  className="h-5 w-5"
+                />
+              </div>
+
+              <button
+                onClick={addService}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-4 font-semibold transition hover:bg-blue-500"
+              >
+                <Plus size={18} />
+                Add Service
+              </button>
+            </div>
+          </motion.div>
+
+          {/* =====================================
+              SERVICES SIDE
+          ===================================== */}
+
+          <div>
 
             {/* SEARCH */}
 
-            <div
-              className="
-                relative
-                w-full
-                md:w-[320px]
-              "
-            >
+            <div className="mb-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 backdrop-blur-xl">
 
-              <Search
-                className="
-                  absolute
-                  left-4
-                  top-1/2
-                  -translate-y-1/2
-                  h-5
-                  w-5
-                  text-zinc-500
-                "
-              />
+              <Search className="text-zinc-500" />
 
               <input
                 type="text"
-                placeholder="Search requests..."
+                placeholder="Search services..."
                 value={search}
                 onChange={(e) =>
                   setSearch(e.target.value)
                 }
-                className="
-                  w-full
-                  rounded-2xl
-                  border
-                  border-white/10
-                  bg-white/[0.04]
-                  px-12
-                  py-4
-                  outline-none
-                  transition
-                  focus:border-blue-500
-                "
+                className="w-full bg-transparent outline-none placeholder:text-zinc-500"
               />
-
             </div>
 
-            {/* FILTER */}
+            {/* GRID */}
 
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(
-                  e.target.value
-                )
-              }
-              className="
-                rounded-2xl
-                border
-                border-white/10
-                bg-white/[0.04]
-                px-5
-                py-4
-                outline-none
-                transition
-                focus:border-blue-500
-              "
-            >
+            {loading ? (
 
-              <option value="all">
-                All Status
-              </option>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {STATUS_OPTIONS.map((status) => (
+                {[1, 2, 3, 4].map((item) => (
+                  <div
+                    key={item}
+                    className="h-[420px] animate-pulse rounded-3xl border border-white/10 bg-white/[0.03]"
+                  />
+                ))}
+              </div>
 
-                <option
-                  key={status}
-                  value={status}
-                >
+            ) : (
 
-                  {status}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                </option>
-
-              ))}
-
-            </select>
-
-          </div>
-
-        </div>
-
-        {/* REQUEST GRID */}
-
-        <div
-          className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            2xl:grid-cols-3
-            gap-6
-          "
-        >
-
-          {filteredRequests.map(
-            (request, index) => (
-
-              <motion.div
-
-                key={request.id}
-
-                initial={{
-                  opacity: 0,
-                  y: 20,
-                }}
-
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-
-                transition={{
-                  delay: index * 0.03,
-                }}
-
-                className="
-                  relative
-                  overflow-hidden
-                  rounded-[30px]
-                  border
-                  border-white/10
-                  bg-[#0B0B0F]
-                  p-7
-                "
-              >
-
-                {/* CARD GLOW */}
-
-                <div className="absolute top-0 right-0 h-[150px] w-[150px] rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-
-                {/* STATUS */}
-
-                <div className={`
-                  inline-flex
-                  items-center
-                  rounded-full
-                  border
-                  px-4
-                  py-2
-                  text-sm
-                  font-semibold
-                  capitalize
-                  ${getStatusStyles(
-                    request.status
-                  )}
-                `}>
-
-                  {request.status || "pending"}
-
-                </div>
-
-                {/* TITLE */}
-
-                <h3
-                  className="
-                    mt-6
-                    text-3xl
-                    font-black
-                  "
-                >
-
-                  {request.serviceType}
-
-                </h3>
-
-                <p
-                  className="
-                    mt-3
-                    text-zinc-400
-                    text-lg
-                  "
-                >
-
-                  {request.customerName}
-
-                </p>
-
-                {/* FOOTER */}
-
-                <div
-                  className="
-                    mt-8
-                    flex
-                    items-center
-                    justify-between
-                    border-t
-                    border-white/10
-                    pt-6
-                  "
-                >
-
-                  <div>
-
-                    <p className="text-sm text-zinc-500">
-
-                      Uploaded Files
-
-                    </p>
-
-                    <p className="text-xl font-bold">
-
-                      {request.uploads?.length || 0}
-
-                    </p>
-
-                  </div>
-
-                  {/* VIEW */}
-
-                  <button
-                    onClick={() =>
-                      setSelectedRequest(request)
-                    }
-                    className="
-                      flex
-                      items-center
-                      gap-2
-                      rounded-2xl
-                      bg-blue-600
-                      px-5
-                      py-3
-                      font-semibold
-                      transition
-                      hover:bg-blue-500
-                    "
-                  >
-
-                    <Eye size={18} />
-
-                    View
-
-                  </button>
-
-                </div>
-
-              </motion.div>
-            )
-          )}
-
-        </div>
-
-      </div>
-
-      {/* =====================================================
-          PREMIUM MODAL
-      ===================================================== */}
-
-      {typeof window !== "undefined" &&
-        createPortal(
-
-          <AnimatePresence>
-
-            {selectedRequest && (
-
-              <motion.div
-
-                initial={{ opacity: 0 }}
-
-                animate={{ opacity: 1 }}
-
-                exit={{ opacity: 0 }}
-
-                className="
-                  fixed
-                  inset-0
-                  z-[999999]
-                  overflow-y-auto
-                  bg-black/70
-                  backdrop-blur-md
-                  p-4
-                  md:p-8
-                "
-              >
-
-                {/* BACKGROUND GLOWS */}
-
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-
-                  <div className="absolute top-0 left-0 h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
-
-                  <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-purple-500/10 blur-3xl" />
-
-                </div>
-
-                {/* CENTER */}
-
-                <div
-                  className="
-                    relative
-                    z-10
-                    min-h-screen
-                    flex
-                    items-center
-                    justify-center
-                  "
-                >
-
-                  {/* MODAL */}
+                {filteredServices.map((service) => (
 
                   <motion.div
-
-                    initial={{
-                      opacity: 0,
-                      scale: 0.96,
-                      y: 20,
-                    }}
-
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      y: 0,
-                    }}
-
-                    exit={{
-                      opacity: 0,
-                      scale: 0.96,
-                      y: 20,
-                    }}
-
-                    className="
-                      relative
-                      w-full
-                      max-w-7xl
-                      overflow-hidden
-                      rounded-[32px]
-                      border
-                      border-white/10
-                      bg-[#0B0B0F]
-                      shadow-[0_40px_120px_rgba(0,0,0,0.7)]
-                    "
+                    key={service.id}
+                    
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl"
                   >
 
-                    {/* HEADER */}
+                    <div className="relative overflow-hidden">
 
-                    <div
-                      className="
-                        flex
-                        items-center
-                        justify-between
-                        border-b
-                        border-white/10
-                        px-6
-                        py-5
-                        md:px-10
-                      "
-                    >
+                      {service.image ? (
 
-                      {/* LEFT */}
+                        <img
+                          src={service.image}
+                          alt={service.name}
+                          className="h-64 w-full object-cover transition duration-700 group-hover:scale-105"
+                        />
 
-                      <div>
+                      ) : (
 
-                        <div className={`
-                          inline-flex
-                          items-center
-                          rounded-full
-                          border
-                          px-4
-                          py-2
-                          text-sm
-                          font-semibold
-                          capitalize
-                          mb-4
-                          ${getStatusStyles(
-                            selectedRequest.status
-                          )}
-                        `}>
+                        <div className="flex h-64 items-center justify-center bg-white/[0.03]">
+                          <ImageIcon
+                            size={50}
+                            className="text-zinc-700"
+                          />
+                        </div>
+                      )}
 
-                          {selectedRequest.status}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
+                      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
+
+                        <div>
+                          <p className="text-sm text-zinc-300">
+                            {service.category}
+                          </p>
+
+                          <h3 className="text-2xl font-bold">
+                            {service.name}
+                          </h3>
                         </div>
 
-                        <h2
-                          className="
-                            text-3xl
-                            md:text-5xl
-                            font-black
-                          "
-                        >
-
-                          {selectedRequest.serviceType}
-
-                        </h2>
-
-                        <p
-                          className="
-                            mt-3
-                            text-zinc-400
-                            text-lg
-                          "
-                        >
-
-                          {selectedRequest.customerName}
-
-                        </p>
-
-                      </div>
-
-                      {/* CLOSE */}
-
-                      <button
-                        onClick={() =>
-                          setSelectedRequest(null)
-                        }
-                        className="
-                          flex
-                          h-14
-                          w-14
-                          items-center
-                          justify-center
-                          rounded-2xl
-                          border
-                          border-white/10
-                          bg-white/[0.03]
-                          transition
-                          hover:bg-white/[0.06]
-                        "
-                      >
-
-                        <X />
-
-                      </button>
-
-                    </div>
-
-                    {/* CONTENT */}
-
-                    <div
-                      className="
-                        grid
-                        grid-cols-1
-                        xl:grid-cols-2
-                        gap-10
-                        p-6
-                        md:p-10
-                      "
-                    >
-
-                      {/* LEFT SIDE */}
-
-                      <div>
-
-                        <h3
-                          className="
-                            mb-8
-                            text-3xl
-                            font-black
-                          "
-                        >
-
-                          Edit Request
-
-                        </h3>
-
-                        <div className="space-y-5">
-
-                          <InputField
-                            label="Customer Name"
-                            value={
-                              selectedRequest.customerName || ""
-                            }
-                            onChange={(value) =>
-                              setSelectedRequest({
-                                ...selectedRequest,
-                                customerName: value,
-                              })
-                            }
-                          />
-
-                          <InputField
-                            label="Email"
-                            value={
-                              selectedRequest.email || ""
-                            }
-                            onChange={(value) =>
-                              setSelectedRequest({
-                                ...selectedRequest,
-                                email: value,
-                              })
-                            }
-                          />
-
-                          <InputField
-                            label="Phone"
-                            value={
-                              selectedRequest.phone || ""
-                            }
-                            onChange={(value) =>
-                              setSelectedRequest({
-                                ...selectedRequest,
-                                phone: value,
-                              })
-                            }
-                          />
-
-                          <InputField
-                            label="Service Type"
-                            value={
-                              selectedRequest.serviceType || ""
-                            }
-                            onChange={(value) =>
-                              setSelectedRequest({
-                                ...selectedRequest,
-                                serviceType: value,
-                              })
-                            }
-                          />
-
-                          {/* STATUS */}
-
-                          <div>
-
-                            <label
-                              className="
-                                mb-2
-                                block
-                                text-sm
-                                text-zinc-400
-                              "
-                            >
-
-                              Status
-
-                            </label>
-
-                            <select
-                              value={
-                                selectedRequest.status || "pending"
-                              }
-                              onChange={(e) =>
-                                setSelectedRequest({
-                                  ...selectedRequest,
-                                  status:
-                                    e.target.value,
-                                })
-                              }
-                              className="
-                                w-full
-                                rounded-2xl
-                                border
-                                border-white/10
-                                bg-white/[0.03]
-                                px-4
-                                py-4
-                                outline-none
-                                transition
-                                focus:border-blue-500
-                              "
-                            >
-
-                              {STATUS_OPTIONS.map((status) => (
-
-                                <option
-                                  key={status}
-                                  value={status}
-                                >
-
-                                  {status}
-
-                                </option>
-
-                              ))}
-
-                            </select>
-
-                          </div>
-
-                          {/* DESCRIPTION */}
-
-                          <div>
-
-                            <label
-                              className="
-                                mb-2
-                                block
-                                text-sm
-                                text-zinc-400
-                              "
-                            >
-
-                              Description
-
-                            </label>
-
-                            <textarea
-                              rows={8}
-                              value={
-                                selectedRequest.description || ""
-                              }
-                              onChange={(e) =>
-                                setSelectedRequest({
-                                  ...selectedRequest,
-                                  description:
-                                    e.target.value,
-                                })
-                              }
-                              className="
-                                w-full
-                                rounded-2xl
-                                border
-                                border-white/10
-                                bg-white/[0.03]
-                                px-4
-                                py-4
-                                outline-none
-                                resize-none
-                                transition
-                                focus:border-blue-500
-                              "
-                            />
-
-                          </div>
-
-                        </div>
-
-                        {/* ACTIONS */}
-
-                        <div className="mt-8 flex flex-wrap gap-4">
-
-                          <button
-                            onClick={
-                              handleSaveRequest
-                            }
-                            disabled={saving}
-                            className="
-                              flex
-                              items-center
-                              gap-2
-                              rounded-2xl
-                              bg-blue-600
-                              px-6
-                              py-4
-                              font-semibold
-                              transition
-                              hover:bg-blue-500
-                            "
-                          >
-
-                            {saving ? (
-                              <Loader2 className="animate-spin" />
-                            ) : (
-                              <Save size={18} />
-                            )}
-
-                            Save Changes
-
-                          </button>
-
-                          <button
-                            onClick={
-                              handleDeleteRequest
-                            }
-                            disabled={deleting}
-                            className="
-                              flex
-                              items-center
-                              gap-2
-                              rounded-2xl
-                              bg-red-600
-                              px-6
-                              py-4
-                              font-semibold
-                              transition
-                              hover:bg-red-500
-                            "
-                          >
-
-                            {deleting ? (
-                              <Loader2 className="animate-spin" />
-                            ) : (
-                              <Trash2 size={18} />
-                            )}
-
-                            Delete
-
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                      {/* RIGHT SIDE */}
-
-                      <div>
-
-                        <h3
-                          className="
-                            mb-8
-                            text-3xl
-                            font-black
-                          "
-                        >
-
-                          Uploaded Files
-
-                        </h3>
-
-                        {selectedRequest.uploads?.length > 0 ? (
-
-                          <div className="space-y-6">
-
-                            {selectedRequest.uploads.map(
-                              (file, index) => (
-
-                                <div
-                                  key={index}
-                                  className="
-                                    overflow-hidden
-                                    rounded-3xl
-                                    border
-                                    border-white/10
-                                    bg-white/[0.03]
-                                  "
-                                >
-
-                                  {/* IMAGE */}
-
-                                  {file.type?.startsWith(
-                                    "image/"
-                                  ) ? (
-
-                                    <img
-                                      src={file.url}
-                                      alt={file.name}
-                                      className="
-                                        h-72
-                                        w-full
-                                        object-cover
-                                      "
-                                    />
-
-                                  ) : (
-
-                                    <div
-                                      className="
-                                        flex
-                                        h-72
-                                        items-center
-                                        justify-center
-                                        bg-white/[0.03]
-                                      "
-                                    >
-
-                                      <ImageIcon
-                                        size={60}
-                                        className="text-zinc-600"
-                                      />
-
-                                    </div>
-                                  )}
-
-                                  {/* INFO */}
-
-                                  <div className="p-6">
-
-                                    <div
-                                      className="
-                                        flex
-                                        items-center
-                                        justify-between
-                                        gap-4
-                                      "
-                                    >
-
-                                      <div>
-
-                                        <p className="text-xl font-bold">
-
-                                          {file.name}
-
-                                        </p>
-
-                                        <p className="mt-1 text-zinc-500">
-
-                                          {(
-                                            file.size /
-                                            1024 /
-                                            1024
-                                          ).toFixed(2)} MB
-
-                                        </p>
-
-                                      </div>
-
-                                      <BadgeCheck
-                                        className="
-                                          text-green-400
-                                        "
-                                      />
-
-                                    </div>
-
-                                    {/* ACTIONS */}
-
-                                    <div className="mt-6 grid grid-cols-2 gap-4">
-
-                                      <a
-                                        href={file.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="
-                                          flex
-                                          items-center
-                                          justify-center
-                                          gap-2
-                                          rounded-2xl
-                                          border
-                                          border-white/10
-                                          bg-white/[0.03]
-                                          px-4
-                                          py-4
-                                          transition
-                                          hover:bg-white/[0.06]
-                                        "
-                                      >
-
-                                        <Eye size={18} />
-
-                                        Open
-
-                                      </a>
-
-                                      <a
-                                        href={file.url}
-                                        download
-                                        className="
-                                          flex
-                                          items-center
-                                          justify-center
-                                          gap-2
-                                          rounded-2xl
-                                          bg-blue-600
-                                          px-4
-                                          py-4
-                                          font-medium
-                                          transition
-                                          hover:bg-blue-500
-                                        "
-                                      >
-
-                                        <Download size={18} />
-
-                                        Download
-
-                                      </a>
-
-                                    </div>
-
-                                  </div>
-
-                                </div>
-                              )
-                            )}
-
-                          </div>
-
-                        ) : (
-
-                          <div
-                            className="
-                              flex
-                              flex-col
-                              items-center
-                              justify-center
-                              rounded-3xl
-                              border
-                              border-white/10
-                              bg-white/[0.03]
-                              p-20
-                              text-center
-                            "
-                          >
-
-                            <FolderOpen
-                              size={60}
-                              className="text-zinc-600"
-                            />
-
-                            <p className="mt-5 text-zinc-500">
-
-                              No uploaded files
-
-                            </p>
-
+                        {service.featured && (
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500 text-black">
+                            <Star fill="black" size={20} />
                           </div>
                         )}
-
                       </div>
-
                     </div>
 
-                  </motion.div>
+                    <div className="p-6">
 
+                      <p className="line-clamp-3 text-zinc-400">
+                        {service.description}
+                      </p>
+
+                      <div className="mt-5 flex items-center justify-between">
+
+                        <p className="text-xl font-bold text-blue-400">
+                          {service.priceText}
+                        </p>
+
+                        <div
+                          className={`rounded-full px-4 py-2 text-sm font-medium ${
+                            service.active
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {service.active
+                            ? "Active"
+                            : "Inactive"}
+                        </div>
+                      </div>
+
+                      {/* ACTIONS */}
+
+                      <div className="mt-6 grid grid-cols-2 gap-3">
+
+                        <button
+                          onClick={() =>
+                            toggleActive(
+                              service.id,
+                              service.active
+                            )
+                          }
+                          className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.06]"
+                        >
+                          {service.active
+                            ? "Disable"
+                            : "Enable"}
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            toggleFeatured(
+                              service.id,
+                              service.featured
+                            )
+                          }
+                          className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400 transition hover:bg-yellow-500/20"
+                        >
+                          {service.featured
+                            ? "Featured"
+                            : "Feature"}
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            openEdit(service)
+                          }
+                          className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-medium transition hover:bg-blue-500"
+                        >
+                          <Pencil size={16} />
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            deleteService(service.id)
+                          }
+                          className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-medium transition hover:bg-red-500"
+                        >
+                          <Trash2 size={16} />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* =====================================
+          EDIT MODAL
+      ===================================== */}
+
+      <AnimatePresence>
+
+        {editingService && (
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          >
+
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-white/10 bg-[#0B0B0F] p-8"
+            >
+
+              <div className="mb-8 flex items-center justify-between">
+
+                <div>
+                  <h2 className="text-3xl font-bold">
+                    Edit Service
+                  </h2>
+
+                  <p className="mt-1 text-zinc-500">
+                    Update service information.
+                  </p>
                 </div>
 
-              </motion.div>
-            )}
+                <button
+                  onClick={() =>
+                    setEditingService(null)
+                  }
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] transition hover:bg-white/[0.08]"
+                >
+                  <X />
+                </button>
+              </div>
 
-          </AnimatePresence>,
+              <div className="space-y-5">
 
-          document.body
-        )
-      }
+                <InputField
+                  label="Service Name"
+                  value={editData.name}
+                  onChange={(e) =>
+                    handleEditChange(
+                      "name",
+                      e.target.value
+                    )
+                  }
+                />
 
-    </>
+                <div>
+                  <label className="mb-2 block text-sm text-zinc-400">
+                    Category
+                  </label>
+
+                  <select
+                    value={editData.category}
+                    onChange={(e) =>
+                      handleEditChange(
+                        "category",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 outline-none"
+                  >
+
+                    {categories.map((item) => (
+                      <option key={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <InputField
+                  label="Price Display"
+                  value={editData.priceText}
+                  onChange={(e) =>
+                    handleEditChange(
+                      "priceText",
+                      e.target.value
+                    )
+                  }
+                />
+
+                {/* IMAGE */}
+
+                <div>
+
+                  <label className="mb-2 block text-sm text-zinc-400">
+                    Service Image
+                  </label>
+
+                  {editData.image && (
+                    <img
+                      src={editData.image}
+                      alt="Service"
+                      className="mb-5 h-72 w-full rounded-3xl object-cover border border-white/10"
+                    />
+                  )}
+
+                  <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-5 py-5 transition hover:border-blue-500/50 hover:bg-blue-500/5">
+
+                    <Upload size={18} />
+
+                    Change Image
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) =>
+                        uploadImage(
+                          e.target.files[0],
+                          true
+                        )
+                      }
+                    />
+                  </label>
+
+                  {editUploading && (
+                    <p className="mt-3 text-blue-400">
+                      Uploading image...
+                    </p>
+                  )}
+                </div>
+
+                <div>
+
+                  <label className="mb-2 block text-sm text-zinc-400">
+                    Description
+                  </label>
+
+                  <textarea
+                    rows={6}
+                    value={editData.description}
+                    onChange={(e) =>
+                      handleEditChange(
+                        "description",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end gap-4">
+
+                <button
+                  onClick={() =>
+                    setEditingService(null)
+                  }
+                  className="rounded-2xl border border-white/10 px-6 py-3 transition hover:bg-white/[0.03]"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={saveEdit}
+                  className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-500"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
-/* =========================================================
-   INPUT FIELD
-========================================================= */
+/* =========================================
+   REUSABLE INPUT
+========================================= */
 
 function InputField({
   label,
+  type = "text",
   value,
   onChange,
+  placeholder,
 }) {
 
   return (
+
     <div>
 
-      <label
-        className="
-          mb-2
-          block
-          text-sm
-          text-zinc-400
-        "
-      >
-
+      <label className="mb-2 block text-sm text-zinc-400">
         {label}
-
       </label>
 
       <input
-        type="text"
+        type={type}
         value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
-        className="
-          w-full
-          rounded-2xl
-          border
-          border-white/10
-          bg-white/[0.03]
-          px-4
-          py-4
-          outline-none
-          transition
-          focus:border-blue-500
-        "
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
       />
+    </div>
+  );
+}
 
+/* =========================================
+   STATS CARD
+========================================= */
+
+function StatCard({
+  icon,
+  title,
+  value,
+}) {
+
+  return (
+
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
+
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] text-blue-400">
+        {icon}
+      </div>
+
+      <p className="text-sm text-zinc-500">
+        {title}
+      </p>
+
+      <h3 className="mt-1 text-3xl font-black">
+        {value}
+      </h3>
     </div>
   );
 }
