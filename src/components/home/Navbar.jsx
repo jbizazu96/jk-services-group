@@ -543,86 +543,96 @@ export default function Navbar() {
                 Donate
               </motion.button>
 
-              {/* MOBILE DONATION MENU */}
+                  {/* MOBILE DONATION MENU */}
 
-              <AnimatePresence>
+                  <AnimatePresence>
 
-                {donationMenu && (
+                    {donationMenu && (
 
-                  <motion.div
+                      <motion.div
 
-                    initial={{
-                      opacity: 0,
-                      y: 10,
-                    }}
+                        initial={{
+                          opacity: 0,
+                          y: 10,
+                        }}
 
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                    }}
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                        }}
 
-                    exit={{
-                      opacity: 0,
-                      y: 10,
-                    }}
+                        exit={{
+                          opacity: 0,
+                          y: 10,
+                        }}
 
-                    className="
-                      bg-white/5
-                      border
-                      border-white/10
-                      rounded-3xl
-                      p-5
-                      flex
-                      flex-col
-                      gap-3
-                    "
-                  >
+                        className="
+                          bg-white/5
+                          border
+                          border-white/10
+                          rounded-3xl
+                          p-5
+                          flex
+                          flex-col
+                          gap-3
+                        "
+                      >
 
-                    <h3 className="
-                      text-xl
-                      font-bold
-                      text-white
-                      mb-2
-                    ">
-                      Support Our Mission
-                    </h3>
+                        <h3 className="
+                          text-xl
+                          font-bold
+                          text-white
+                          mb-2
+                        ">
+                          Support Our Mission
+                        </h3>
 
-                    {[
-                      [
-                        "Donate $10",
-                        "https://buy.stripe.com/8x27sF8IK6at7O5gM5grS00",
-                        "yellow",
-                      ],
+                        {[
+                          [
+                            "Donate $10",
+                            "https://buy.stripe.com/8x27sF8IK6at7O5gM5grS00",
+                            "yellow",
+                          ],
 
-                      [
-                        "Donate $25",
-                        "https://buy.stripe.com/fZueV7aQS1Udc4l3ZjgrS03",
-                        "dark",
-                      ],
+                          [
+                            "Donate $25",
+                            "https://buy.stripe.com/fZueV7aQS1Udc4l3ZjgrS03",
+                            "dark",
+                          ],
 
-                      [
-                        "Donate $50",
-                        "https://buy.stripe.com/3cI7sF3oqfL39Wd1RbgrS04",
-                        "dark",
-                      ],
+                          [
+                            "Donate $50",
+                            "https://buy.stripe.com/3cI7sF3oqfL39Wd1RbgrS04",
+                            "dark",
+                          ],
 
-                      [
-                        "Custom Amount",
-                        "https://donate.stripe.com/6oU3cp3oq9mF4BTbrLgrS05",
-                        "outline",
-                      ],
+                          [
+                            "Custom Amount",
+                            "https://donate.stripe.com/6oU3cp3oq9mF4BTbrLgrS05",
+                            "outline",
+                          ],
 
-                    ].map(([label, link]) => (
+                        ].map(([label, link, type]) => (
 
-                      <a
+                          <motion.a
 
-                        key={label}
+                            key={label}
 
-                        href={link}
+                            whileHover={{
+                              scale: 1.02,
+                            }}
 
-                        target="_blank"
+                            whileTap={{
+                              scale: 0.98,
+                            }}
 
-                       className={`
+                            href={link}
+
+                            target="_blank"
+
+                            rel="noopener noreferrer"
+
+                            className={`
                               text-center
                               py-3
                               rounded-2xl
@@ -652,18 +662,19 @@ export default function Navbar() {
                                   `
                               }
                             `}
-                      >
-                        {label}
+                          >
 
-                      </a>
+                            {label}
 
-                    ))}
+                          </motion.a>
 
-                  </motion.div>
+                        ))}
 
-                )}
+                      </motion.div>
 
-              </AnimatePresence>
+                    )}
+
+                  </AnimatePresence>
 
             </div>
 

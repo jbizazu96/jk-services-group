@@ -145,7 +145,7 @@ PortfolioHero({
         {/* BACK BUTTON */}
 
         <a
-          href="/#gallery"
+          href="/portfolio"
           className="
             inline-flex
             items-center
