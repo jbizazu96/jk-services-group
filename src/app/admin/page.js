@@ -25,12 +25,12 @@ import {
 
   LayoutDashboard,
   MessageSquare,
-  CalendarDays,
   Briefcase,
   Images,
   ImagePlus,
   LogOut,
   Sparkles,
+  FolderOpen,
 
 } from "lucide-react";
 
@@ -49,6 +49,8 @@ import ServiceManagement from "@/components/admin/ServiceManagement";
 import PortfolioManagement from "@/components/admin/PortfolioManagement";
 
 import PortfolioItemsManagement from "@/components/admin/PortfolioItemsManagement";
+
+import ServiceRequests from "@/components/admin/ServiceRequests";
 
 /* ==========================================
    AUTH FUNCTIONS
@@ -86,15 +88,15 @@ export default function AdminPage() {
     },
 
     {
-      id: "feedbacks",
-      label: "Feedbacks",
-      icon: MessageSquare,
+      id: "requests",
+      label: "Service Requests",
+      icon: FolderOpen,
     },
 
     {
-      id: "bookings",
-      label: "Bookings",
-      icon: CalendarDays,
+      id: "feedbacks",
+      label: "Feedbacks",
+      icon: MessageSquare,
     },
 
     {
@@ -633,6 +635,17 @@ export default function AdminPage() {
                 )}
 
                 {/* ==========================================
+                    SERVICE REQUESTS
+                ========================================== */}
+
+                {activeTab ===
+                  "requests" && (
+
+                  <ServiceRequests />
+
+                )}
+
+                {/* ==========================================
                     FEEDBACKS
                 ========================================== */}
 
@@ -640,52 +653,6 @@ export default function AdminPage() {
                   "feedbacks" && (
 
                   <FeedbackManagement />
-
-                )}
-
-                {/* ==========================================
-                    BOOKINGS
-                ========================================== */}
-
-                {activeTab ===
-                  "bookings" && (
-
-                  <div
-                    className="
-                      bg-white/5
-                      border
-                      border-white/10
-                      rounded-[32px]
-                      p-10
-                      backdrop-blur-xl
-                    "
-                  >
-
-                    <h3
-                      className="
-                        text-3xl
-                        font-black
-                        mb-6
-                      "
-                    >
-
-                      Booking Management
-
-                    </h3>
-
-                    <p
-                      className="
-                        text-gray-400
-                        text-lg
-                      "
-                    >
-
-                      Booking system integration
-                      will be connected here soon.
-
-                    </p>
-
-                  </div>
 
                 )}
 

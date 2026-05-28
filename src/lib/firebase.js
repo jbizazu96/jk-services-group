@@ -16,6 +16,7 @@ import {
   getStorage,
 } from "firebase/storage";
 
+
 /* ==========================================
    FIREBASE CONFIGURATION
 ========================================== */
