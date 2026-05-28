@@ -4,7 +4,35 @@
    REACT
 ========================================== */
 
-import { useState } from "react";
+import {
+  useState,
+} from "react";
+
+/* ==========================================
+   FRAMER MOTION
+========================================== */
+
+import {
+  motion,
+  AnimatePresence,
+} from "framer-motion";
+
+/* ==========================================
+   LUCIDE ICONS
+========================================== */
+
+import {
+
+  LayoutDashboard,
+  MessageSquare,
+  CalendarDays,
+  Briefcase,
+  Images,
+  ImagePlus,
+  LogOut,
+  Sparkles,
+
+} from "lucide-react";
 
 /* ==========================================
    ADMIN COMPONENTS
@@ -26,7 +54,9 @@ import PortfolioItemsManagement from "@/components/admin/PortfolioItemsManagemen
    AUTH FUNCTIONS
 ========================================== */
 
-import { logout } from "@/lib/auth";
+import {
+  logout,
+} from "@/lib/auth";
 
 /* ==========================================
    ADMIN PAGE COMPONENT
@@ -35,357 +65,201 @@ import { logout } from "@/lib/auth";
 export default function AdminPage() {
 
   /* ==========================================
-     ACTIVE TAB STATE
-
-     Controls which admin page
-     is currently displayed.
+     ACTIVE TAB
   ========================================== */
 
-  const [activeTab, setActiveTab] =
-    useState("dashboard");
+  const [
+    activeTab,
+    setActiveTab,
+  ] = useState("dashboard");
+
+  /* ==========================================
+     NAVIGATION ITEMS
+  ========================================== */
+
+  const navItems = [
+
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+    },
+
+    {
+      id: "feedbacks",
+      label: "Feedbacks",
+      icon: MessageSquare,
+    },
+
+    {
+      id: "bookings",
+      label: "Bookings",
+      icon: CalendarDays,
+    },
+
+    {
+      id: "services",
+      label: "Services",
+      icon: Briefcase,
+    },
+
+    {
+      id: "portfolio",
+      label: "Portfolio Categories",
+      icon: Images,
+    },
+
+    {
+      id: "portfolioItems",
+      label: "Portfolio Items",
+      icon: ImagePlus,
+    },
+
+  ];
+
+  /* ==========================================
+     GET PAGE TITLE
+  ========================================== */
+
+  const currentPage =
+    navItems.find(
+      (item) =>
+        item.id === activeTab
+    );
+
+  /* ==========================================
+     JSX
+  ========================================== */
 
   return (
-
-    /* ==========================================
-       PROTECTED ADMIN ROUTE
-
-       Only logged-in admins can access.
-    ========================================== */
 
     <ProtectedAdmin>
 
       {/* ==========================================
-          MAIN PAGE LAYOUT
+          MAIN WRAPPER
       ========================================== */}
 
-      <main className="min-h-screen bg-slate-950 text-white flex">
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          relative
+          overflow-hidden
+        "
+      >
 
         {/* ==========================================
-            SIDEBAR NAVIGATION
+            AMBIENT GLOW TOP RIGHT
+        ========================================== */}
+
+        <div
+          className="
+            absolute
+            top-0
+            right-0
+            w-[500px]
+            h-[500px]
+            bg-yellow-500/10
+            blur-[120px]
+            rounded-full
+            z-0
+          "
+        ></div>
+
+        {/* ==========================================
+            AMBIENT GLOW BOTTOM LEFT
+        ========================================== */}
+
+        <div
+          className="
+            absolute
+            bottom-0
+            left-0
+            w-[500px]
+            h-[500px]
+            bg-blue-500/10
+            blur-[120px]
+            rounded-full
+            z-0
+          "
+        ></div>
+
+        {/* ==========================================
+            SIDEBAR
         ========================================== */}
 
         <aside
           className="
-            w-72
-            bg-black
+            hidden
+            lg:flex
+            w-80
+            min-h-screen
             border-r
             border-white/10
-            p-6
-            flex
+            bg-white/5
+            backdrop-blur-2xl
             flex-col
+            p-6
+            relative
+            z-20
           "
         >
 
           {/* ==========================================
-              TOP SIDEBAR CONTENT
+              LOGO AREA
           ========================================== */}
 
-          <div>
+          <div
+            className="
+              mb-12
+            "
+          >
 
-            {/* ADMIN LOGO / TITLE */}
+            {/* LOGO */}
 
-            <h1
+            <div
               className="
-                text-2xl
-                font-black
-                mb-10
+                flex
+                items-center
+                gap-4
+                mb-6
               "
             >
-              J&K Admin
-            </h1>
 
-            {/* ==========================================
-                NAVIGATION BUTTONS
-            ========================================== */}
+              <img
+                src="/images/logo1.png"
+                alt="Logo"
 
-            <div className="space-y-3">
-
-              {/* DASHBOARD */}
-
-              <button
-                onClick={() =>
-                  setActiveTab(
-                    "dashboard"
-                  )
-                }
-                className={`
-
-                  w-full
-                  text-left
-                  p-4
-                  rounded-xl
-                  transition
-
-                  ${
-                    activeTab ===
-                    "dashboard"
-
-                      ? "bg-blue-600 text-white"
-
-                      : "hover:bg-white/10"
-                  }
-
-                `}
-              >
-                🏠 Dashboard
-              </button>
-
-              {/* FEEDBACKS */}
-
-              <button
-                onClick={() =>
-                  setActiveTab(
-                    "feedbacks"
-                  )
-                }
-                className={`
-
-                  w-full
-                  text-left
-                  p-4
-                  rounded-xl
-                  transition
-
-                  ${
-                    activeTab ===
-                    "feedbacks"
-
-                      ? "bg-blue-600 text-white"
-
-                      : "hover:bg-white/10"
-                  }
-
-                `}
-              >
-                ⭐ Feedbacks
-              </button>
-
-              {/* BOOKINGS */}
-
-              <button
-                onClick={() =>
-                  setActiveTab(
-                    "bookings"
-                  )
-                }
-                className={`
-
-                  w-full
-                  text-left
-                  p-4
-                  rounded-xl
-                  transition
-
-                  ${
-                    activeTab ===
-                    "bookings"
-
-                      ? "bg-blue-600 text-white"
-
-                      : "hover:bg-white/10"
-                  }
-
-                `}
-              >
-                📅 Bookings
-              </button>
-
-              {/* SERVICES */}
-
-              <button
-                onClick={() =>
-                  setActiveTab(
-                    "services"
-                  )
-                }
-                className={`
-
-                  w-full
-                  text-left
-                  p-4
-                  rounded-xl
-                  transition
-
-                  ${
-                    activeTab ===
-                    "services"
-
-                      ? "bg-blue-600 text-white"
-
-                      : "hover:bg-white/10"
-                  }
-
-                `}
-              >
-                🛠 Services
-              </button>
-
-              {/* PORTFOLIO */}
-
-              <button
-                onClick={() =>
-                  setActiveTab(
-                    "portfolio"
-                  )
-                }
                 className="
-                  w-full
-                  text-left
-                  p-4
-                  rounded-xl
-                  hover:bg-white/10
-                  transition
+                  w-14
+                  h-14
+                  object-contain
                 "
-              >
-                🖼 Portfolio Categories
-              </button>
+              />
 
-                  <button
-                onClick={() =>
-                  setActiveTab(
-                    "portfolioItems"
-                  )
-                }
-                className="
-                  w-full
-                  text-left
-                  p-4
-                  rounded-xl
-                  hover:bg-white/10
-                  transition
-                "
-              >
-                🎬 Portfolio Items
-              </button>
+              <div>
 
-            </div>
+                <h1
+                  className="
+                    text-2xl
+                    font-black
+                  "
+                >
 
-          </div>
+                  J&K Admin
 
-          {/* ==========================================
-              LOGOUT SECTION
-          ========================================== */}
+                </h1>
 
-          <div className="mt-auto pt-8">
+                <p
+                  className="
+                    text-sm
+                    text-gray-400
+                  "
+                >
 
-            <button
-
-              onClick={async () => {
-
-                /*
-                  Sign out admin
-                */
-
-                await logout();
-
-                /*
-                  Redirect to login page
-                */
-
-                window.location.href =
-                  "/admin";
-              }}
-
-              className="
-                w-full
-                bg-red-500
-                hover:bg-red-600
-                py-3
-                rounded-xl
-                font-bold
-                transition
-              "
-            >
-              Logout
-            </button>
-
-          </div>
-
-        </aside>
-
-        {/* ==========================================
-            MAIN CONTENT AREA
-        ========================================== */}
-
-        <section
-          className="
-            flex-1
-            p-10
-            overflow-y-auto
-          "
-        >
-
-          {/* ==========================================
-              DASHBOARD TAB
-          ========================================== */}
-
-          {activeTab ===
-            "dashboard" && (
-
-            <div>
-
-              <h2
-                className="
-                  text-4xl
-                  font-black
-                  mb-8
-                "
-              >
-                Dashboard Overview
-              </h2>
-
-              {/* Dashboard Statistics */}
-
-              <DashboardStats />
-
-            </div>
-
-          )}
-
-          {/* ==========================================
-              FEEDBACKS TAB
-          ========================================== */}
-
-          {activeTab ===
-            "feedbacks" && (
-
-            <FeedbackManagement />
-
-          )}
-
-          {/* ==========================================
-              BOOKINGS TAB
-          ========================================== */}
-
-          {activeTab ===
-            "bookings" && (
-
-            <div>
-
-              <h2
-                className="
-                  text-4xl
-                  font-black
-                  mb-6
-                "
-              >
-                Booking Management
-              </h2>
-
-              <div
-                className="
-                  bg-white/5
-                  rounded-3xl
-                  p-8
-                  border
-                  border-white/10
-                "
-              >
-
-                <p className="text-gray-400">
-
-                  Booking system will
-                  be connected here soon.
+                  Management Dashboard
 
                 </p>
 
@@ -393,39 +267,466 @@ export default function AdminPage() {
 
             </div>
 
-          )}
+            {/* STATUS */}
+
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-2
+                bg-green-500/10
+                border
+                border-green-500/20
+                rounded-full
+                px-4
+                py-2
+              "
+            >
+
+              <div
+                className="
+                  w-2
+                  h-2
+                  rounded-full
+                  bg-green-400
+                  animate-pulse
+                "
+              ></div>
+
+              <span
+                className="
+                  text-green-300
+                  text-sm
+                "
+              >
+
+                System Online
+
+              </span>
+
+            </div>
+
+          </div>
 
           {/* ==========================================
-              SERVICES TAB
+              NAVIGATION
           ========================================== */}
 
-          {activeTab ===
-            "services" && (
+          <div
+            className="
+              flex
+              flex-col
+              gap-3
+            "
+          >
 
-            <ServiceManagement />
+            {navItems.map(
+              (item) => {
 
-          )}
+                const Icon =
+                  item.icon;
+
+                return (
+
+                  <motion.button
+
+                    key={item.id}
+
+                    whileHover={{
+                      x: 5,
+                    }}
+
+                    whileTap={{
+                      scale: 0.98,
+                    }}
+
+                    onClick={() =>
+                      setActiveTab(
+                        item.id
+                      )
+                    }
+
+                    className={`
+                      relative
+                      flex
+                      items-center
+                      gap-4
+                      p-4
+                      rounded-2xl
+                      transition-all
+                      duration-300
+                      text-left
+
+                      ${
+                        activeTab ===
+                        item.id
+
+                          ? `
+                            bg-yellow-500
+                            text-black
+                            shadow-[0_10px_40px_rgba(234,179,8,0.25)]
+                          `
+
+                          : `
+                            bg-white/5
+                            hover:bg-white/10
+                            text-white
+                          `
+                      }
+                    `}
+                  >
+
+                    <Icon
+                      size={22}
+                    />
+
+                    <span
+                      className="
+                        font-semibold
+                      "
+                    >
+
+                      {item.label}
+
+                    </span>
+
+                  </motion.button>
+
+                );
+              }
+            )}
+
+          </div>
 
           {/* ==========================================
-              PORTFOLIO MANAGEMENT
+              LOGOUT
           ========================================== */}
 
-          {activeTab === "portfolio" && (
+          <div
+            className="
+              mt-auto
+              pt-10
+            "
+          >
 
-            <PortfolioManagement />
+            <motion.button
 
-          )}
+              whileHover={{
+                scale: 1.02,
+              }}
+
+              whileTap={{
+                scale: 0.98,
+              }}
+
+              onClick={async () => {
+
+                await logout();
+
+                window.location.href =
+                  "/admin";
+              }}
+
+              className="
+                w-full
+                flex
+                items-center
+                justify-center
+                gap-3
+                bg-red-500
+                hover:bg-red-600
+                py-4
+                rounded-2xl
+                font-bold
+                transition
+                shadow-[0_10px_40px_rgba(239,68,68,0.25)]
+              "
+            >
+
+              <LogOut
+                size={20}
+              />
+
+              Logout
+
+            </motion.button>
+
+          </div>
+
+        </aside>
+
+        {/* ==========================================
+            MAIN CONTENT
+        ========================================== */}
+
+        <section
+          className="
+            flex-1
+            relative
+            z-10
+            overflow-y-auto
+          "
+        >
 
           {/* ==========================================
-            PORTFOLIO ITEMS
+              TOP HEADER
           ========================================== */}
 
-            {activeTab ===
-            "portfolioItems" && (
+          <header
+            className="
+              sticky
+              top-0
+              z-30
+              border-b
+              border-white/10
+              bg-black/40
+              backdrop-blur-2xl
+            "
+          >
 
-            <PortfolioItemsManagement />
+            <div
+              className="
+                px-8
+                py-6
+                flex
+                items-center
+                justify-between
+              "
+            >
 
-          )}
+              {/* LEFT */}
+
+              <div>
+
+                <div
+                  className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    bg-yellow-500/10
+                    border
+                    border-yellow-500/20
+                    rounded-full
+                    px-4
+                    py-2
+                    mb-4
+                  "
+                >
+
+                  <Sparkles
+                    size={16}
+                    className="
+                      text-yellow-400
+                    "
+                  />
+
+                  <span
+                    className="
+                      text-yellow-300
+                      text-sm
+                      font-semibold
+                    "
+                  >
+
+                    Admin Control Center
+
+                  </span>
+
+                </div>
+
+                <h2
+                  className="
+                    text-4xl
+                    font-black
+                  "
+                >
+
+                  {
+                    currentPage?.label
+                  }
+
+                </h2>
+
+              </div>
+
+              {/* RIGHT */}
+
+              <div
+                className="
+                  hidden
+                  md:flex
+                  items-center
+                  gap-4
+                "
+              >
+
+                <div
+                  className="
+                    bg-white/5
+                    border
+                    border-white/10
+                    rounded-2xl
+                    px-5
+                    py-3
+                    text-gray-300
+                    text-sm
+                  "
+                >
+
+                  Welcome Back, Admin
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </header>
+
+          {/* ==========================================
+              CONTENT WRAPPER
+          ========================================== */}
+
+          <div
+            className="
+              p-8
+            "
+          >
+
+            <AnimatePresence
+              mode="wait"
+            >
+
+              <motion.div
+
+                key={activeTab}
+
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+
+                exit={{
+                  opacity: 0,
+                  y: -20,
+                }}
+
+                transition={{
+                  duration: 0.3,
+                }}
+              >
+
+                {/* ==========================================
+                    DASHBOARD
+                ========================================== */}
+
+                {activeTab ===
+                  "dashboard" && (
+
+                  <DashboardStats />
+
+                )}
+
+                {/* ==========================================
+                    FEEDBACKS
+                ========================================== */}
+
+                {activeTab ===
+                  "feedbacks" && (
+
+                  <FeedbackManagement />
+
+                )}
+
+                {/* ==========================================
+                    BOOKINGS
+                ========================================== */}
+
+                {activeTab ===
+                  "bookings" && (
+
+                  <div
+                    className="
+                      bg-white/5
+                      border
+                      border-white/10
+                      rounded-[32px]
+                      p-10
+                      backdrop-blur-xl
+                    "
+                  >
+
+                    <h3
+                      className="
+                        text-3xl
+                        font-black
+                        mb-6
+                      "
+                    >
+
+                      Booking Management
+
+                    </h3>
+
+                    <p
+                      className="
+                        text-gray-400
+                        text-lg
+                      "
+                    >
+
+                      Booking system integration
+                      will be connected here soon.
+
+                    </p>
+
+                  </div>
+
+                )}
+
+                {/* ==========================================
+                    SERVICES
+                ========================================== */}
+
+                {activeTab ===
+                  "services" && (
+
+                  <ServiceManagement />
+
+                )}
+
+                {/* ==========================================
+                    PORTFOLIO CATEGORIES
+                ========================================== */}
+
+                {activeTab ===
+                  "portfolio" && (
+
+                  <PortfolioManagement />
+
+                )}
+
+                {/* ==========================================
+                    PORTFOLIO ITEMS
+                ========================================== */}
+
+                {activeTab ===
+                  "portfolioItems" && (
+
+                  <PortfolioItemsManagement />
+
+                )}
+
+              </motion.div>
+
+            </AnimatePresence>
+
+          </div>
 
         </section>
 

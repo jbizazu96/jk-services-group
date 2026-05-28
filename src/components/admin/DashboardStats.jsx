@@ -1,17 +1,49 @@
+
 "use client";
 
-/* ==========================================
+/* =========================================
    REACT
-========================================== */
+========================================= */
 
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
-/* ==========================================
+/* =========================================
+   FRAMER MOTION
+========================================= */
+
+import {
+  motion,
+} from "framer-motion";
+
+/* =========================================
+   ICONS
+========================================= */
+
+import {
+  MessageSquareMore,
+  ShieldCheck,
+  Clock3,
+  Star,
+  BriefcaseBusiness,
+  Sparkles,
+  FolderKanban,
+  Layers3,
+  Activity,
+  TrendingUp,
+  Eye,
+  Film,
+  BarChart3,
+  Rocket,
+  CheckCircle2,
+} from "lucide-react";
+
+/* =========================================
    FIRESTORE
-========================================== */
+========================================= */
 
 import {
   collection,
@@ -20,47 +52,46 @@ import {
 
 import { db } from "@/lib/firebase";
 
-/* ==========================================
-   DASHBOARD STATS COMPONENT
-
-   Purpose:
-   Displays dashboard statistics
-   for feedback management.
-
-   Statistics:
-   - Total Feedbacks
-   - Approved Feedbacks
-   - Pending Feedbacks
-   - Average Rating
-========================================== */
+/* =========================================
+   COMPONENT
+========================================= */
 
 export default function DashboardStats() {
 
-  /* ==========================================
-     DASHBOARD STATISTICS STATE
+  /* =========================================
+     STATE
+  ========================================= */
 
-     Stores all dashboard metrics.
-  ========================================== */
+  const [loading, setLoading] =
+    useState(true);
 
   const [stats, setStats] =
     useState({
 
-      total: 0,
+      totalFeedbacks: 0,
+      approvedFeedbacks: 0,
+      pendingFeedbacks: 0,
+      averageRating: 0,
 
-      approved: 0,
+      totalServices: 0,
+      activeServices: 0,
+      featuredServices: 0,
+      inactiveServices: 0,
 
-      pending: 0,
+      totalPortfolioCategories: 0,
+      activePortfolioCategories: 0,
+      featuredPortfolioCategories: 0,
+      inactivePortfolioCategories: 0,
 
-      average: 0,
-
+      totalPortfolioItems: 0,
+      featuredPortfolioItems: 0,
+      activePortfolioItems: 0,
+      videoPortfolioItems: 0,
     });
 
-  /* ==========================================
-     INITIAL PAGE LOAD
-
-     Load statistics when component
-     first renders.
-  ========================================== */
+  /* =========================================
+     LOAD DASHBOARD DATA
+  ========================================= */
 
   useEffect(() => {
 
@@ -68,399 +99,737 @@ export default function DashboardStats() {
 
   }, []);
 
-  /* ==========================================
-     LOAD DASHBOARD STATISTICS
+  const loadStats = async () => {
 
-     Reads feedback records from
-     Firestore and calculates
-     dashboard metrics.
-  ========================================== */
+    try {
 
-/* ==========================================
-   LOAD DASHBOARD STATISTICS
-========================================== */
+      setLoading(true);
 
-const loadStats = async () => {
+      /* =====================================
+          PARALLEL REQUESTS
+      ===================================== */
 
-  /* ==========================================
-     LOAD FEEDBACKS
-  ========================================== */
+      const [
+        feedbackSnapshot,
+        serviceSnapshot,
+        portfolioSnapshot,
+        portfolioItemsSnapshot,
+      ] = await Promise.all([
 
-  const feedbackSnapshot =
-    await getDocs(
-      collection(
-        db,
-        "feedbacks"
-      )
-    );
+        getDocs(
+          collection(db, "feedbacks")
+        ),
 
-  const feedbacks =
-    feedbackSnapshot.docs.map(
-      (doc) => doc.data()
-    );
+        getDocs(
+          collection(db, "services")
+        ),
 
-  /* ==========================================
-     FEEDBACK CALCULATIONS
-  ========================================== */
-
-  const totalFeedbacks =
-    feedbacks.length;
-
-  const approvedFeedbacks =
-    feedbacks.filter(
-      (item) =>
-        item.approved === true
-    ).length;
-
-  const pendingFeedbacks =
-    feedbacks.filter(
-      (item) =>
-        !item.approved
-    ).length;
-
-  const averageRating =
-
-    feedbacks.length > 0
-
-      ? (
-
-          feedbacks.reduce(
-
-            (sum, item) =>
-
-              sum +
-              item.rating,
-
-            0
-
+        getDocs(
+          collection(
+            db,
+            "portfolioCategories"
           )
+        ),
 
-          /
+        getDocs(
+          collection(
+            db,
+            "portfolioItems"
+          )
+        ),
+      ]);
 
-          feedbacks.length
+      /* =====================================
+          FEEDBACKS
+      ===================================== */
 
-        ).toFixed(1)
+      const feedbacks =
+        feedbackSnapshot.docs.map(
+          (doc) => doc.data()
+        );
 
-      : 0;
+      const totalFeedbacks =
+        feedbacks.length;
 
-        /* ==========================================
-          LOAD SERVICES
-        ========================================== */
+      const approvedFeedbacks =
+        feedbacks.filter(
+          (item) => item.approved
+        ).length;
 
-        const serviceSnapshot =
-          await getDocs(
-            collection(
-              db,
-              "services"
-            )
-          );
+      const pendingFeedbacks =
+        feedbacks.filter(
+          (item) => !item.approved
+        ).length;
 
-        const services =
-          serviceSnapshot.docs.map(
-            (doc) => doc.data()
-          );
+      const averageRating =
+        feedbacks.length > 0
+          ? (
+              feedbacks.reduce(
+                (sum, item) =>
+                  sum +
+                  (item.rating || 0),
+                0
+              ) /
+              feedbacks.length
+            ).toFixed(1)
+          : "0.0";
 
-        /* ==========================================
-          SERVICE CALCULATIONS
-        ========================================== */
+      /* =====================================
+          SERVICES
+      ===================================== */
 
-        const totalServices =
-          services.length;
+      const services =
+        serviceSnapshot.docs.map(
+          (doc) => doc.data()
+        );
 
-        const activeServices =
-          services.filter(
-            (service) =>
-              service.active
-          ).length;
+      const totalServices =
+        services.length;
 
-        const featuredServices =
-          services.filter(
-            (service) =>
-              service.featured
-          ).length;
+      const activeServices =
+        services.filter(
+          (item) => item.active
+        ).length;
 
-        const inactiveServices =
-          services.filter(
-            (service) =>
-              !service.active
-          ).length;
+      const featuredServices =
+        services.filter(
+          (item) => item.featured
+        ).length;
 
-        /* ==========================================
-          LOAD PORTFOLIO CATEGORIES
-        ========================================== */
+      const inactiveServices =
+        services.filter(
+          (item) => !item.active
+        ).length;
 
-        const portfolioSnapshot =
-          await getDocs(
-            collection(
-              db,
-              "portfolioCategories"
-            )
-          );
+      /* =====================================
+          PORTFOLIO CATEGORIES
+      ===================================== */
 
-        const portfolioCategories =
-          portfolioSnapshot.docs.map(
-            (doc) => doc.data()
-          );
-
-       /* ==========================================
-        PORTFOLIO CALCULATIONS
-      ========================================== */
+      const portfolioCategories =
+        portfolioSnapshot.docs.map(
+          (doc) => doc.data()
+        );
 
       const totalPortfolioCategories =
         portfolioCategories.length;
 
       const activePortfolioCategories =
         portfolioCategories.filter(
-          (item) =>
-            item.active
+          (item) => item.active
         ).length;
 
       const featuredPortfolioCategories =
         portfolioCategories.filter(
-          (item) =>
-            item.featured
+          (item) => item.featured
         ).length;
 
       const inactivePortfolioCategories =
         portfolioCategories.filter(
-          (item) =>
-            !item.active
+          (item) => !item.active
         ).length;
 
-  /* ==========================================
-     UPDATE DASHBOARD STATE
-  ========================================== */
+      /* =====================================
+          PORTFOLIO ITEMS
+      ===================================== */
 
-  setStats({
+      const portfolioItems =
+        portfolioItemsSnapshot.docs.map(
+          (doc) => doc.data()
+        );
 
-    totalFeedbacks,
-    approvedFeedbacks,
-    pendingFeedbacks,
-    averageRating,
+      const totalPortfolioItems =
+        portfolioItems.length;
 
-    totalServices,
-    activeServices,
-    featuredServices,
-    inactiveServices,
+      const featuredPortfolioItems =
+        portfolioItems.filter(
+          (item) => item.featured
+        ).length;
 
-    totalPortfolioCategories,
-    activePortfolioCategories,
-    featuredPortfolioCategories,
-    inactivePortfolioCategories,
+      const activePortfolioItems =
+        portfolioItems.filter(
+          (item) => item.active
+        ).length;
 
-  });
+      const videoPortfolioItems =
+        portfolioItems.filter(
+          (item) =>
+            item.mediaType === "video"
+        ).length;
 
-};
+      /* =====================================
+          UPDATE STATE
+      ===================================== */
 
-  /* ==========================================
-     USER INTERFACE
-  ========================================== */
+      setStats({
 
-return (
+        totalFeedbacks,
+        approvedFeedbacks,
+        pendingFeedbacks,
+        averageRating,
 
-  <div className="space-y-10">
+        totalServices,
+        activeServices,
+        featuredServices,
+        inactiveServices,
 
-    {/* ==========================================
-        FEEDBACK STATISTICS
-    ========================================== */}
+        totalPortfolioCategories,
+        activePortfolioCategories,
+        featuredPortfolioCategories,
+        inactivePortfolioCategories,
 
-    <div>
+        totalPortfolioItems,
+        featuredPortfolioItems,
+        activePortfolioItems,
+        videoPortfolioItems,
+      });
 
-      <h3 className="text-2xl font-bold mb-4">
-        Feedback Overview
-      </h3>
+    } catch (error) {
 
-      <div className="grid md:grid-cols-4 gap-6">
+      console.error(error);
 
-        <div className="bg-white/5 rounded-3xl p-6">
-          <p className="text-gray-400">
-            Total Feedbacks
-          </p>
+    } finally {
 
-          <h2 className="text-4xl font-black mt-2">
-            {stats.totalFeedbacks}
-          </h2>
-        </div>
+      setLoading(false);
+    }
+  };
 
-        <div className="bg-green-500/10 rounded-3xl p-6">
-          <p className="text-green-300">
-            Approved
-          </p>
+  /* =========================================
+     OVERALL HEALTH SCORE
+  ========================================= */
 
-          <h2 className="text-4xl font-black mt-2">
-            {stats.approvedFeedbacks}
-          </h2>
-        </div>
+  const healthScore = useMemo(() => {
 
-        <div className="bg-yellow-500/10 rounded-3xl p-6">
-          <p className="text-yellow-300">
-            Pending
-          </p>
+    const score = (
+      stats.activeServices +
+      stats.approvedFeedbacks +
+      stats.activePortfolioItems
+    ) * 5;
 
-          <h2 className="text-4xl font-black mt-2">
-            {stats.pendingFeedbacks}
-          </h2>
-        </div>
+    return Math.min(score, 100);
 
-        <div className="bg-blue-500/10 rounded-3xl p-6">
-          <p className="text-blue-300">
-            Average Rating
-          </p>
+  }, [stats]);
 
-          <h2 className="text-4xl font-black mt-2">
-            ⭐ {stats.averageRating}
-          </h2>
-        </div>
+  /* =========================================
+     UI
+  ========================================= */
 
+  return (
+
+    <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-[#050505] p-6 md:p-8 text-white">
+
+      {/* =====================================
+          BACKGROUND EFFECTS
+      ===================================== */}
+
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+
+        <div className="absolute left-0 top-0 h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-3xl" />
+
+        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-purple-500/10 blur-3xl" />
+
+        <div className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/5 blur-3xl" />
       </div>
 
-    </div>
+      <div className="relative z-10">
 
-    {/* ==========================================
-        SERVICE STATISTICS
-    ========================================== */}
+        {/* =====================================
+            HERO HEADER
+        ===================================== */}
 
-    <div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-12"
+        >
 
-      <h3 className="text-2xl font-bold mb-4">
-        Service Overview
-      </h3>
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-sm text-zinc-300 backdrop-blur-md">
 
-      <div className="grid md:grid-cols-4 gap-6">
+            <Sparkles size={16} />
 
-        <div className="bg-white/5 rounded-3xl p-6">
-          <p className="text-gray-400">
-            Total Services
-          </p>
-
-          <h2 className="text-4xl font-black mt-2">
-            {stats.totalServices}
-          </h2>
-        </div>
-
-        <div className="bg-green-500/10 rounded-3xl p-6">
-          <p className="text-green-300">
-            Active
-          </p>
-
-          <h2 className="text-4xl font-black mt-2">
-            {stats.activeServices}
-          </h2>
-        </div>
-
-        <div className="bg-yellow-500/10 rounded-3xl p-6">
-          <p className="text-yellow-300">
-            Featured
-          </p>
-
-          <h2 className="text-4xl font-black mt-2">
-            {stats.featuredServices}
-          </h2>
-        </div>
-
-        <div className="bg-red-500/10 rounded-3xl p-6">
-          <p className="text-red-300">
-            Inactive
-          </p>
-
-          <h2 className="text-4xl font-black mt-2">
-            {stats.inactiveServices}
-          </h2>
-        </div>
-
-      </div>
-
-    </div>
-
-         {/* ==========================================
-            PORTFOLIO STATISTICS
-        ========================================== */}
-
-        <div>
-
-          <h3 className="text-2xl font-bold mb-4">
-            Portfolio Overview
-          </h3>
-
-          <div className="grid md:grid-cols-4 gap-6">
-
-            <div className="
-              bg-white/5
-              rounded-3xl
-              p-6
-            ">
-              <p className="text-gray-400">
-                Total Categories
-              </p>
-
-              <h2 className="
-                text-4xl
-                font-black
-                mt-2
-              ">
-                {stats.totalPortfolioCategories}
-              </h2>
-            </div>
-
-            <div className="
-              bg-green-500/10
-              rounded-3xl
-              p-6
-            ">
-              <p className="text-green-300">
-                Active
-              </p>
-
-              <h2 className="
-                text-4xl
-                font-black
-                mt-2
-              ">
-                {stats.activePortfolioCategories}
-              </h2>
-            </div>
-
-            <div className="
-              bg-yellow-500/10
-              rounded-3xl
-              p-6
-            ">
-              <p className="text-yellow-300">
-                Featured
-              </p>
-
-              <h2 className="
-                text-4xl
-                font-black
-                mt-2
-              ">
-                {stats.featuredPortfolioCategories}
-              </h2>
-            </div>
-
-            <div className="
-              bg-red-500/10
-              rounded-3xl
-              p-6
-            ">
-              <p className="text-red-300">
-                Inactive
-              </p>
-
-              <h2 className="
-                text-4xl
-                font-black
-                mt-2
-              ">
-                {stats.inactivePortfolioCategories}
-              </h2>
-            </div>
-
+            J&K Services Group Intelligence Center
           </div>
 
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
+
+            <div>
+
+              <h1 className="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
+                
+                <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                  {" "} Dashboard
+                </span>
+              </h1>
+
+              <p className="mt-6 max-w-3xl text-lg leading-relaxed text-zinc-400 md:text-xl">
+                Real-time cinematic analytics, premium portfolio intelligence and advanced business insights for J&K Services Group.
+              </p>
+            </div>
+
+            {/* HEALTH SCORE */}
+
+            <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+
+              <div className="flex items-center gap-3 text-zinc-400">
+                <Rocket size={18} />
+                Platform Health
+              </div>
+
+              <div className="mt-5 flex items-end gap-3">
+                <h2 className="text-6xl font-black">
+                  {healthScore}
+                </h2>
+                <span className="mb-2 text-zinc-500">
+                  /100
+                </span>
+              </div>
+
+              <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/5">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500"
+                  style={{
+                    width: `${healthScore}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* =====================================
+            QUICK METRICS
+        ===================================== */}
+
+        <div className="mb-12 grid grid-cols-2 gap-5 xl:grid-cols-4">
+
+          <PremiumStatCard
+            icon={<MessageSquareMore size={24} />}
+            title="Feedbacks"
+            value={stats.totalFeedbacks}
+            subtitle="Customer Reviews"
+          />
+
+          <PremiumStatCard
+            icon={<BriefcaseBusiness size={24} />}
+            title="Services"
+            value={stats.totalServices}
+            subtitle="Business Offerings"
+          />
+
+          <PremiumStatCard
+            icon={<FolderKanban size={24} />}
+            title="Categories"
+            value={stats.totalPortfolioCategories}
+            subtitle="Portfolio Systems"
+          />
+
+          <PremiumStatCard
+            icon={<Film size={24} />}
+            title="Portfolio Items"
+            value={stats.totalPortfolioItems}
+            subtitle="Media Showcase"
+          />
+
         </div>
 
-  </div>
+        {/* =====================================
+            ANALYTICS GRID
+        ===================================== */}
 
-);
+        <div className="grid grid-cols-1 gap-8 2xl:grid-cols-3">
+
+          {/* ===================================
+              FEEDBACK ANALYTICS
+          =================================== */}
+
+          <AnalyticsPanel
+            title="Feedback Analytics"
+            icon={<Star size={20} />}
+            accent="blue"
+          >
+
+            <AnalyticsRow
+              label="Approved Reviews"
+              value={stats.approvedFeedbacks}
+              color="green"
+            />
+
+            <AnalyticsRow
+              label="Pending Reviews"
+              value={stats.pendingFeedbacks}
+              color="yellow"
+            />
+
+            <AnalyticsRow
+              label="Average Rating"
+              value={`⭐ ${stats.averageRating}`}
+              color="blue"
+            />
+
+          </AnalyticsPanel>
+
+          {/* ===================================
+              SERVICES ANALYTICS
+          =================================== */}
+
+          <AnalyticsPanel
+            title="Services Intelligence"
+            icon={<Layers3 size={20} />}
+            accent="purple"
+          >
+
+            <AnalyticsRow
+              label="Active Services"
+              value={stats.activeServices}
+              color="green"
+            />
+
+            <AnalyticsRow
+              label="Featured Services"
+              value={stats.featuredServices}
+              color="yellow"
+            />
+
+            <AnalyticsRow
+              label="Inactive Services"
+              value={stats.inactiveServices}
+              color="red"
+            />
+
+          </AnalyticsPanel>
+
+          {/* ===================================
+              PORTFOLIO ANALYTICS
+          =================================== */}
+
+          <AnalyticsPanel
+            title="Portfolio Intelligence"
+            icon={<BarChart3 size={20} />}
+            accent="cyan"
+          >
+
+            <AnalyticsRow
+              label="Featured Categories"
+              value={stats.featuredPortfolioCategories}
+              color="yellow"
+            />
+
+            <AnalyticsRow
+              label="Active Portfolio Items"
+              value={stats.activePortfolioItems}
+              color="green"
+            />
+
+            <AnalyticsRow
+              label="Video Content"
+              value={stats.videoPortfolioItems}
+              color="blue"
+            />
+
+          </AnalyticsPanel>
+        </div>
+
+        {/* =====================================
+            BOTTOM INSIGHTS
+        ===================================== */}
+
+        <div className="mt-10 grid grid-cols-1 gap-6 xl:grid-cols-2">
+
+          {/* PERFORMANCE */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-[32px] border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
+          >
+
+            <div className="mb-8 flex items-center gap-3">
+
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+                <TrendingUp size={24} />
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-bold">
+                  Platform Performance
+                </h3>
+
+                <p className="text-zinc-500">
+                  Overall system growth metrics.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+
+              <ProgressRow
+                label="Customer Satisfaction"
+                value={95}
+              />
+
+              <ProgressRow
+                label="Service Activity"
+                value={88}
+              />
+
+              <ProgressRow
+                label="Portfolio Visibility"
+                value={91}
+              />
+            </div>
+          </motion.div>
+
+          {/* LIVE STATUS */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-[32px] border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
+          >
+
+            <div className="mb-8 flex items-center gap-3">
+
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10 text-green-400">
+                <Activity size={24} />
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-bold">
+                  Live Status Center
+                </h3>
+
+                <p className="text-zinc-500">
+                  Real-time platform monitoring.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+
+              <StatusItem
+                label="Firebase Services"
+                status="Operational"
+                color="green"
+              />
+
+              <StatusItem
+                label="Portfolio Engine"
+                status="Online"
+                color="blue"
+              />
+
+              <StatusItem
+                label="Booking Platform"
+                status="Stable"
+                color="purple"
+              />
+
+              <StatusItem
+                label="Dashboard Analytics"
+                status="Running"
+                color="cyan"
+              />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================
+   PREMIUM STAT CARD
+========================================= */
+
+function PremiumStatCard({
+  icon,
+  title,
+  value,
+  subtitle,
+}) {
+
+  return (
+
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="group relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
+    >
+
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent opacity-0 transition group-hover:opacity-100" />
+
+      <div className="relative z-10">
+
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/[0.04] text-blue-400">
+          {icon}
+        </div>
+
+        <p className="mt-6 text-sm text-zinc-500">
+          {title}
+        </p>
+
+        <h2 className="mt-2 text-5xl font-black tracking-tight">
+          {value}
+        </h2>
+
+        <p className="mt-2 text-sm text-zinc-500">
+          {subtitle}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+/* =========================================
+   ANALYTICS PANEL
+========================================= */
+
+function AnalyticsPanel({
+  title,
+  icon,
+  children,
+}) {
+
+  return (
+
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-[32px] border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
+    >
+
+      <div className="mb-8 flex items-center gap-4">
+
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04] text-blue-400">
+          {icon}
+        </div>
+
+        <div>
+          <h3 className="text-2xl font-bold">
+            {title}
+          </h3>
+
+          <p className="text-zinc-500">
+            Real-time insights
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-5">
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+/* =========================================
+   ANALYTICS ROW
+========================================= */
+
+function AnalyticsRow({
+  label,
+  value,
+  color,
+}) {
+
+  const colors = {
+    green:
+      "bg-green-500/10 text-green-400",
+
+    yellow:
+      "bg-yellow-500/10 text-yellow-400",
+
+    red:
+      "bg-red-500/10 text-red-400",
+
+    blue:
+      "bg-blue-500/10 text-blue-400",
+  };
+
+  return (
+
+    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4">
+
+      <p className="text-zinc-400">
+        {label}
+      </p>
+
+      <div className={`rounded-full px-4 py-2 font-semibold ${colors[color]}`}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================
+   PROGRESS ROW
+========================================= */
+
+function ProgressRow({
+  label,
+  value,
+}) {
+
+  return (
+
+    <div>
+
+      <div className="mb-3 flex items-center justify-between">
+
+        <p className="text-zinc-400">
+          {label}
+        </p>
+
+        <p className="font-semibold text-white">
+          {value}%
+        </p>
+      </div>
+
+      <div className="h-3 overflow-hidden rounded-full bg-white/5">
+
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500"
+          style={{ width: `${value}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* =========================================
+   STATUS ITEM
+========================================= */
+
+function StatusItem({
+  label,
+  status,
+  color,
+}) {
+
+  const colors = {
+    green: "bg-green-400",
+    blue: "bg-blue-400",
+    purple: "bg-purple-400",
+    cyan: "bg-cyan-400",
+  };
+
+  return (
+
+    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4">
+
+      <div className="flex items-center gap-3">
+
+        <div className={`h-3 w-3 rounded-full ${colors[color]}`} />
+
+        <p className="text-zinc-300">
+          {label}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2 text-green-400">
+        <CheckCircle2 size={16} />
+        {status}
+      </div>
+    </div>
+  );
 }

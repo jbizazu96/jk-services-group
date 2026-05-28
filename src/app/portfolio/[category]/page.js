@@ -1,14 +1,12 @@
 /* ==========================================
    PORTFOLIO CATEGORY PAGE
-
-   Displays all portfolio items
-   that belong to a selected
-   portfolio category.
 ========================================== */
 
 import {
   collection,
   getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import {
@@ -20,7 +18,7 @@ import PortfolioGallery from "@/components/portfolio/PortfolioGallery";
 import PortfolioHero from "@/components/portfolio/PortfolioHero";
 
 /* ==========================================
-   LOAD PORTFOLIO CATEGORY
+   LOAD CATEGORY
 ========================================== */
 
 async function getCategory(
@@ -50,50 +48,66 @@ async function getCategory(
 }
 
 /* ==========================================
-   LOAD PORTFOLIO ITEMS
+   LOAD PORTFOLIO PROJECTS
 ========================================== */
 
-async function getPortfolioItems(
-  categoryName
+async function getPortfolioProjects(
+  categoryId
 ) {
+
+  const q = query(
+    collection(
+      db,
+      "portfolioItems"
+    ),
+    where(
+      "categoryId",
+      "==",
+      categoryId
+    )
+  );
+
+  const snapshot =
+    await getDocs(q);
+
+  return snapshot.docs.map(
+    (doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })
+  );
+}
+
+/* ==========================================
+   LOAD MEDIA
+========================================== */
+
+async function getPortfolioMedia() {
 
   const snapshot =
     await getDocs(
       collection(
         db,
-        "portfolioItems"
+        "portfolioMedia"
       )
     );
 
-  const items =
-    snapshot.docs.map(
-      (doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })
-    );
-
-  return items.filter(
-    (item) =>
-      item.category ===
-      categoryName
+  return snapshot.docs.map(
+    (doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })
   );
 }
 
 /* ==========================================
-   PAGE COMPONENT
+   PAGE
 ========================================== */
 
 export default async function
 PortfolioCategoryPage({
   params,
 }) {
-
-  /* ==========================================
-     NEXT.JS 15
-
-     Params are async
-  ========================================== */
 
   const {
     category: categorySlug,
@@ -108,18 +122,14 @@ PortfolioCategoryPage({
       categorySlug
     );
 
-  /* ==========================================
-     CATEGORY NOT FOUND
-  ========================================== */
-
   if (!category) {
 
     return (
 
       <div
         className="
-          min-h-screen
           flex
+          min-h-screen
           items-center
           justify-center
           bg-black
@@ -135,73 +145,94 @@ PortfolioCategoryPage({
   }
 
   /* ==========================================
-     LOAD PORTFOLIO ITEMS
+     LOAD PROJECTS + MEDIA
   ========================================== */
 
-  const portfolioItems =
-    await getPortfolioItems(
-      category.name
-    );
+  const [
+    portfolioProjects,
+    portfolioMedia,
+  ] = await Promise.all([
+
+    getPortfolioProjects(
+      category.id
+    ),
+
+    getPortfolioMedia(),
+  ]);
 
   /* ==========================================
-     SERIALIZE FIRESTORE DATA
+     GROUP MEDIA BY PROJECT
   ========================================== */
 
-  const serializedPortfolioItems =
-    portfolioItems.map(
-      (item) => ({
+const projectsWithMedia =
+  portfolioProjects.map(
+    (project) => {
 
-        ...item,
+      const media =
+        portfolioMedia
+          .filter(
+            (mediaItem) =>
+              mediaItem.portfolioItemId ===
+              project.id
+          )
+          .map((mediaItem) => ({
+
+            ...mediaItem,
+
+            createdAt:
+              mediaItem.createdAt
+                ? mediaItem.createdAt
+                    .toDate()
+                    .toISOString()
+                : null,
+
+          }));
+
+      return {
+
+        ...project,
 
         createdAt:
-          item.createdAt
-            ? item.createdAt
+          project.createdAt
+            ? project.createdAt
                 .toDate()
                 .toISOString()
             : null,
 
-      })
-    );
-
-  /* ==========================================
-     FEATURED HERO IMAGE
-  ========================================== */
-
-  const featuredHeroItem =
-    serializedPortfolioItems[0];
-
-  /* ==========================================
-     DEBUG
-  ========================================== */
-
-  console.log(
-    "Category Name:",
-    category.name
-  );
-
-  console.log(
-    "Portfolio Items:",
-    portfolioItems
+        media,
+      };
+    }
   );
 
   /* ==========================================
-     PAGE JSX
+     HERO IMAGE
+  ========================================== */
+
+  const featuredHeroMedia =
+
+    projectsWithMedia?.[0]
+      ?.media?.[0]?.url ||
+
+    category.image;
+
+  /* ==========================================
+     PAGE
   ========================================== */
 
   return (
 
     <div
       className="
+        relative
         min-h-screen
+        overflow-hidden
         bg-black
         text-white
-        relative
-        overflow-hidden
       "
     >
 
       {/* =====================================
-          AMBIENT GLOW - TOP RIGHT
+          AMBIENT GLOWS
       ===================================== */}
 
       <div
@@ -209,37 +240,29 @@ PortfolioCategoryPage({
           absolute
           top-0
           right-0
-          w-[500px]
           h-[500px]
-          bg-yellow-500/10
-          blur-[60px]
-          md:blur-[120px]
+          w-[500px]
           rounded-full
-          z-0
+          bg-yellow-500/10
+          blur-[120px]
         "
-      ></div>
-
-      {/* =====================================
-          AMBIENT GLOW - BOTTOM LEFT
-      ===================================== */}
+      />
 
       <div
         className="
           absolute
           bottom-0
           left-0
-          w-[500px]
           h-[500px]
-          bg-blue-500/10
-          blur-[60px]
-          md:blur-[120px]
+          w-[500px]
           rounded-full
-          z-0
+          bg-blue-500/10
+          blur-[120px]
         "
-      ></div>
+      />
 
       {/* =====================================
-          HERO SECTION
+          HERO
       ===================================== */}
 
       <PortfolioHero
@@ -251,74 +274,147 @@ PortfolioCategoryPage({
         }
 
         image={
-          featuredHeroItem?.mediaUrl ||
-          category.image
+          featuredHeroMedia
         }
 
       />
 
       {/* =====================================
-          HERO CURVE TRANSITION
+          TRANSITION CURVE
       ===================================== */}
 
       <div
         className="
           relative
-          -mt-16
           z-20
+          -mt-16
+          min-h-[120px]
+          rounded-t-[40px]
+          border-t
+          border-white/10
           bg-gradient-to-b
           from-zinc-950
           via-black
           to-slate-950
-          rounded-t-[40px]
-          min-h-[120px]
-          border-t
-          border-white/10
         "
-      ></div>
+      />
 
       {/* =====================================
-          PORTFOLIO GALLERY SECTION
+          PROJECT SHOWCASE SECTION
       ===================================== */}
 
       <section
         className="
           relative
           z-30
+          overflow-hidden
           bg-gradient-to-b
           from-zinc-950
           via-black
           to-slate-950
-          overflow-hidden
         "
       >
 
         {/* =====================================
-            INNER CINEMATIC GLOW
+            INNER GLOW
         ===================================== */}
 
         <div
           className="
+            pointer-events-none
             absolute
             inset-0
             bg-[radial-gradient(circle_at_top_right,rgba(234,179,8,0.08),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.08),transparent_35%)]
-            pointer-events-none
           "
-        ></div>
+        />
 
         {/* =====================================
-            CONTENT CONTAINER
+            CONTENT
         ===================================== */}
 
         <div
           className="
             relative
-            max-w-6xl
             mx-auto
+            max-w-7xl
             px-6
             pb-24
           "
         >
+
+          {/* =====================================
+              SECTION HEADER
+          ===================================== */}
+
+          <div
+            className="
+              mb-16
+              flex
+              flex-col
+              gap-6
+              lg:flex-row
+              lg:items-end
+              lg:justify-between
+            "
+          >
+
+            <div>
+
+              <p
+                className="
+                  mb-4
+                  text-sm
+                  uppercase
+                  tracking-[0.3em]
+                  text-yellow-400
+                "
+              >
+                Luxury Showcase
+              </p>
+
+              <h2
+                className="
+                  max-w-3xl
+                  text-4xl
+                  font-black
+                  leading-tight
+                  md:text-6xl
+                "
+              >
+                Cinematic Project
+                Gallery
+              </h2>
+            </div>
+
+            <div
+              className="
+                rounded-2xl
+                border
+                border-white/10
+                bg-white/[0.03]
+                px-6
+                py-5
+                backdrop-blur-xl
+              "
+            >
+
+              <p className="text-zinc-500">
+                Total Projects
+              </p>
+
+              <h3
+                className="
+                  mt-2
+                  text-5xl
+                  font-black
+                "
+              >
+                {
+                  projectsWithMedia.length
+                }
+              </h3>
+            </div>
+          </div>
 
           {/* =====================================
               PORTFOLIO GALLERY
@@ -326,7 +422,7 @@ PortfolioCategoryPage({
 
           <PortfolioGallery
             portfolioItems={
-              serializedPortfolioItems
+              projectsWithMedia
             }
           />
 
@@ -335,6 +431,5 @@ PortfolioCategoryPage({
       </section>
 
     </div>
-
   );
 }
