@@ -170,12 +170,12 @@ export default function TeamSection() {
 
           initial={{
             opacity: 0,
-            y: 50,
+            
           }}
 
           whileInView={{
             opacity: 1,
-            y: 0,
+            
           }}
 
           viewport={{
@@ -307,12 +307,12 @@ export default function TeamSection() {
 
                 initial={{
                   opacity: 0,
-                  y: 60,
+                
                 }}
 
                 whileInView={{
                   opacity: 1,
-                  y: 0,
+                  
                 }}
 
                 viewport={{
