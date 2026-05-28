@@ -155,11 +155,11 @@ export default function TeamSection() {
       ========================================== */}
 
       <div className="
-        max-w-7xl
+        max-w-5xl
         mx-auto
         px-6
         relative
-        z-10
+        z-5
       ">
 
         {/* ==========================================
@@ -363,7 +363,7 @@ export default function TeamSection() {
                     alt={member.name}
                     className="
                       w-full
-                      h-full
+                      h-200
                       object-cover
                       group-hover:scale-105
                       transition

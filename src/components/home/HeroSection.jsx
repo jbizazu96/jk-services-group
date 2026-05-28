@@ -47,7 +47,7 @@ export default function HeroSection({
         "
         style={{
           backgroundImage:
-            "url('/images/hero-bg.jpg')",
+            "url('https://unsplash.com/photos/two-people-shaking-hands-n95VMLxqM2I')",
         }}
       ></div>
 
