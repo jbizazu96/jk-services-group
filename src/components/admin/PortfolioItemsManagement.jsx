@@ -80,6 +80,21 @@ const slugify = (text) =>
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-");
 
+ const extractYoutubeId = (
+  url
+) => {
+
+  const regExp =
+  /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+
+  const match =
+    url.match(regExp);
+
+  return match &&
+    match[2].length === 11
+      ? match[2]
+      : null;
+};
 /* =========================================
    COMPONENT
 ========================================= */
@@ -114,6 +129,16 @@ export default function PortfolioItemsManagement() {
   const [selectedFiles,
         setSelectedFiles] =
     useState([]);
+
+  const [
+    mediaUploadType,
+    setMediaUploadType,
+  ] = useState("upload");
+
+  const [
+    youtubeLinks,
+    setYoutubeLinks,
+  ] = useState([""]);
 
   /* =========================================
      FORM DATA
@@ -303,14 +328,33 @@ export default function PortfolioItemsManagement() {
         );
       }
 
-      if (
-        selectedFiles.length === 0
-      ) {
+              if (
 
-        return alert(
-          "Upload at least one media file"
-        );
-      }
+          mediaUploadType ===
+            "upload" &&
+
+          selectedFiles.length === 0
+        ) {
+
+          return alert(
+            "Upload at least one media file"
+          );
+        }
+
+        if (
+
+          mediaUploadType ===
+            "youtube" &&
+
+          youtubeLinks.filter(
+            (link) => link.trim()
+          ).length === 0
+        ) {
+
+          return alert(
+            "Add at least one YouTube link"
+          );
+        }
 
       try {
 
@@ -356,74 +400,140 @@ export default function PortfolioItemsManagement() {
             newProject
           );
 
-        /* =====================================
-            UPLOAD MEDIA
-        ===================================== */
+          /* =====================================
+    UPLOAD MEDIA
+===================================== */
 
-        const uploadedMedia = [];
+const uploadedMedia = [];
 
-        for (
-          let index = 0;
-          index <
-          selectedFiles.length;
-          index++
-        ) {
+/* =====================================
+    FILE UPLOADS
+===================================== */
 
-          const file =
-            selectedFiles[index];
+if (
+  mediaUploadType ===
+  "upload"
+) {
 
-          const mediaRef = ref(
-            storage,
-            `portfolio/${projectRef.id}/${Date.now()}-${file.name}`
-          );
+  for (
+    let index = 0;
+    index < selectedFiles.length;
+    index++
+  ) {
 
-          await uploadBytes(
-            mediaRef,
-            file
-          );
+    const file =
+      selectedFiles[index];
 
-          const downloadURL =
-            await getDownloadURL(
-              mediaRef
-            );
+    const mediaRef = ref(
+      storage,
+      `portfolio/${projectRef.id}/${Date.now()}-${file.name}`
+    );
 
-          const mediaType =
-            file.type.startsWith(
-              "video"
-            )
-              ? "video"
-              : "image";
+    await uploadBytes(
+      mediaRef,
+      file
+    );
 
-          const mediaData = {
+    const downloadURL =
+      await getDownloadURL(
+        mediaRef
+      );
 
-            portfolioItemId:
-              projectRef.id,
+    const mediaType =
+      file.type.startsWith(
+        "video"
+      )
+        ? "video"
+        : "image";
 
-            type: mediaType,
+    const mediaData = {
 
-            url: downloadURL,
+      portfolioItemId:
+        projectRef.id,
 
-            order: index,
+      type: mediaType,
 
-            createdAt:
-              Timestamp.now(),
-          };
+      url: downloadURL,
 
-          const mediaDoc =
-            await addDoc(
-              collection(
-                db,
-                "portfolioMedia"
-              ),
-              mediaData
-            );
+      order: index,
 
-          uploadedMedia.push({
-            id: mediaDoc.id,
-            ...mediaData,
-          });
-        }
+      createdAt:
+        Timestamp.now(),
+    };
 
+    const mediaDoc =
+      await addDoc(
+        collection(
+          db,
+          "portfolioMedia"
+        ),
+        mediaData
+      );
+
+    uploadedMedia.push({
+
+      id: mediaDoc.id,
+
+      ...mediaData,
+    });
+  }
+}
+
+/* =====================================
+    YOUTUBE LINKS
+===================================== */
+
+if (
+  mediaUploadType ===
+  "youtube"
+) {
+
+  for (
+    let index = 0;
+    index < youtubeLinks.length;
+    index++
+  ) {
+
+    const youtubeId =
+      extractYoutubeId(
+        youtubeLinks[index]
+      );
+
+    if (!youtubeId)
+      continue;
+
+    const mediaData = {
+
+      portfolioItemId:
+        projectRef.id,
+
+      type: "youtube",
+
+      youtubeId,
+
+      order: index,
+
+      createdAt:
+        Timestamp.now(),
+    };
+
+    const mediaDoc =
+      await addDoc(
+        collection(
+          db,
+          "portfolioMedia"
+        ),
+        mediaData
+      );
+
+    uploadedMedia.push({
+
+      id: mediaDoc.id,
+
+      ...mediaData,
+    });
+  }
+}
         /* =====================================
             UPDATE LOCAL STATE
         ===================================== */
@@ -455,6 +565,7 @@ export default function PortfolioItemsManagement() {
         });
 
         setSelectedFiles([]);
+        setYoutubeLinks([""]);
 
       } catch (error) {
 
@@ -799,8 +910,105 @@ export default function PortfolioItemsManagement() {
                 />
               </div>
 
-              {/* FILE UPLOAD */}
+                  {/* =====================================
+                      MEDIA SOURCE TYPE
+                  ===================================== */}
 
+                  <div>
+
+                    <label
+                      className="
+                        mb-3
+                        block
+                        text-sm
+                        text-zinc-400
+                      "
+                    >
+                      Media Source
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-3">
+
+                      <button
+                        type="button"
+
+                        onClick={() =>
+                          setMediaUploadType(
+                            "upload"
+                          )
+                        }
+
+                        className={`
+                          rounded-2xl
+                          px-4
+                          py-4
+                          font-medium
+                          transition-all
+
+                          ${
+                            mediaUploadType ===
+                            "upload"
+
+                              ? `
+                                bg-blue-600
+                                text-white
+                              `
+
+                              : `
+                                border
+                                border-white/10
+                                bg-white/[0.03]
+                              `
+                          }
+                        `}
+                      >
+                        Upload Files
+                      </button>
+
+                      <button
+                        type="button"
+
+                        onClick={() =>
+                          setMediaUploadType(
+                            "youtube"
+                          )
+                        }
+
+                        className={`
+                          rounded-2xl
+                          px-4
+                          py-4
+                          font-medium
+                          transition-all
+
+                          ${
+                            mediaUploadType ===
+                            "youtube"
+
+                              ? `
+                                bg-red-600
+                                text-white
+                              `
+
+                              : `
+                                border
+                                border-white/10
+                                bg-white/[0.03]
+                              `
+                          }
+                        `}
+                      >
+                        YouTube Links
+                      </button>
+                    </div>
+                  </div>
+
+              {/* FILE UPLOAD */}
+              
+              {mediaUploadType ===
+                "upload" && (
+
+              <div>
               <div>
 
                 <label className="mb-2 block text-sm text-zinc-400">
@@ -878,6 +1086,100 @@ export default function PortfolioItemsManagement() {
                   </div>
                 )}
               </div>
+
+                </div>
+              )}
+
+              {/* =====================================
+                  YOUTUBE LINKS
+              ===================================== */}
+
+              {mediaUploadType ===
+                "youtube" && (
+
+                <div>
+
+                  <label
+                    className="
+                      mb-3
+                      block
+                      text-sm
+                      text-zinc-400
+                    "
+                  >
+                    YouTube Links
+                  </label>
+
+                  <div className="space-y-3">
+
+                    {youtubeLinks.map(
+                      (link, index) => (
+
+                        <input
+                          key={index}
+
+                          type="text"
+
+                          value={link}
+
+                          onChange={(e) => {
+
+                            const updated =
+                              [...youtubeLinks];
+
+                            updated[index] =
+                              e.target.value;
+
+                            setYoutubeLinks(
+                              updated
+                            );
+                          }}
+
+                          placeholder="
+                            https://youtube.com/watch?v=...
+                          "
+
+                          className="
+                            w-full
+                            rounded-2xl
+                            border
+                            border-white/10
+                            bg-white/[0.03]
+                            px-4
+                            py-3
+                            outline-none
+                          "
+                        />
+                      )
+                    )}
+
+                    <button
+                      type="button"
+
+                      onClick={() =>
+                        setYoutubeLinks(
+                          (prev) => [
+                            ...prev,
+                            "",
+                          ]
+                        )
+                      }
+
+                      className="
+                        rounded-2xl
+                        border
+                        border-white/10
+                        bg-white/[0.03]
+                        px-5
+                        py-3
+                        text-sm
+                      "
+                    >
+                      + Add Another Link
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* FEATURED */}
 
