@@ -118,7 +118,7 @@ export default function AboutSection() {
               x: -80,
             }}
 
-            whileInView={{
+            animate={{
               opacity: 1,
               x: 0,
             }}
@@ -242,7 +242,7 @@ export default function AboutSection() {
               x: 80,
             }}
 
-            whileInView={{
+            animate={{
               opacity: 1,
               x: 0,
             }}

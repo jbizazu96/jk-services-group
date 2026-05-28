@@ -196,7 +196,7 @@ export default function ServicesSection({
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -332,7 +332,7 @@ export default function ServicesSection({
                 y: 60,
               }}
 
-              whileInView={{
+              animate={{
                 opacity: 1,
                 y: 0,
               }}

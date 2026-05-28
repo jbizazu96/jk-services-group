@@ -253,7 +253,7 @@ export default function FAQSection() {
             y: 30,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -332,7 +332,7 @@ export default function FAQSection() {
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -375,7 +375,7 @@ export default function FAQSection() {
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -432,7 +432,7 @@ export default function FAQSection() {
             y: 40,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -505,7 +505,7 @@ export default function FAQSection() {
                   y: 40,
                 }}
 
-                whileInView={{
+                animate={{
                   opacity: 1,
                   y: 0,
                 }}

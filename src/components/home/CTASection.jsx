@@ -152,7 +152,7 @@ export default function CTASection({
             y: 20,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -230,7 +230,7 @@ export default function CTASection({
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -277,7 +277,7 @@ export default function CTASection({
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -318,7 +318,7 @@ export default function CTASection({
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}

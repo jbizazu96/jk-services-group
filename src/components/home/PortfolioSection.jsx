@@ -304,7 +304,7 @@ export default function PortfolioSection() {
             y: 50,
           }}
 
-          whileInView={{
+          animate={{
             opacity: 1,
             y: 0,
           }}
@@ -599,7 +599,7 @@ export default function PortfolioSection() {
                   x: 100,
                 }}
 
-                whileInView={{
+                animate={{
                   opacity: 1,
                   x: 0,
                 }}
