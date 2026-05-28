@@ -117,7 +117,7 @@ export default function TeamSection() {
           w-[400px]
           h-[400px]
           bg-yellow-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       />
@@ -145,7 +145,7 @@ export default function TeamSection() {
           w-[400px]
           h-[400px]
           bg-blue-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       />
@@ -328,10 +328,15 @@ export default function TeamSection() {
                    HOVER ANIMATION
                 ========================================== */
 
-                whileHover={{
-                  y: -10,
-                  scale: 1.01,
-                }}
+                whileHover={
+                  typeof window !== "undefined" &&
+                  window.innerWidth >= 1024
+                    ? {
+                        y: -10,
+                        scale: 1.01,
+                      }
+                    : {}
+                }
 
                 className="
                   group
@@ -362,10 +367,11 @@ export default function TeamSection() {
                     src={member.image}
                     alt={member.name}
                     className="
+                      transform-gpu
                       w-full
                       h-200
                       object-cover
-                      group-hover:scale-105
+                      lg:group-hover:scale-105
                       transition
                       duration-700
                     "

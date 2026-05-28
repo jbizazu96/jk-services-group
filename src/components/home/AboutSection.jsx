@@ -52,7 +52,7 @@ export default function AboutSection() {
           w-[450px]
           h-[450px]
           bg-yellow-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -80,7 +80,7 @@ export default function AboutSection() {
           w-[450px]
           h-[450px]
           bg-blue-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -157,10 +157,15 @@ export default function AboutSection() {
 
             <motion.div
 
-              whileHover={{
-                y: -10,
-                scale: 1.01,
-              }}
+             whileHover={
+                  typeof window !== "undefined" &&
+                  window.innerWidth >= 1024
+                    ? {
+                        y: -10,
+                        scale: 1.01,
+                      }
+                    : {}
+                }
 
               transition={{
                 duration: 0.4,

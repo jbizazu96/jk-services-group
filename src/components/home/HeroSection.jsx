@@ -87,7 +87,7 @@ export default function HeroSection({
           w-[500px]
           h-[500px]
           bg-yellow-200/30
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -115,7 +115,7 @@ export default function HeroSection({
           w-[500px]
           h-[500px]
           bg-blue-200/30
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>

@@ -140,7 +140,7 @@ export default function ServicesSection({
           w-[500px]
           h-[500px]
           bg-yellow-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -168,7 +168,7 @@ export default function ServicesSection({
           w-[500px]
           h-[500px]
           bg-blue-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -202,8 +202,9 @@ export default function ServicesSection({
           }}
 
           viewport={{
-            once: true,
-          }}
+              once: true,
+              amount: 0.2,
+            }}
 
           transition={{
             duration: 0.8,
@@ -348,10 +349,15 @@ export default function ServicesSection({
                  HOVER ANIMATION
               ========================================== */
 
-              whileHover={{
-                y: -12,
-                scale: 1.02,
-              }}
+              whileHover={
+                    typeof window !== "undefined" &&
+                    window.innerWidth >= 1024
+                      ? {
+                          y: -12,
+                          scale: 1.02,
+                        }
+                      : {}
+                  }
 
               className="
                 group
@@ -418,6 +424,8 @@ export default function ServicesSection({
               ========================================== */}
 
               <div className="
+               transform-gpu
+                group
                 relative
                 z-10
                 h-full

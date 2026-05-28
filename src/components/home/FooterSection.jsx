@@ -111,7 +111,7 @@ export default function FooterSection() {
           w-[400px]
           h-[400px]
           bg-yellow-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -139,7 +139,7 @@ export default function FooterSection() {
           w-[400px]
           h-[400px]
           bg-blue-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>

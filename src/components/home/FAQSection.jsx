@@ -196,7 +196,7 @@ export default function FAQSection() {
           w-[450px]
           h-[450px]
           bg-yellow-200/40
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -224,7 +224,7 @@ export default function FAQSection() {
           w-[450px]
           h-[450px]
           bg-blue-200/30
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -515,9 +515,14 @@ export default function FAQSection() {
                   duration: 0.5,
                 }}
 
-                whileHover={{
-                  y: -3,
-                }}
+               whileHover={
+                    typeof window !== "undefined" &&
+                    window.innerWidth >= 1024
+                      ? {
+                          y: -3,
+                        }
+                      : {}
+                  }
 
                 className="
                   bg-white/70

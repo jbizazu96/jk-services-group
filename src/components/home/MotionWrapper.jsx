@@ -13,7 +13,7 @@ export default function MotionWrapper({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{
-        duration: 0.8,
+        duration: 0.3,
         delay,
       }}
       className={className}

@@ -61,7 +61,7 @@ export default function TestimonialsSection() {
           w-[450px]
           h-[450px]
           bg-yellow-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -89,7 +89,7 @@ export default function TestimonialsSection() {
           w-[450px]
           h-[450px]
           bg-blue-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>

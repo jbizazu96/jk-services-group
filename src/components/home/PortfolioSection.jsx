@@ -251,7 +251,7 @@ export default function PortfolioSection() {
           w-[400px]
           h-[400px]
           bg-yellow-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -279,7 +279,7 @@ export default function PortfolioSection() {
           w-[400px]
           h-[400px]
           bg-blue-500/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -612,10 +612,15 @@ export default function PortfolioSection() {
                   duration: 0.6,
                 }}
 
-                whileHover={{
-                  y: -10,
-                  scale: 1.02,
-                }}
+                whileHover={
+                  typeof window !== "undefined" &&
+                  window.innerWidth >= 1024
+                    ? {
+                        y: -10,
+                        scale: 1.02,
+                      }
+                    : {}
+                }
 
                 onClick={() =>
                   router.push(
@@ -657,12 +662,13 @@ export default function PortfolioSection() {
                   src={category.image}
                   alt={category.name}
                   className="
+                    transform-gpu
                     absolute
                     inset-0
                     w-full
                     h-full
                     object-cover
-                    group-hover:scale-110
+                    lg:group-hover:scale-110
                     transition
                     duration-700
                   "

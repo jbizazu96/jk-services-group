@@ -95,7 +95,7 @@ export default function CTASection({
           w-[450px]
           h-[450px]
           bg-white/10
-          blur-[120px]
+          blur-[60px] md:blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -332,10 +332,15 @@ export default function CTASection({
             duration: 0.8,
           }}
 
-          whileHover={{
-            scale: 1.05,
-            y: -5,
-          }}
+          whileHover={
+                typeof window !== "undefined" &&
+                window.innerWidth >= 1024
+                  ? {
+                      scale: 1.05,
+                      y: -5,
+                    }
+                  : {}
+              }
 
           whileTap={{
             scale: 0.98,
