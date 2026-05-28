@@ -301,16 +301,17 @@ export default function PortfolioSection() {
 
           initial={{
             opacity: 0,
-            
+            y: 50,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
             once: true,
+            margin: "-100px",
           }}
 
           transition={{
@@ -595,16 +596,17 @@ export default function PortfolioSection() {
 
                 initial={{
                   opacity: 0,
-                  
+                  x: 100,
                 }}
 
                 whileInView={{
                   opacity: 1,
-                  
+                  x: 0,
                 }}
 
                 viewport={{
                   once: true,
+                  margin: "-100px",
                 }}
 
                 transition={{

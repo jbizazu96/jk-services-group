@@ -117,7 +117,7 @@ export default function TeamSection() {
           w-[400px]
           h-[400px]
           bg-yellow-500/10
-          blur-[60px] md:blur-[120px]
+          blur-[120px]
           rounded-full
         "
       />
@@ -145,7 +145,7 @@ export default function TeamSection() {
           w-[400px]
           h-[400px]
           bg-blue-500/10
-          blur-[60px] md:blur-[120px]
+          blur-[120px]
           rounded-full
         "
       />
@@ -170,16 +170,17 @@ export default function TeamSection() {
 
           initial={{
             opacity: 0,
-            
+            y: 50,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
             once: true,
+            margin: "-100px",
           }}
 
           transition={{
@@ -307,16 +308,17 @@ export default function TeamSection() {
 
                 initial={{
                   opacity: 0,
-                
+                  y: 60,
                 }}
 
                 whileInView={{
                   opacity: 1,
-                  
+                  y: 0,
                 }}
 
                 viewport={{
                   once: true,
+                  margin: "-100px",
                 }}
 
                 transition={{

@@ -193,16 +193,17 @@ export default function ServicesSection({
 
           initial={{
             opacity: 0,
-            
+            y: 50,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
               once: true,
+              margin: "-100px",
               amount: 0.2,
             }}
 
@@ -328,16 +329,17 @@ export default function ServicesSection({
 
               initial={{
                 opacity: 0,
-                
+                y: 60,
               }}
 
               whileInView={{
                 opacity: 1,
-                
+                y: 0,
               }}
 
               viewport={{
                 once: true,
+                margin: "-100px",
               }}
 
               transition={{

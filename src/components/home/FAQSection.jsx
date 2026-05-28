@@ -196,7 +196,7 @@ export default function FAQSection() {
           w-[450px]
           h-[450px]
           bg-yellow-200/40
-          blur-[60px] md:blur-[120px]
+          blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -224,7 +224,7 @@ export default function FAQSection() {
           w-[450px]
           h-[450px]
           bg-blue-200/30
-          blur-[60px] md:blur-[120px]
+          blur-[120px]
           rounded-full
         "
       ></motion.div>
@@ -250,16 +250,17 @@ export default function FAQSection() {
 
           initial={{
             opacity: 0,
-            
+            y: 30,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
             once: true,
+            margin: "-100px",
           }}
 
           transition={{
@@ -328,16 +329,17 @@ export default function FAQSection() {
 
           initial={{
             opacity: 0,
-            
+            y: 50,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
             once: true,
+            margin: "-100px",
           }}
 
           transition={{
@@ -370,16 +372,17 @@ export default function FAQSection() {
 
           initial={{
             opacity: 0,
-            
+            y: 50,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
             once: true,
+            margin: "-100px",
           }}
 
           transition={{
@@ -426,16 +429,17 @@ export default function FAQSection() {
 
           initial={{
             opacity: 0,
-            
+            y: 40,
           }}
 
           whileInView={{
             opacity: 1,
-            
+            y: 0,
           }}
 
           viewport={{
             once: true,
+            margin: "-100px",
           }}
 
           className="
@@ -498,16 +502,17 @@ export default function FAQSection() {
 
                 initial={{
                   opacity: 0,
-                  
+                  y: 40,
                 }}
 
                 whileInView={{
                   opacity: 1,
-                  
+                  y: 0,
                 }}
 
                 viewport={{
                   once: true,
+                  margin: "-100px",
                 }}
 
                 transition={{
@@ -516,13 +521,13 @@ export default function FAQSection() {
                 }}
 
                whileHover={
-                    typeof window !== "undefined" &&
-                    window.innerWidth >= 1024
-                      ? {
-                          y: -3,
-                        }
-                      : {}
-                  }
+                  typeof window !== "undefined" &&
+                  window.innerWidth >= 1024
+                    ? {
+                        y: -3,
+                      }
+                    : {}
+                }
 
                 className="
                   bg-white/70

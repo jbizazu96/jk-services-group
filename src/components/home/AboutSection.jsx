@@ -115,16 +115,17 @@ export default function AboutSection() {
 
             initial={{
               opacity: 0,
-              
+              x: -80,
             }}
 
             whileInView={{
               opacity: 1,
-              
+              x: 0,
             }}
 
             viewport={{
               once: true,
+              margin: "-100px",
             }}
 
             transition={{
@@ -238,16 +239,17 @@ export default function AboutSection() {
 
             initial={{
               opacity: 0,
-              
+              x: 80,
             }}
 
             whileInView={{
               opacity: 1,
-              
+              x: 0,
             }}
 
             viewport={{
               once: true,
+              margin: "-100px",
             }}
 
             transition={{
