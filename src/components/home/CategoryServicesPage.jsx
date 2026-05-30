@@ -197,29 +197,74 @@ export default function CategoryServicesPage() {
           className="
             mb-24
             text-center
+            
           "
         >
 
-          <div
+
+          <motion.div
+
+            whileHover={{
+              scale: 1.03,
+            }}
+
             className="
               mb-6
+
               inline-flex
               items-center
+              gap-2
+
               rounded-full
+
               border
-              border-white/10
-              bg-white/5
+              border-yellow-500/20
+
+              bg-yellow-500/10
+
               px-5
               py-2
-              text-sm
-              text-yellow-300
+
               backdrop-blur-md
             "
           >
 
-            Our Service Categories
+            <motion.div
 
-          </div>
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.7, 1, 0.7],
+              }}
+
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+              }}
+
+              className="
+                h-2
+                w-2
+                rounded-full
+                bg-yellow-400
+              "
+            />
+
+            <span
+              className="
+                text-sm
+                font-semibold
+                uppercase
+                tracking-[0.2em]
+                text-yellow-300
+              "
+            >
+
+              Our Service Categories
+
+            </span>
+
+          </motion.div>
+
 
           <h2
             className="
