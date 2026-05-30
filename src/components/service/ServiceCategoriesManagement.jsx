@@ -31,13 +31,12 @@ import {
   Pencil,
   Upload,
   Sparkles,
-  CheckCircle2,
-  XCircle,
-  ImageIcon,
-  Layers3,
-  DollarSign,
   Search,
   X,
+  FolderKanban,
+  Eye,
+  CheckCircle2,
+  ImageIcon,
 } from "lucide-react";
 
 /* =========================================
@@ -66,18 +65,20 @@ import {
   storage,
 } from "@/lib/firebase";
 
+import { serverTimestamp } from "firebase/firestore";
 
 /* =========================================
    COMPONENT
 ========================================= */
 
-export default function ServiceManagement() {
+export default function ServiceCategoriesManagement() {
 
   /* =========================================
      STATES
   ========================================= */
 
-  const [services, setServices] =
+  const [serviceCategories,
+        setServiceCategories] =
     useState([]);
 
   const [loading, setLoading] =
@@ -93,16 +94,9 @@ export default function ServiceManagement() {
         setEditUploading] =
     useState(false);
 
-  const [editingService,
-        setEditingService] =
+  const [editingCategory,
+        setEditingCategory] =
     useState(null);
-
-    /* =========================================
-   CATEGORY OPTIONS
-  ========================================= */
-
-  const [categories, setCategories] =
-  useState([]);
 
   /* =========================================
      FORM STATE
@@ -111,10 +105,6 @@ export default function ServiceManagement() {
   const [formData, setFormData] =
     useState({
       name: "",
-      category: "",
-      minPrice: "",
-      maxPrice: "",
-      priceText: "",
       description: "",
       image: "",
       featured: false,
@@ -127,125 +117,110 @@ export default function ServiceManagement() {
   const [editData, setEditData] =
     useState({
       name: "",
-      category: "",
-      priceText: "",
       description: "",
       image: "",
     });
 
   /* =========================================
-     LOAD SERVICES
+     LOAD PORTFOLIO CATEGORIES
   ========================================= */
 
-  const loadServices = async () => {
+  const loadServiceCategories =
+    async () => {
 
-    try {
+      try {
 
-      setLoading(true);
+        setLoading(true);
 
-      const q = query(
-        collection(db, "services"),
-        orderBy("createdAt", "desc")
-      );
+        const q = query(
+          collection(
+            db,
+            "serviceCategories"
+          ),
+          orderBy(
+            "createdAt",
+            "desc"
+          )
+        );
 
-      const snapshot =
-        await getDocs(q);
+        const snapshot =
+          await getDocs(q);
 
-      const items = snapshot.docs.map(
-        (item) => ({
-          id: item.id,
-          ...item.data(),
-        })
-      );
+        const items = snapshot.docs.map(
+          (item) => ({
+            id: item.id,
+            ...item.data(),
+          })
+        );
 
-      setServices(items);
+        setServiceCategories(items);
 
-    } catch (error) {
+      } catch (error) {
 
-      console.error(error);
+        console.error(error);
 
-    } finally {
+      } finally {
 
-      setLoading(false);
+        setLoading(false);
+      }
+    };
 
-    }
-  };
+  useEffect(() => {
 
-  const loadCategories = async () => {
+    loadServiceCategories();
 
-  try {
-
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "serviceCategories"
-        )
-      );
-
-    const items =
-      snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-    setCategories(items);
-
-  } catch (error) {
-
-    console.error(error);
-
-  }
-};
-
-useEffect(() => {
-
-  loadServices();
-
-  loadCategories();
-
-}, []);
+  }, []);
 
   /* =========================================
-     FILTERED SERVICES
+     FILTERED DATA
   ========================================= */
 
-  const filteredServices =
+  const filteredCategories =
     useMemo(() => {
 
-      return services.filter((service) =>
-        service.name
-          ?.toLowerCase()
-          .includes(search.toLowerCase())
+      return serviceCategories.filter(
+        (item) =>
+          item.name
+            ?.toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
       );
 
-    }, [services, search]);
+    }, [
+      serviceCategories,
+      search,
+    ]);
 
   /* =========================================
-     HANDLE INPUT CHANGE
+     HANDLE FORM CHANGE
   ========================================= */
 
-  const handleChange =
-    (field, value) => {
+  const handleChange = (
+    field,
+    value
+  ) => {
 
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    };
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   /* =========================================
      HANDLE EDIT CHANGE
   ========================================= */
 
-  const handleEditChange =
-    (field, value) => {
+  const handleEditChange = (
+    field,
+    value
+  ) => {
 
-      setEditData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    };
+    setEditData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   /* =========================================
      IMAGE UPLOAD
@@ -268,7 +243,7 @@ useEffect(() => {
 
       const imageRef = ref(
         storage,
-        `services/${Date.now()}-${file.name}`
+        `serviceCat/${Date.now()}-${file.name}`
       );
 
       await uploadBytes(
@@ -308,83 +283,87 @@ useEffect(() => {
   };
 
   /* =========================================
-     ADD SERVICE
+     ADD CATEGORY
   ========================================= */
 
-  const addService = async () => {
+  const addServiceCategory =
+    async () => {
 
-    if (!formData.name) {
-      return alert(
-        "Service name is required"
-      );
-    }
+      if (!formData.name) {
 
-    try {
+        return alert(
+          "Category name is required"
+        );
+      }
 
-      await addDoc(
-        collection(db, "services"),
-        {
-          ...formData,
+      try {
 
-          minPrice:
-            Number(formData.minPrice),
+        const slug =
+          formData.name
+            .toLowerCase()
+            .replace(/&/g, "and")
+            .replace(/\s+/g, "-")
+            .replace(/[^\w-]/g, "");
 
-          maxPrice:
-            Number(formData.maxPrice),
+        await addDoc(
+          collection(
+            db,
+            "serviceCategories"
+          ),
+          {
+            ...formData,
+            slug,
+            active: true,
+            createdAt: serverTimestamp()
+          }
+        );
 
-          active: true,
+        setFormData({
+          name: "",
+          description: "",
+          image: "",
+          featured: false,
+        });
 
-          createdAt: new Date(),
-        }
-      );
+        loadServiceCategories();
 
-      setFormData({
-        name: "",
-        category: "",
-        minPrice: "",
-        maxPrice: "",
-        priceText: "",
-        description: "",
-        image: "",
-        featured: false,
-      });
+      } catch (error) {
 
-      loadServices();
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert("Failed to add service.");
-    }
-  };
+        console.error(error);
+      }
+    };
 
   /* =========================================
-     DELETE SERVICE
+     DELETE CATEGORY
   ========================================= */
 
-  const deleteService = async (id) => {
+  const deleteServiceCategory =
+    async (id) => {
 
-    const confirmDelete =
-      confirm(
-        "Delete this service?"
-      );
+      const confirmDelete =
+        confirm(
+          "Delete this category?"
+        );
 
-    if (!confirmDelete) return;
+      if (!confirmDelete) return;
 
-    try {
+      try {
 
-      await deleteDoc(
-        doc(db, "services", id)
-      );
+        await deleteDoc(
+          doc(
+            db,
+            "serviceCategories",
+            id
+          )
+        );
 
-      loadServices();
+        loadServiceCategories();
 
-    } catch (error) {
+      } catch (error) {
 
-      console.error(error);
-    }
-  };
+        console.error(error);
+      }
+    };
 
   /* =========================================
      TOGGLE ACTIVE
@@ -396,22 +375,26 @@ useEffect(() => {
   ) => {
 
     await updateDoc(
-      doc(db, "services", id),
+      doc(
+        db,
+        "serviceCategories",
+        id
+      ),
       {
         active: !current,
       }
     );
 
-    setServices((prev) =>
-  prev.map((item) =>
-    item.id === id
-      ? {
-          ...item,
-          active: !current,
-        }
-      : item
-  )
-);
+    setServiceCategories((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                active: !current,
+              }
+            : item
+        )
+      );
   };
 
   /* =========================================
@@ -419,17 +402,14 @@ useEffect(() => {
   ========================================= */
 
 const toggleFeatured =
-  async (
-    id,
-    current
-  ) => {
+  async (id, current) => {
 
     try {
 
       await updateDoc(
         doc(
           db,
-          "services",
+          "serviceCategories",
           id
         ),
         {
@@ -437,7 +417,7 @@ const toggleFeatured =
         }
       );
 
-      setServices((prev) =>
+      setServiceCategories((prev) =>
         prev.map((item) =>
           item.id === id
             ? {
@@ -459,19 +439,15 @@ const toggleFeatured =
      OPEN EDIT
   ========================================= */
 
-  const openEdit = (service) => {
+  const openEdit = (category) => {
 
-    setEditingService(service);
+    setEditingCategory(category);
 
     setEditData({
-      name: service.name || "",
-      category:
-        service.category || "",
-      priceText:
-        service.priceText || "",
+      name: category.name || "",
       description:
-        service.description || "",
-      image: service.image || "",
+        category.description || "",
+      image: category.image || "",
     });
   };
 
@@ -486,17 +462,17 @@ const toggleFeatured =
       await updateDoc(
         doc(
           db,
-          "services",
-          editingService.id
+          "serviceCategories",
+          editingCategory.id
         ),
         {
           ...editData,
         }
       );
 
-      setEditingService(null);
+      setEditingCategory(null);
 
-      loadServices();
+      loadServiceCategories();
 
     } catch (error) {
 
@@ -508,14 +484,14 @@ const toggleFeatured =
      STATS
   ========================================= */
 
-  const activeServices =
-    services.filter(
-      (item) => item.active
+  const featuredCount =
+    serviceCategories.filter(
+      (item) => item.featured
     ).length;
 
-  const featuredServices =
-    services.filter(
-      (item) => item.featured
+  const activeCount =
+    serviceCategories.filter(
+      (item) => item.active
     ).length;
 
   /* =========================================
@@ -524,15 +500,15 @@ const toggleFeatured =
 
   return (
 
-    <div className="relative min-h-screen overflow-hidden bg-black text-white p-6 md:p-8">
+    <div className="relative min-h-screen overflow-hidden bg-black p-6 text-white md:p-8">
 
       {/* =====================================
-          BACKGROUND GLOW
+          AMBIENT GLOW
       ===================================== */}
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
-        <div className="absolute top-0 left-0 h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute left-0 top-0 h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
 
         <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-purple-500/10 blur-3xl" />
       </div>
@@ -543,97 +519,86 @@ const toggleFeatured =
             HEADER
         ===================================== */}
 
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+        <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
 
-            <div className="
-            inline-flex 
-            items-center 
-            gap-2 
-            rounded-full 
-            border 
-            border-white/10 
-            bg-white/5 
-            px-4 
-            py-2 
-            text-sm 
-            text-zinc-300 
-            backdrop-blur-md mb-5
-            ">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 backdrop-blur-md">
 
               <Sparkles size={16} />
 
-              Premium Admin Dashboard
+              Luxury ServiceSystem
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-              Service Management
+            <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+              ServiceCategoriesManagement
             </h1>
 
-            <p className="mt-4 max-w-2xl text-zinc-400 text-lg">
-              Manage all J&K Services Group offerings with premium cinematic admin controls.
+            <p className="mt-4 max-w-2xl text-lg text-zinc-400">
+              Manage service categories with cinematic premium controls.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
+          {/* STATS */}
+
+          <div className="grid grid-cols-2 gap-4 lg:w-auto">
 
             <StatCard
-              icon={<Layers3 size={22} />}
-              title="Total"
-              value={services.length}
+              icon={<FolderKanban size={22} />}
+              title="Categories"
+              value={serviceCategories.length}
             />
 
             <StatCard
               icon={<Star size={22} />}
               title="Featured"
-              value={featuredServices}
+              value={featuredCount}
             />
 
             <StatCard
               icon={<CheckCircle2 size={22} />}
               title="Active"
-              value={activeServices}
+              value={activeCount}
             />
 
             <StatCard
-              icon={<DollarSign size={22} />}
-              title="Premium"
-              value="Luxury"
+              icon={<Eye size={22} />}
+              title="Showcase"
+              value="Live"
             />
 
           </div>
         </div>
 
         {/* =====================================
-            FORM + SEARCH
+            CONTENT GRID
         ===================================== */}
 
-        <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-8">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[420px_1fr]">
 
           {/* =====================================
-              ADD SERVICE PANEL
+              LEFT PANEL
           ===================================== */}
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sticky top-6 h-fit"
+            className="sticky top-6 h-fit rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
           >
 
-            <div className="flex items-center gap-3 mb-8">
+            <div className="mb-8 flex items-center gap-4">
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/20 border border-blue-500/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
                 <Plus />
               </div>
 
               <div>
                 <h2 className="text-2xl font-bold">
-                  Add Service
+                  Add Category
                 </h2>
 
                 <p className="text-sm text-zinc-500">
-                  Create premium offerings.
+                  Create cinematic   servicecategories.
                 </p>
               </div>
             </div>
@@ -641,7 +606,7 @@ const toggleFeatured =
             <div className="space-y-5">
 
               <InputField
-                label="Service Name"
+                label="Category Name"
                 value={formData.name}
                 onChange={(e) =>
                   handleChange(
@@ -649,98 +614,26 @@ const toggleFeatured =
                     e.target.value
                   )
                 }
-                placeholder="Photography & Videography"
+                placeholder="DJ Entertainment"
               />
 
-              <div>
-                <label className="mb-2 block text-sm text-zinc-400">
-                  Category
-                </label>
-
-                <select
-                  value={formData.category}
-                  onChange={(e) =>
-                    handleChange(
-                      "category",
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
-                >
-
-                  {categories.map((category) => (
-                    <option
-                      key={category.id}
-                      value={category.name}
-                    >
-
-                      {category.name}
-
-                    </option>
-
-                  ))}
-
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <InputField
-                  label="Min Price"
-                  type="number"
-                  value={formData.minPrice}
-                  onChange={(e) =>
-                    handleChange(
-                      "minPrice",
-                      e.target.value
-                    )
-                  }
-                  placeholder="100"
-                />
-
-                <InputField
-                  label="Max Price"
-                  type="number"
-                  value={formData.maxPrice}
-                  onChange={(e) =>
-                    handleChange(
-                      "maxPrice",
-                      e.target.value
-                    )
-                  }
-                  placeholder="1000"
-                />
-              </div>
-
-              <InputField
-                label="Price Display"
-                value={formData.priceText}
-                onChange={(e) =>
-                  handleChange(
-                    "priceText",
-                    e.target.value
-                  )
-                }
-                placeholder="$500 - $2500"
-              />
-
-              {/* IMAGE UPLOAD */}
+              {/* IMAGE */}
 
               <div>
 
                 <label className="mb-2 block text-sm text-zinc-400">
-                  Service Image
+                  ServiceImage
                 </label>
 
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center transition hover:border-blue-500/50 hover:bg-blue-500/5">
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center transition hover:border-blue-500/50 hover:bg-blue-500/5">
 
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04]">
                     <Upload size={28} />
                   </div>
 
                   <div>
                     <p className="font-medium">
-                      Upload service image
+                      Upload   serviceimage
                     </p>
 
                     <p className="mt-1 text-sm text-zinc-500">
@@ -770,10 +663,12 @@ const toggleFeatured =
                   <img
                     src={formData.image}
                     alt="Preview"
-                    className="mt-5 h-52 w-full rounded-2xl object-cover border border-white/10"
+                    className="mt-5 h-56 w-full rounded-3xl object-cover border border-white/10"
                   />
                 )}
               </div>
+
+              {/* DESCRIPTION */}
 
               <div>
 
@@ -790,16 +685,18 @@ const toggleFeatured =
                       e.target.value
                     )
                   }
-                  placeholder="Describe this service..."
+                  placeholder="Describe this   servicecategory..."
                   className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
                 />
               </div>
+
+              {/* FEATURED */}
 
               <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
 
                 <div>
                   <p className="font-medium">
-                    Featured Service
+                    Featured Category
                   </p>
 
                   <p className="text-sm text-zinc-500">
@@ -821,17 +718,17 @@ const toggleFeatured =
               </div>
 
               <button
-                onClick={addService}
+                onClick={addServiceCategory}
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-4 font-semibold transition hover:bg-blue-500"
               >
                 <Plus size={18} />
-                Add Service
+                Add Category
               </button>
             </div>
           </motion.div>
 
           {/* =====================================
-              SERVICES SIDE
+              RIGHT SIDE
           ===================================== */}
 
           <div>
@@ -844,7 +741,7 @@ const toggleFeatured =
 
               <input
                 type="text"
-                placeholder="Search services..."
+                placeholder="Search categories..."
                 value={search}
                 onChange={(e) =>
                   setSearch(e.target.value)
@@ -857,7 +754,7 @@ const toggleFeatured =
 
             {loading ? (
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
                 {[1, 2, 3, 4].map((item) => (
                   <div
@@ -869,31 +766,33 @@ const toggleFeatured =
 
             ) : (
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-                {filteredServices.map((service) => (
+                {filteredCategories.map((category) => (
 
                   <motion.div
-                    key={service.id}
-                    
+                    key={category.id}
+                    layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl"
                   >
 
+                    {/* IMAGE */}
+
                     <div className="relative overflow-hidden">
 
-                      {service.image ? (
+                      {category.image ? (
 
                         <img
-                          src={service.image}
-                          alt={service.name}
-                          className="h-64 w-full object-cover transition duration-700 group-hover:scale-105"
+                          src={category.image}
+                          alt={category.name}
+                          className="h-72 w-full object-cover transition duration-700 group-hover:scale-105"
                         />
 
                       ) : (
 
-                        <div className="flex h-64 items-center justify-center bg-white/[0.03]">
+                        <div className="flex h-72 items-center justify-center bg-white/[0.03]">
                           <ImageIcon
                             size={50}
                             className="text-zinc-700"
@@ -903,19 +802,19 @@ const toggleFeatured =
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
-                      <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
+                      <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
 
                         <div>
                           <p className="text-sm text-zinc-300">
-                            {service.category}
+                            ServiceCategory
                           </p>
 
-                          <h3 className="text-2xl font-bold">
-                            {service.name}
+                          <h3 className="text-3xl font-black">
+                            {category.name}
                           </h3>
                         </div>
 
-                        {service.featured && (
+                        {category.featured && (
                           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500 text-black">
                             <Star fill="black" size={20} />
                           </div>
@@ -923,28 +822,30 @@ const toggleFeatured =
                       </div>
                     </div>
 
+                    {/* CONTENT */}
+
                     <div className="p-6">
 
                       <p className="line-clamp-3 text-zinc-400">
-                        {service.description}
+                        {category.description}
                       </p>
 
                       <div className="mt-5 flex items-center justify-between">
 
-                        <p className="text-xl font-bold text-blue-400">
-                          {service.priceText}
-                        </p>
-
                         <div
                           className={`rounded-full px-4 py-2 text-sm font-medium ${
-                            service.active
+                            category.active
                               ? "bg-green-500/20 text-green-400"
                               : "bg-red-500/20 text-red-400"
                           }`}
                         >
-                          {service.active
+                          {category.active
                             ? "Active"
                             : "Inactive"}
+                        </div>
+
+                        <div className="text-sm text-zinc-500">
+                          /service/{category.slug}
                         </div>
                       </div>
 
@@ -955,13 +856,13 @@ const toggleFeatured =
                         <button
                           onClick={() =>
                             toggleActive(
-                              service.id,
-                              service.active
+                              category.id,
+                              category.active
                             )
                           }
                           className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.06]"
                         >
-                          {service.active
+                          {category.active
                             ? "Disable"
                             : "Enable"}
                         </button>
@@ -969,20 +870,20 @@ const toggleFeatured =
                         <button
                           onClick={() =>
                             toggleFeatured(
-                              service.id,
-                              service.featured
+                              category.id,
+                              category.featured
                             )
                           }
                           className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400 transition hover:bg-yellow-500/20"
                         >
-                          {service.featured
+                          {category.featured
                             ? "Featured"
                             : "Feature"}
                         </button>
 
                         <button
                           onClick={() =>
-                            openEdit(service)
+                            openEdit(category)
                           }
                           className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-medium transition hover:bg-blue-500"
                         >
@@ -992,7 +893,9 @@ const toggleFeatured =
 
                         <button
                           onClick={() =>
-                            deleteService(service.id)
+                            deleteServiceCategory(
+                              category.id
+                            )
                           }
                           className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-medium transition hover:bg-red-500"
                         >
@@ -1015,7 +918,7 @@ const toggleFeatured =
 
       <AnimatePresence>
 
-        {editingService && (
+        {editingCategory && (
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -1035,17 +938,17 @@ const toggleFeatured =
 
                 <div>
                   <h2 className="text-3xl font-bold">
-                    Edit Service
+                    Edit Category
                   </h2>
 
                   <p className="mt-1 text-zinc-500">
-                    Update service information.
+                    Update   serviceinformation.
                   </p>
                 </div>
 
                 <button
                   onClick={() =>
-                    setEditingService(null)
+                    setEditingCategory(null)
                   }
                   className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] transition hover:bg-white/[0.08]"
                 >
@@ -1056,53 +959,11 @@ const toggleFeatured =
               <div className="space-y-5">
 
                 <InputField
-                  label="Service Name"
+                  label="Category Name"
                   value={editData.name}
                   onChange={(e) =>
                     handleEditChange(
                       "name",
-                      e.target.value
-                    )
-                  }
-                />
-
-                <div>
-                  <label className="mb-2 block text-sm text-zinc-400">
-                    Category
-                  </label>
-
-                  <select
-                    value={editData.category}
-                    onChange={(e) =>
-                      handleEditChange(
-                        "category",
-                        e.target.value
-                      )
-                    }
-                    className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 outline-none"
-                  >
-
-                    {categories.map((category) => (
-                      <option
-                        key={category.id}
-                        value={category.name}
-                      >
-
-                        {category.name}
-
-                      </option>
-
-                    ))}
-
-                  </select>
-                </div>
-
-                <InputField
-                  label="Price Display"
-                  value={editData.priceText}
-                  onChange={(e) =>
-                    handleEditChange(
-                      "priceText",
                       e.target.value
                     )
                   }
@@ -1113,13 +974,13 @@ const toggleFeatured =
                 <div>
 
                   <label className="mb-2 block text-sm text-zinc-400">
-                    Service Image
+                    ServiceImage
                   </label>
 
                   {editData.image && (
                     <img
                       src={editData.image}
-                      alt="Service"
+                      alt="Category"
                       className="mb-5 h-72 w-full rounded-3xl object-cover border border-white/10"
                     />
                   )}
@@ -1174,7 +1035,7 @@ const toggleFeatured =
 
                 <button
                   onClick={() =>
-                    setEditingService(null)
+                    setEditingCategory(null)
                   }
                   className="rounded-2xl border border-white/10 px-6 py-3 transition hover:bg-white/[0.03]"
                 >
@@ -1197,7 +1058,7 @@ const toggleFeatured =
 }
 
 /* =========================================
-   REUSABLE INPUT
+   INPUT FIELD
 ========================================= */
 
 function InputField({
@@ -1228,7 +1089,7 @@ function InputField({
 }
 
 /* =========================================
-   STATS CARD
+   STAT CARD
 ========================================= */
 
 function StatCard({

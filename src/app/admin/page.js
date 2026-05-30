@@ -50,6 +50,8 @@ import PortfolioManagement from "@/components/admin/PortfolioManagement";
 
 import PortfolioItemsManagement from "@/components/admin/PortfolioItemsManagement";
 
+import ServiceCategoriesManagement from "@/components/service/ServiceCategoriesManagement"
+
 import ServiceRequests from "@/components/admin/ServiceRequests";
 
 /* ==========================================
@@ -102,6 +104,12 @@ export default function AdminPage() {
     {
       id: "requests",
       label: "Service Requests",
+      icon: FolderOpen,
+    },
+
+    {
+      id: "ServiceCategories",
+      label: "Service Categories",
       icon: FolderOpen,
     },
 
@@ -664,6 +672,17 @@ export default function AdminPage() {
                   "services" && (
 
                   <ServiceManagement />
+
+                )}
+
+               {/* ==========================================
+                    SERVICES CATEGORIES
+                ========================================== */}
+
+                {activeTab ===
+                  "ServiceCategories" && (
+
+                  <ServiceCategoriesManagement />
 
                 )}
 

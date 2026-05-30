@@ -16,7 +16,7 @@ import Navbar from "@/components/home/Navbar";
 
 import HeroSection from "@/components/home/HeroSection";
 
-import ServicesSection from "@/components/home/ServicesSection";
+import CategoryServicesPage from "@/components/home/CategoryServicesPage";
 
 import PortfolioSection from "@/components/home/PortfolioSection";
 
@@ -99,7 +99,7 @@ export default function HomePage() {
           SERVICES
       ========================================== */}
 
-      <ServicesSection
+      <CategoryServicesPage
 
         setSelectedService={
           setSelectedService
