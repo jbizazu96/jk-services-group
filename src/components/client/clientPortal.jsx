@@ -63,13 +63,28 @@ export default function ClientPortal() {
   | STATES
   |--------------------------------------------------------------------------
   */
-  const searchParams =
-  useSearchParams();
+      const [serviceFromUrl,
+      setServiceFromUrl] =
+      useState(null);
 
-  const serviceFromUrl =
-    searchParams.get(
-      "service"
-    );
+    useEffect(() => {
+
+      if (
+        typeof window !==
+        "undefined"
+      ) {
+
+        const params =
+          new URLSearchParams(
+            window.location.search
+          );
+
+        setServiceFromUrl(
+          params.get("service")
+        );
+      }
+
+    }, []);
   const [selectedService, setSelectedService] = useState("");
 
   const [loading, setLoading] = useState(false);
