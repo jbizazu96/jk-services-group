@@ -560,7 +560,7 @@ export default function FeedbackPage() {
               alt="J&K Services Group"
               width={240}
               height={80}
-              {/*priority == This force the page to load the picture first*/}
+              /*priority == This force the page to load the picture first*/
               style={{
                 width: "auto",
                 height: "auto",
