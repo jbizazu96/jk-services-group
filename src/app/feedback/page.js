@@ -298,11 +298,11 @@ export default function FeedbackPage() {
             top-[-150px]
             left-1/2
             -translate-x-1/2
-            h-[700px]
-            w-[700px]
+            h-[500px]
+            w-[500px]
             rounded-full
             bg-[#D4AF37]/15
-            blur-[150px]
+            blur-[80px]
           "
         />
 
@@ -507,16 +507,16 @@ export default function FeedbackPage() {
       {/* GOLD GLOW */}
 
       <div
-        className="
+       className="
           absolute
           top-[-200px]
           left-1/2
           -translate-x-1/2
-          h-[700px]
-          w-[700px]
+          h-[500px]
+          w-[500px]
           rounded-full
-          bg-[#D4AF37]/15
-          blur-[150px]
+          bg-[#D4AF37]/10
+          blur-[80px]
         "
       />
 
@@ -551,16 +551,16 @@ export default function FeedbackPage() {
               bg-white/70
               px-10
               py-6
-              backdrop-blur-3xl
+              backdrop-blur-xl
             "
           >
 
            <Image
-              src="/images/logo1.png"
+              src="/images/logo1.webp"
               alt="J&K Services Group"
               width={240}
               height={80}
-              priority
+              {/*priority == This force the page to load the picture first*/}
               style={{
                 width: "auto",
                 height: "auto",
@@ -643,7 +643,7 @@ export default function FeedbackPage() {
             border
             border-white/50
             bg-white/70
-            backdrop-blur-3xl
+            backdrop-blur-xl
             p-8
             md:p-12
             shadow-[0_20px_80px_rgba(0,0,0,0.08)]

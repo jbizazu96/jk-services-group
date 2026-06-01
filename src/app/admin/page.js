@@ -240,7 +240,7 @@ export default function AdminPage() {
             >
 
               <img
-                src="/images/logo1.png"
+                src="/images/logo1.webp"
                 alt="Logo"
 
                 className="

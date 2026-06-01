@@ -519,7 +519,7 @@ export default function ClientPortal() {
             <div className="rounded-[2rem] border border-white/50 bg-white/70 backdrop-blur-3xl px-10 py-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
 
               <Image
-                src="/images/logo1.png"
+                src="/images/logo1.webp"
                 alt="J&K Services Group"
                 width={240}
                 height={80}
