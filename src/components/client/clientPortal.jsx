@@ -2,7 +2,11 @@
 
 import UploadZone from "./UploadZone";
 
-import { useState } from "react";
+import {
+  useState,
+  useEffect,
+} from "react";
+
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -12,6 +16,9 @@ import {
   addDoc,
   collection,
   serverTimestamp,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -39,54 +46,9 @@ import {
   Building2,
 } from "lucide-react";
 
-/*
-|--------------------------------------------------------------------------
-| SERVICES
-|--------------------------------------------------------------------------
-*/
-
-const services = [
-  {
-    title: "DJ Services",
-    description: "Professional DJ entertainment experience",
-  },
-  {
-    title: "MC Services",
-    description: "Master of ceremony for weddings & events",
-  },
-  {
-    title: "Photography",
-    description: "Premium cinematic photography",
-  },
-  {
-    title: "Videography",
-    description: "Luxury event videography production",
-  },
-  {
-    title: "Flyer Design",
-    description: "Creative flyer & branding design",
-  },
-  {
-    title: "Website Development",
-    description: "Modern business websites & platforms",
-  },
-  {
-    title: "IT Support",
-    description: "Business & residential IT support",
-  },
-  {
-    title: "Network Installation",
-    description: "Enterprise network solutions",
-  },
-  {
-    title: "Event Planning",
-    description: "Professional event coordination",
-  },
-  {
-    title: "Conferences",
-    description: "Conference production & management",
-  },
-];
+import {
+  useSearchParams,
+} from "next/navigation";
 
 /*
 |--------------------------------------------------------------------------
@@ -101,7 +63,13 @@ export default function ClientPortal() {
   | STATES
   |--------------------------------------------------------------------------
   */
+  const searchParams =
+  useSearchParams();
 
+  const serviceFromUrl =
+    searchParams.get(
+      "service"
+    );
   const [selectedService, setSelectedService] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -112,7 +80,159 @@ export default function ClientPortal() {
 
   const [files, setFiles] = useState([]);
 
-  /*
+  const [categories, setCategories] = useState([]);
+
+  const [services, setServices] = useState([]);
+
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+
+            useEffect(() => {
+
+              loadCategories();
+
+            }, []);
+
+            const loadCategories =
+              async () => {
+
+                const snapshot =
+                  await getDocs(
+                    collection(
+                      db,
+                      "serviceCategories"
+                    )
+                  );
+
+                const categoryData =
+                  snapshot.docs.map(
+                    (doc) => ({
+                      id: doc.id,
+                      ...doc.data(),
+                    })
+                  );
+
+                setCategories(
+                  categoryData
+                );
+
+                /*
+                --------------------------------------------------
+                PRESELECT CATEGORY
+                --------------------------------------------------
+                */
+
+                if (
+                  serviceFromUrl
+                ) {
+
+                  const serviceSnapshot =
+                    await getDocs(
+                      collection(
+                        db,
+                        "services"
+                      )
+                    );
+
+                  const foundService =
+                    serviceSnapshot.docs
+                      .map(
+                        (doc) => ({
+                          id: doc.id,
+                          ...doc.data(),
+                        })
+                      )
+                      .find(
+                        (service) =>
+                          service.name ===
+                          serviceFromUrl
+                      );
+
+                  if (
+                    foundService
+                  ) {
+
+                    setSelectedCategory(
+                      foundService.category
+                    );
+                  }
+                }
+              };
+
+              /*
+|--------------------------------------------------------------------------
+| LOAD SERVICES
+|--------------------------------------------------------------------------
+*/
+
+useEffect(() => {
+
+  if (!selectedCategory) {
+
+    setServices([]);
+
+    return;
+  }
+
+  loadServices();
+
+}, [selectedCategory]);
+
+const loadServices =
+  async () => {
+
+    const snapshot =
+      await getDocs(
+        query(
+          collection(
+            db,
+            "services"
+          ),
+          where(
+            "category",
+            "==",
+            selectedCategory
+          )
+        )
+      );
+
+    const data =
+      snapshot.docs.map(
+        (doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
+
+    setServices(data);
+
+    /*
+    --------------------------------------------------
+    PRESELECT SERVICE
+    --------------------------------------------------
+    */
+
+    if (serviceFromUrl) {
+
+      const foundService =
+        data.find(
+          (service) =>
+            service.name ===
+            serviceFromUrl
+        );
+
+      if (foundService) {
+
+        handleServiceSelect(
+          foundService.name
+        );
+
+      }
+
+    }
+
+  };
+    /*
   |--------------------------------------------------------------------------
   | FORM DATA
   |--------------------------------------------------------------------------
@@ -176,6 +296,52 @@ export default function ClientPortal() {
     themeStyle: "",
   });
 
+        /*
+      |--------------------------------------------------------------------------
+      | PRESELECT SERVICE FROM URL
+      |--------------------------------------------------------------------------
+      */
+
+      useEffect(() => {
+
+        if (
+          !serviceFromUrl ||
+          services.length === 0
+        ) {
+          return;
+        }
+
+        const foundService =
+          services.find(
+            (service) =>
+              service.name ===
+              serviceFromUrl
+          );
+
+        if (
+          foundService
+        ) {
+
+          setSelectedService(
+            foundService.name
+          );
+
+          setFormData(
+            (prev) => ({
+
+              ...prev,
+
+              serviceType:
+                foundService.name,
+
+            })
+          );
+        }
+
+      }, [
+        serviceFromUrl,
+        services,
+      ]);
   /*
   |--------------------------------------------------------------------------
   | HANDLE CHANGE
@@ -554,57 +720,6 @@ export default function ClientPortal() {
           </p>
         </motion.div>
 
-        {/* SERVICES */}
-        <div className="mb-20">
-
-          <div className="flex items-center gap-4 mb-10">
-
-            <div className="h-px flex-1 bg-[#dddddd]" />
-
-            <p className="text-sm uppercase tracking-[0.35em] text-[#777777]">
-              Select A Service
-            </p>
-
-            <div className="h-px flex-1 bg-[#dddddd]" />
-          </div>
-
-          {/* GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            {services.map((service, index) => (
-
-              <motion.button
-                key={service.title}
-                type="button"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.04 }}
-                onClick={() => handleServiceSelect(service.title)}
-                className={`rounded-[2rem] border p-7 text-left backdrop-blur-2xl transition-all duration-300 ${
-                  selectedService === service.title
-                    ? "border-[#D4AF37]/40 bg-gradient-to-br from-[#f5deb3] to-[#D4AF37] text-black shadow-[0_20px_60px_rgba(212,175,55,0.25)]"
-                    : "border-white/60 bg-white/65 hover:bg-white/85 shadow-[0_10px_40px_rgba(0,0,0,0.05)]"
-                }`}
-              >
-
-                <h3 className="text-2xl font-semibold mb-3">
-                  {service.title}
-                </h3>
-
-                <p
-                  className={`leading-relaxed ${
-                    selectedService === service.title
-                      ? "text-black/80"
-                      : "text-[#555555]"
-                  }`}
-                >
-                  {service.description}
-                </p>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
         {/* FORM */}
         <motion.form
           initial={{ opacity: 0, y: 40 }}
@@ -677,6 +792,146 @@ export default function ClientPortal() {
                 onChange={handleChange}
                 placeholder="Iowa"
             />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mt-10">
+
+              {/* CATEGORY */}
+
+              <div>
+
+                <label
+                  className="
+                    block
+                    text-sm
+                    text-[#444444]
+                    mb-3
+                  "
+                >
+
+                  Service Category
+
+                </label>
+
+                <select
+
+                  value={
+                    selectedCategory
+                  }
+
+                  onChange={(e) => {
+
+                    setSelectedCategory(
+                      e.target.value
+                    );
+
+                    setSelectedService("");
+
+                  }}
+
+                  className="
+                    w-full
+                    rounded-2xl
+                    border
+                    border-[#e5e5e5]
+                    bg-white/80
+                    px-4
+                    py-4
+                  "
+                >
+
+                  <option value="">
+                    Select Category
+                  </option>
+
+                  {categories.map(
+                    (category) => (
+
+                      <option
+                        key={category.id}
+                        value={category.name}
+                      >
+
+                        {category.name}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+              {/* SERVICE */}
+
+              <div>
+
+                <label
+                  className="
+                    block
+                    text-sm
+                    text-[#444444]
+                    mb-3
+                  "
+                >
+
+                  Service
+
+                </label>
+
+                <select
+
+                  value={
+                    selectedService
+                  }
+
+                  onChange={(e) => {
+
+                    handleServiceSelect(
+                      e.target.value
+                    );
+
+                  }}
+
+                  disabled={
+                    !selectedCategory
+                  }
+
+                  className="
+                    w-full
+                    rounded-2xl
+                    border
+                    border-[#e5e5e5]
+                    bg-white/80
+                    px-4
+                    py-4
+                  "
+                >
+
+                  <option value="">
+                    Select Service
+                  </option>
+
+                  {services.map(
+                    (service) => (
+
+                      <option
+                        key={service.id}
+                        value={service.name}
+                      >
+
+                        {service.name}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
             </div>
 
             { /*
@@ -1063,6 +1318,29 @@ export default function ClientPortal() {
 
             {/*
             |--------------------------------------------------------------------------
+            | DOMAIN MANAGEMENT
+            |--------------------------------------------------------------------------
+            */}
+          {selectedService === "Domain Registration & Management" && (
+
+            <ServiceSection
+              icon={<LayoutDashboard className="h-5 w-5" />}
+              title="Domain Name"
+            >
+
+              <InputField
+                label="Domain Name"
+                name="DomainName"
+                value={formData.websiteType}
+                onChange={handleChange}
+                placeholder="myDomain.com, myDomain.org..."
+              />
+
+              </ServiceSection>
+              )}
+
+            {/*
+            |--------------------------------------------------------------------------
             | WEBSITES
             |--------------------------------------------------------------------------
             */}
@@ -1217,7 +1495,7 @@ export default function ClientPortal() {
             setFiles={setFiles}
           />
 
-          {/* NOTES */}
+          {/* NOTES 
           <div className="mt-10">
 
             <TextareaField
@@ -1227,7 +1505,7 @@ export default function ClientPortal() {
               onChange={handleChange}
               placeholder="Anything else?"
             />
-          </div>
+          </div> */}
 
           {/* SUBMIT */}
           <div className="mt-14 flex justify-center">
@@ -1248,8 +1526,11 @@ export default function ClientPortal() {
             </motion.button>
           </div>
         </motion.form>
+
       </div>
+
     </div>
+  
   );
 }
 

@@ -547,56 +547,72 @@ export default function HeroSection({
               mt-10
               space-y-5
             ">
+            {[
+              [
+                "Wedding & Event Services",
+                "MC • DJ • Planning • Photography • Ushers",
+              ],
 
-              {[
-                [
-                  "Wedding & Event Services",
-                  "MC • DJ • Planning • Photography • Ushers",
-                ],
+              [
+                "Networking & IT Solutions",
+                "Installation • Troubleshooting • Consulting",
+              ],
 
-                [
-                  "Networking & IT Solutions",
-                  "Installation • Troubleshooting • Consulting",
-                ],
+            ].map(([title, desc]) => (
 
-              ].map(([title, desc]) => (
+              <motion.div
 
-                <motion.div
+                key={title}
 
-                  key={title}
+                whileHover={{
+                  scale: 1.03,
+                  y: -3,
+                }}
 
-                  whileHover={{
-                    scale: 1.03,
-                    y: -3,
-                  }}
+                onClick={() => {
 
+                  document
+                    .getElementById(
+                      "services"
+                    )
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                    });
+
+                }}
+
+                className="
+                  bg-white
+                  rounded-3xl
+                  p-6
+                  border
+                  border-black/5
+                  shadow-lg
+                  cursor-pointer
+                "
+              >
+
+                <h3
                   className="
-                    bg-white
-                    rounded-3xl
-                    p-6
-                    border
-                    border-black/5
-                    shadow-lg
-                  "
-                >
-
-                  <h3 className="
                     text-xl
                     font-bold
-                  ">
-                    {title}
-                  </h3>
+                  "
+                >
+                  {title}
+                </h3>
 
-                  <p className="
+                <p
+                  className="
                     text-gray-600
                     mt-3
-                  ">
-                    {desc}
-                  </p>
+                  "
+                >
+                  {desc}
+                </p>
 
-                </motion.div>
+              </motion.div>
 
-              ))}
+            ))}
 
             </div>
 

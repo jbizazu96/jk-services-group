@@ -561,6 +561,7 @@ export default function FeedbackPage() {
               width={240}
               height={80}
               /*priority == This force the page to load the picture first*/
+              loading="eager"
               style={{
                 width: "auto",
                 height: "auto",

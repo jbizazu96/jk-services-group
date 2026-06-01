@@ -610,6 +610,45 @@ return (
 
                   </motion.button>
 
+                                        <Link
+                    href={`/client?service=${encodeURIComponent(
+                        service.name
+                    )}`}
+                    >
+
+                    <motion.button
+
+                        whileHover={{
+                        scale: 1.03,
+                        }}
+
+                        whileTap={{
+                        scale: 0.98,
+                        }}
+
+                        className="
+                        mt-3
+                        w-full
+                        rounded-2xl
+                        border
+                        border-yellow/20
+                        bg-white/10
+                        py-4
+                        text-lg
+                        font-bold
+                        text-white
+                        backdrop-blur-xl
+                        transition
+                        hover:bg-white/20
+                        "
+                    >
+
+                        Request Service
+
+                    </motion.button>
+
+                    </Link>
+
                 </div>
 
               </motion.div>
