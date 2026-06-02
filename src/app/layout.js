@@ -61,7 +61,21 @@ export const metadata = {
 
     "J&K Services Group",
 
+    "my jk services group",
+
+    "my jk service group",
+
+    "jk services",
+
+    "jandk services group",
+
+    "j and k services",
+
     "MC services",
+
+    "jk services group",
+
+    "my jk services",
 
     "DJ services",
 
