@@ -1,201 +1,54 @@
 "use client";
 
-/* ==========================================
-   REACT
-========================================== */
-
-import {
-  useState,
-} from "react";
-
-/* ==========================================
-   HOME COMPONENTS
-========================================== */
-
+import { useState } from "react";
 import Navbar from "@/components/home/Navbar";
-
 import HeroSection from "@/components/home/HeroSection";
-
 import CategoryServicesPage from "@/components/home/CategoryServicesPage";
-
 import PortfolioSection from "@/components/home/PortfolioSection";
-
 import TeamSection from "@/components/home/TeamSection";
-
 import AboutSection from "@/components/home/AboutSection";
-
 import FAQSection from "@/components/home/FAQSection";
-
 import TestimonialsSection from "@/components/home/TestimonialsSection";
-
 import CTASection from "@/components/home/CTASection";
-
 import FooterSection from "@/components/home/FooterSection";
-
-/* ==========================================
-   MODALS
-========================================== */
-
-import BookingModal from "@/components/home/modals/BookingModal";
-
-import GeneralBookingModal from "@/components/home/modals/GeneralBookingModal";
-
-/* ==========================================
-   PAGE
-========================================== */
+import ConsultationModal from "@/components/home/modals/ConsultationModal";
 
 export default function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [consultationType, setConsultationType] = useState("General");
 
-  /* ==========================================
-     MODAL STATES
-  ========================================== */
+  // Helper function to open modal with specific service
+  const openServiceBooking = (serviceName) => {
+    setConsultationType(serviceName);
+    setIsModalOpen(true);
+  };
 
-  const [
-    bookingModal,
-    setBookingModal,
-  ] = useState(false);
-
-  const [
-    bookingModalGS,
-    setBookingModalGS,
-  ] = useState(false);
-
-  const [
-    selectedService,
-    setSelectedService,
-  ] = useState("");
-
-  /* ==========================================
-     JSX
-  ========================================== */
+  const openGeneralBooking = () => {
+    setConsultationType("General");
+    setIsModalOpen(true);
+  };
 
   return (
-
-    <main className="
-      bg-black
-      text-white
-      overflow-hidden
-    ">
-
-      {/* ==========================================
-          NAVBAR
-      ========================================== */}
-
+    <main className="bg-black text-white overflow-hidden">
       <Navbar />
-
-      {/* ==========================================
-          HERO
-      ========================================== */}
-
-      <HeroSection
-
-        setBookingModalGS={
-          setBookingModalGS
-        }
-
-      />
-
-      {/* ==========================================
-          SERVICES
-      ========================================== */}
-
+      <HeroSection setBookingModalGS={openGeneralBooking} />
       <CategoryServicesPage
-
-        setSelectedService={
-          setSelectedService
-        }
-
-        setBookingModal={
-          setBookingModal
-        }
-
+        onBookService={openServiceBooking}  // renamed prop
       />
-
-      {/* ==========================================
-          PORTFOLIO
-      ========================================== */}
-
       <PortfolioSection />
-
-      {/* ==========================================
-          TEAM
-      ========================================== */}
-
       <TeamSection />
-
-      {/* ==========================================
-          ABOUT
-      ========================================== */}
-
       <AboutSection />
-
-      {/* ==========================================
-          TESTIMONIALS
-      ========================================== */}
-
       <TestimonialsSection />
-
-      {/* ==========================================
-          FAQ
-      ========================================== */}
-
       <FAQSection />
-
-      {/* ==========================================
-          CTA
-      ========================================== */}
-
-      <CTASection
-
-        setBookingModalGS={
-          setBookingModalGS
-        }
-
-      />
-
-      {/* ==========================================
-          FOOTER
-      ========================================== */}
-
+      <CTASection setBookingModalGS={openGeneralBooking} />
       <FooterSection />
 
-      {/* ==========================================
-          SERVICE BOOKING MODAL
-      ========================================== */}
-
-      <BookingModal
-
-        bookingModal={
-          bookingModal
-        }
-
-        setBookingModal={
-          setBookingModal
-        }
-
-        selectedService={
-          selectedService
-        }
-
+      {/* Single modal for everything */}
+      <ConsultationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        consultationType={consultationType}
       />
-
-      {/* ==========================================
-          GENERAL CONSULTATION MODAL
-      ========================================== */}
-
-      <GeneralBookingModal
-
-        bookingModalGS={
-          bookingModalGS
-        }
-
-        setBookingModalGS={
-          setBookingModalGS
-        }
-
-      />
-
     </main>
-
   );
 }

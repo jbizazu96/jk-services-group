@@ -416,21 +416,82 @@ const loadServices =
       |--------------------------------------------------------------------------
       */
 
-      let uploadedFiles = [];
+            let uploadedFiles = [];
 
-      if (files.length > 0) {
+            if (files.length > 0) {
 
-        uploadedFiles = await Promise.all(
+              uploadedFiles = await Promise.all(
 
-          files.map(async (item) => {
+                files.map(async (item) => {
 
-            return await uploadFile({
-              file: item.file,
-              requestId: generatedRequestId,
-            });
-          })
-        );
-      }
+                  /*
+                  ---------------------------------------
+                  SET STATUS TO UPLOADING
+                  ---------------------------------------
+                  */
+
+                  setFiles((prev) =>
+                    prev.map((f) =>
+                      f.id === item.id
+                        ? {
+                            ...f,
+                            status: "uploading",
+                          }
+                        : f
+                    )
+                  );
+
+                  const result =
+                    await uploadFile({
+
+                      file: item.file,
+
+                      requestId:
+                        generatedRequestId,
+
+                      onProgress:
+                        (progress) => {
+
+                          setFiles((prev) =>
+                            prev.map((f) =>
+                              f.id === item.id
+                                ? {
+                                    ...f,
+                                    progress,
+                                  }
+                                : f
+                            )
+                          );
+
+                        },
+
+                    });
+
+                  /*
+                  ---------------------------------------
+                  SET STATUS TO COMPLETED
+                  ---------------------------------------
+                  */
+
+                  setFiles((prev) =>
+                    prev.map((f) =>
+                      f.id === item.id
+                        ? {
+                            ...f,
+                            progress: 100,
+                            status: "completed",
+                          }
+                        : f
+                    )
+                  );
+
+                  return result;
+
+                })
+
+              );
+
+            }
 
       /*
       |--------------------------------------------------------------------------
@@ -524,7 +585,7 @@ const loadServices =
           </h1>
 
           <p className="text-[#555555] text-lg leading-relaxed text-center mb-10">
-            Your request has been successfully submitted.
+            We've received your request and will contact you soon with the next steps.
           </p>
 
           <div className="rounded-3xl bg-[#faf7f2] border border-[#ece6da] p-6 mb-8">
@@ -721,17 +782,16 @@ const loadServices =
           {/* TITLE */}
           <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-[0.95] max-w-6xl mx-auto text-[#111111]">
 
-            Let’s Build Your
+            Servcie Request Form
 
             <span className="block bg-gradient-to-r from-[#111111] via-[#b8860b] to-[#D4AF37] bg-clip-text text-transparent">
-              Next Experience
+             Tell Us About Your Project
             </span>
           </h1>
 
           {/* SUBTITLE */}
           <p className="max-w-3xl mx-auto mt-10 text-lg md:text-xl text-[#555555] leading-relaxed">
-            Submit your project details and creative vision through
-            our premium luxury client experience.
+            Complete the form below and we'll contact you with a quote and next steps.
           </p>
         </motion.div>
 
@@ -752,7 +812,7 @@ const loadServices =
 
             <InputField
                 icon={<User className="h-5 w-5" />}
-                label="Full Name"
+                label="Full Name *"
                 name="customerName"
                 value={formData.customerName}
                 onChange={handleChange}
@@ -762,7 +822,7 @@ const loadServices =
 
             <InputField
                 icon={<Mail className="h-5 w-5" />}
-                label="Email Address"
+                label="Email Address *"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
@@ -772,7 +832,7 @@ const loadServices =
 
             <InputField
                 icon={<Phone className="h-5 w-5" />}
-                label="Phone Number"
+                label="Phone Number *"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
@@ -791,7 +851,7 @@ const loadServices =
             {/* CITY */}
             <InputField
                 icon={<MapPin className="h-5 w-5" />}
-                label="City"
+                label="City *"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
@@ -801,7 +861,7 @@ const loadServices =
             {/* STATE */}
             <InputField
                 icon={<MapPin className="h-5 w-5" />}
-                label="State"
+                label="State *"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
@@ -962,7 +1022,7 @@ const loadServices =
             >
 
               <InputField
-                label="Event Type"
+                label="Event Type *"
                 name="eventType"
                 value={formData.eventType}
                 onChange={handleChange}
@@ -971,14 +1031,14 @@ const loadServices =
 
               <InputField
                 type="date"
-                label="Event Date"
+                label="Event Date *"
                 name="eventDate"
                 value={formData.eventDate}
                 onChange={handleChange}
               />
 
               <InputField
-                type="time"
+                type="time *"
                 label="Event Time"
                 name="eventTime"
                 value={formData.eventTime}
@@ -986,7 +1046,7 @@ const loadServices =
               />
 
               <InputField
-                label="Venue"
+                label="Venue *"
                 name="eventLocation"
                 value={formData.eventLocation}
                 onChange={handleChange}
@@ -994,20 +1054,13 @@ const loadServices =
               />
 
               <InputField
-                label="Audience Size"
+                label="Audience Size *"
                 name="audienceSize"
                 value={formData.audienceSize}
                 onChange={handleChange}
                 placeholder="100, 300..."
               />
 
-              <InputField
-                label="Music Preferences"
-                name="musicPreferences"
-                value={formData.musicPreferences}
-                onChange={handleChange}
-                placeholder="Afrobeats, Gospel..."
-              />
             </ServiceSection>
           )}
 
@@ -1025,7 +1078,7 @@ const loadServices =
             >
 
                 <InputField
-                label="Event Type"
+                label="Event Type *"
                 name="eventType"
                 value={formData.eventType}
                 onChange={handleChange}
@@ -1033,7 +1086,7 @@ const loadServices =
                 />
 
                 <InputField
-                type="date"
+                type="date *"
                 label="Event Date"
                 name="eventDate"
                 value={formData.eventDate}
@@ -1041,7 +1094,7 @@ const loadServices =
                 />
 
                 <InputField
-                label="Venue"
+                label="Venue *"
                 name="eventLocation"
                 value={formData.eventLocation}
                 onChange={handleChange}
@@ -1049,7 +1102,7 @@ const loadServices =
                 />
 
                 <InputField
-                label="Audience Size"
+                label="Audience Size *"
                 name="audienceSize"
                 value={formData.audienceSize}
                 onChange={handleChange}
@@ -1057,15 +1110,7 @@ const loadServices =
                 />
 
                 <InputField
-                label="MC Style"
-                name="mcStyle"
-                value={formData.mcStyle}
-                onChange={handleChange}
-                placeholder="Formal, Fun, Cultural..."
-                />
-
-                <InputField
-                label="Languages Needed"
+                label="Languages Needed *"
                 name="additionalNotes"
                 value={formData.additionalNotes}
                 onChange={handleChange}
@@ -1089,7 +1134,7 @@ const loadServices =
                 >
 
                     <InputField
-                    label="Photography Type"
+                    label="Photography Type *"
                     name="photoType"
                     value={formData.photoType}
                     onChange={handleChange}
@@ -1097,7 +1142,7 @@ const loadServices =
                     />
 
                     <InputField
-                    type="date"
+                    type="date *"
                     label="Session Date"
                     name="eventDate"
                     value={formData.eventDate}
@@ -1105,35 +1150,11 @@ const loadServices =
                     />
 
                     <InputField
-                    label="Location"
+                    label="Location *"
                     name="eventLocation"
                     value={formData.eventLocation}
                     onChange={handleChange}
                     placeholder="Venue or City"
-                    />
-
-                    <InputField
-                    label="Photography Style"
-                    name="photoStyle"
-                    value={formData.photoStyle}
-                    onChange={handleChange}
-                    placeholder="Cinematic, Editorial..."
-                    />
-
-                    <InputField
-                    label="Audience Size"
-                    name="audienceSize"
-                    value={formData.audienceSize}
-                    onChange={handleChange}
-                    placeholder="Guests or attendees"
-                    />
-
-                    <InputField
-                    label="Delivery Needed"
-                    name="additionalNotes"
-                    value={formData.additionalNotes}
-                    onChange={handleChange}
-                    placeholder="Album, Rush Delivery..."
                     />
 
                 </ServiceSection>
@@ -1153,7 +1174,7 @@ const loadServices =
                 >
 
                     <InputField
-                    label="Video Type"
+                    label="Video Type *"
                     name="videoType"
                     value={formData.videoType}
                     onChange={handleChange}
@@ -1162,42 +1183,18 @@ const loadServices =
 
                     <InputField
                     type="date"
-                    label="Shoot Date"
+                    label="Shoot Date *"
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleChange}
                     />
 
                     <InputField
-                    label="Location"
+                    label="Location *"
                     name="eventLocation"
                     value={formData.eventLocation}
                     onChange={handleChange}
                     placeholder="Venue or City"
-                    />
-
-                    <InputField
-                    label="Video Style"
-                    name="videoStyle"
-                    value={formData.videoStyle}
-                    onChange={handleChange}
-                    placeholder="Luxury, Documentary..."
-                    />
-
-                    <InputField
-                    label="Drone Needed?"
-                    name="additionalNotes"
-                    value={formData.additionalNotes}
-                    onChange={handleChange}
-                    placeholder="Yes or No"
-                    />
-
-                    <InputField
-                    label="Final Deliverables"
-                    name="projectTitle"
-                    value={formData.projectTitle}
-                    onChange={handleChange}
-                    placeholder="Highlight Reel, Full Video..."
                     />
 
                 </ServiceSection>
@@ -1217,15 +1214,7 @@ const loadServices =
                 >
 
                     <InputField
-                    label="Flyer Type"
-                    name="flyerType"
-                    value={formData.flyerType}
-                    onChange={handleChange}
-                    placeholder="Instagram, Poster..."
-                    />
-
-                    <InputField
-                    label="Flyer Purpose"
+                    label="Flyer Purpose *"
                     name="flyerPurpose"
                     value={formData.flyerPurpose}
                     onChange={handleChange}
@@ -1233,35 +1222,11 @@ const loadServices =
                     />
 
                     <InputField
-                    label="Brand Colors"
-                    name="brandColors"
-                    value={formData.brandColors}
-                    onChange={handleChange}
-                    placeholder="Gold, Black..."
-                    />
-
-                    <InputField
-                    label="Flyer Size"
-                    name="flyerSize"
-                    value={formData.flyerSize}
-                    onChange={handleChange}
-                    placeholder="Story, Square..."
-                    />
-
-                    <InputField
-                    label="Deadline"
+                    label="Deadline *"
                     type="date"
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleChange}
-                    />
-
-                    <InputField
-                    label="Inspiration Links"
-                    name="inspirationLinks"
-                    value={formData.inspirationLinks}
-                    onChange={handleChange}
-                    placeholder="Pinterest, Behance..."
                     />
 
                 </ServiceSection>
@@ -1281,7 +1246,7 @@ const loadServices =
                 >
 
                     <InputField
-                    label="Event Type"
+                    label="Event Type *"
                     name="eventPlanningType"
                     value={formData.eventPlanningType}
                     onChange={handleChange}
@@ -1290,14 +1255,14 @@ const loadServices =
 
                     <InputField
                     type="date"
-                    label="Event Date"
+                    label="Event Date *"
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleChange}
                     />
 
                     <InputField
-                    label="Venue / Location"
+                    label="Venue / Location *"
                     name="eventLocation"
                     value={formData.eventLocation}
                     onChange={handleChange}
@@ -1305,27 +1270,11 @@ const loadServices =
                     />
 
                     <InputField
-                    label="Estimated Guests"
+                    label="Estimated Guests *"
                     name="guestCount"
                     value={formData.guestCount}
                     onChange={handleChange}
                     placeholder="100, 500..."
-                    />
-
-                    <InputField
-                    label="Theme / Style"
-                    name="themeStyle"
-                    value={formData.themeStyle}
-                    onChange={handleChange}
-                    placeholder="Luxury, Traditional..."
-                    />
-
-                    <InputField
-                    label="Services Needed"
-                    name="projectTitle"
-                    value={formData.projectTitle}
-                    onChange={handleChange}
-                    placeholder="DJ, Decor, Catering..."
                     />
 
                 </ServiceSection>
@@ -1344,7 +1293,7 @@ const loadServices =
             >
 
               <InputField
-                label="Domain Name"
+                label="Domain Name *"
                 name="DomainName"
                 value={formData.websiteType}
                 onChange={handleChange}
@@ -1367,7 +1316,7 @@ const loadServices =
             >
 
               <InputField
-                label="Website Type"
+                label="Website Type *"
                 name="websiteType"
                 value={formData.websiteType}
                 onChange={handleChange}
@@ -1375,29 +1324,13 @@ const loadServices =
               />
 
               <InputField
-                label="Project Goals"
+                label="Project Goals *"
                 name="websiteGoals"
                 value={formData.websiteGoals}
                 onChange={handleChange}
                 placeholder="Sales, leads..."
               />
 
-              <InputField
-                icon={<Globe className="h-5 w-5" />}
-                label="Current Website"
-                name="website"
-                value={formData.website}
-                onChange={handleChange}
-                placeholder="https://example.com"
-              />
-
-              <InputField
-                label="Desired Features"
-                name="websiteFeatures"
-                value={formData.websiteFeatures}
-                onChange={handleChange}
-                placeholder="Booking, Dashboard..."
-              />
             </ServiceSection>
           )}
 
@@ -1414,7 +1347,7 @@ const loadServices =
             >
 
               <InputField
-                label="Support Type"
+                label="Support Type *"
                 name="supportType"
                 value={formData.supportType}
                 onChange={handleChange}
@@ -1422,7 +1355,7 @@ const loadServices =
               />
 
               <InputField
-                label="Issue Type"
+                label="Describe Issue *"
                 name="issueType"
                 value={formData.issueType}
                 onChange={handleChange}
@@ -1444,20 +1377,14 @@ const loadServices =
             >
 
               <InputField
-                label="Network Type"
+                label="Network Type *"
                 name="networkType"
                 value={formData.networkType}
                 onChange={handleChange}
                 placeholder="Office, Home, WiFi..."
               />
 
-              <InputField
-                label="Building Size"
-                name="buildingSize"
-                value={formData.buildingSize}
-                onChange={handleChange}
-                placeholder="Sq ft or floors"
-              />
+
             </ServiceSection>
           )}
 
@@ -1474,7 +1401,7 @@ const loadServices =
             >
 
               <InputField
-                label="Conference Type"
+                label="Conference Type *"
                 name="conferenceType"
                 value={formData.conferenceType}
                 onChange={handleChange}
@@ -1482,7 +1409,7 @@ const loadServices =
               />
 
               <InputField
-                label="Technical Needs"
+                label="Technical Needs *"
                 name="technicalNeeds"
                 value={formData.technicalNeeds}
                 onChange={handleChange}
@@ -1495,7 +1422,7 @@ const loadServices =
           <div className="mt-10">
 
             <TextareaField
-              label="Project Description"
+              label="Project Description *"
               name="description"
               value={formData.description}
               onChange={handleChange}

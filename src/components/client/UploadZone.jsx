@@ -66,9 +66,9 @@ export default function UploadZone({
 
       id: crypto.randomUUID(),
 
-      progress: 0,
+      progress: 100,
 
-      status: "waiting",
+      status: "Ready",
     }));
 
     setFiles((prev) => [...prev, ...mappedFiles]);
@@ -348,16 +348,47 @@ export default function UploadZone({
                 {/* PROGRESS */}
                 <div>
 
-                  <div className="flex justify-between text-sm mb-2">
+                    {/* STATUS */}
 
-                    <span className="text-[#666666] capitalize">
-                      {item.status}
-                    </span>
+                    <div className="mt-2">
 
-                    <span className="font-medium text-[#111111]">
-                      {item.progress || 0}%
-                    </span>
-                  </div>
+                      {item.status === "ready" && (
+                        <div className="flex items-center gap-2">
+
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+
+                          <span className="text-green-600 font-medium">
+                            File Attached
+                          </span>
+
+                        </div>
+                      )}
+
+                      {item.status === "uploading" && (
+                        <div className="flex items-center gap-2">
+
+                          <Loader2 className="h-4 w-4 animate-spin text-[#D4AF37]" />
+
+                          <span className="text-[#666666]">
+                            Uploading...
+                          </span>
+
+                        </div>
+                      )}
+
+                      {item.status === "completed" && (
+                        <div className="flex items-center gap-2">
+
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+
+                          <span className="text-green-600 font-medium">
+                            Uploaded Successfully
+                          </span>
+
+                        </div>
+                      )}
+
+                    </div>
 
                   {/* BAR */}
                   <div className="

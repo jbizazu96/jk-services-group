@@ -1603,8 +1603,10 @@ if (
       portfolioCategories={ portfolioCategories 
 
       } 
-      onUpdated={() => { 
-        window.location.reload(); }} /> 
+      onUpdated={() => {
+          loadPortfolioItems();
+          setEditingItem(null);
+        }} /> 
 
     </div>
   );

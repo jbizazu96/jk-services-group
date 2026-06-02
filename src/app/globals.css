@@ -3,6 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* NEW: Premium Gold Color Palette */
+  --gold-primary: #D4AF37;
+  --gold-dark: #996515;
+  --gold-light: #F3E5AB;
+  --gold-glow: rgba(212, 175, 55, 0.2);
+  
+  /* Optional: Keep yellow for sale/warning badges only */
+  --warning: #eab308;
 }
 
 @theme inline {
@@ -10,6 +19,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* NEW: Custom gold colors for Tailwind */
+  --color-gold: var(--gold-primary);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-light: var(--gold-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,6 +39,14 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ==========================================
+   SCROLL BEHAVIOR
+========================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -34,18 +56,72 @@ body {
   scrollbar-width: none;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 /* ==========================================
-   HIDE SCROLLBAR
+   PREMIUM ADDITIONS
 ========================================== */
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* Custom scrollbar (premium feel) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.scrollbar-hide {
-  scrollbar-width: none;
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dark);
+}
+
+/* Gold text gradient utility */
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Gold border gradient */
+.border-gold-gradient {
+  border-image: linear-gradient(135deg, var(--gold-primary), var(--gold-dark)) 1;
+}
+
+/* Glow effects */
+.glow-gold {
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.glow-gold-hover:hover {
+  box-shadow: 0 0 30px var(--gold-glow);
+  transition: all 0.3s ease;
+}
+
+/* Gold button base (replaces yellow) */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+  color: #000000;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px var(--gold-glow);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+/* Gold ring focus outline */
+.focus-ring-gold:focus {
+  outline: none;
+  ring: 2px solid var(--gold-primary);
+  ring-offset: 2px;
 }
