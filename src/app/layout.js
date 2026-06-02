@@ -51,7 +51,7 @@ export const metadata = {
   ======================================= */
 
   description:
-    "J&K Services Group provides premium event planning, MC services, DJ entertainment, photography, videography, networking installation, IT consulting, website development, and conference solutions.",
+  "J&K Services Group provides website development, IT and networking services, church technology solutions, media and creative services, weddings and event services, training programs, conferences, photography, videography, DJ entertainment, and business consulting throughout Iowa and beyond.",
 
   /* =======================================
      SEO KEYWORDS
@@ -60,44 +60,45 @@ export const metadata = {
   keywords: [
 
     "J&K Services Group",
-
     "my jk services group",
-
     "my jk service group",
-
     "jk services",
-
     "jandk services group",
-
     "j and k services",
-
     "MC services",
-
     "jk services group",
-
     "my jk services",
-
     "DJ services",
-
     "event planning",
-
     "photography",
-
     "videography",
-
     "network installation",
-
     "IT support",
-
     "conference services",
-
     "website development",
-
     "business consulting",
-
     "wedding services",
-
     "Iowa event services",
+    "church solutions",
+    "church media installation",
+    "church live streaming",
+    "website design",
+    "website maintenance",
+    "business websites",
+    "church websites",
+    "IT consulting",
+    "network troubleshooting",
+    "wifi installation",
+    "structured cabling",
+    "event planning services",
+    "MC services",
+    "DJ entertainment",
+    "photography services",
+    "videography services",
+    "training and conferences",
+    "Fort Dodge Iowa",
+    "Iowa website development",
+    "Iowa IT services",
   ],
 
   /* =======================================
@@ -184,7 +185,7 @@ export const metadata = {
     images: [
       {
         url:
-          "/images/logo1.png",
+          "/images/logo1.webp",
 
         width: 1200,
 
@@ -212,7 +213,7 @@ export const metadata = {
       "Professional event planning, networking, IT consulting, photography, videography, and DJ services.",
 
     images: [
-      "/images/logo1.png",
+      "/images/logo1.webp",
     ],
   },
 
@@ -259,6 +260,25 @@ export const metadata = {
       "/apple-touch-icon.png",
   },
 
+  /* =======================================
+      GEO SEO
+    ======================================= */
+
+    other: {
+
+        "geo.region":
+          "US-IA",
+
+        "geo.placename":
+          "Fort Dodge",
+
+        "geo.position":
+          "42.4975;-94.1680",
+
+        "ICBM":
+          "42.4975, -94.1680",
+
+      },
   /* =======================================
      WEB MANIFEST
   ======================================= */
@@ -351,10 +371,10 @@ export default function RootLayout({
                 "https://myjkservices.com",
 
               logo:
-                "https://myjkservices.com/images/logo1.png",
+                "https://myjkservices.com/images/logo1.webp",
 
               image:
-                "https://myjkservices.com/images/logo1.png",
+                "https://myjkservices.com/images/logo1.webp",
 
               description:
                 "Premium event planning, photography, videography, DJ entertainment, networking and IT consulting services.",
