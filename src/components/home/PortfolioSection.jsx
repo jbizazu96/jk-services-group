@@ -4,7 +4,7 @@
    REACT + FRAMER MOTION
 ========================================== */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
 /* ==========================================
@@ -35,7 +35,10 @@ export default function PortfolioSection() {
   const galleryRef = useRef(null);
   const [portfolioCategories, setPortfolioCategories] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isScrollingProgrammatically, setIsScrollingProgrammatically] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   /* ==========================================
      LOAD PORTFOLIO CATEGORIES
@@ -58,11 +61,16 @@ export default function PortfolioSection() {
         ...doc.data(),
       }));
       setPortfolioCategories(items);
-      // Set middle card as active on load - NO AUTO SCROLL
+      // Set middle card as active on load
       if (items.length > 0) {
         const middleIndex = Math.floor(items.length / 2);
         setActiveIndex(middleIndex);
-        // REMOVED: setTimeout(() => scrollToCard(middleIndex), 100);
+        // Scroll to middle card after load
+        setTimeout(() => {
+          setIsScrollingProgrammatically(true);
+          scrollToCard(middleIndex);
+          setTimeout(() => setIsScrollingProgrammatically(false), 500);
+        }, 100);
       }
     } catch (error) {
       console.error("Portfolio Error:", error);
@@ -89,19 +97,138 @@ export default function PortfolioSection() {
   };
 
   /* ==========================================
+     DETECT WHICH CARD IS MOST VISIBLE
+     - Used when user manually scrolls
+  ========================================== */
+
+  const updateActiveIndexOnScroll = useCallback(() => {
+    if (isScrollingProgrammatically) return; // Skip if we're programmatically scrolling
+    if (isHovering) return; // Skip if user is hovering over a card
+    
+    if (!galleryRef.current) return;
+    
+    const cards = galleryRef.current.querySelectorAll('.portfolio-card');
+    const containerRect = galleryRef.current.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+    
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+    
+    cards.forEach((card, idx) => {
+      const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const distance = Math.abs(containerCenter - cardCenter);
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = idx;
+      }
+    });
+    
+    if (closestIndex !== activeIndex) {
+      setActiveIndex(closestIndex);
+    }
+  }, [activeIndex, isScrollingProgrammatically, isHovering]);
+
+  /* ==========================================
+     HOVER HANDLER - Makes hovered card active
+  ========================================== */
+
+  const handleCardHover = (index) => {
+    setHoveredIndex(index);
+    setIsHovering(true);
+    setActiveIndex(index);
+  };
+
+  const handleCardLeave = () => {
+    setHoveredIndex(null);
+    setIsHovering(false);
+    // After hover ends, re-sync with scroll position
+    setTimeout(() => {
+      updateActiveIndexOnScroll();
+    }, 50);
+  };
+
+  /* ==========================================
+     SCROLL EVENT LISTENER
+     - Updates active index when user scrolls manually
+  ========================================== */
+
+  useEffect(() => {
+    const scrollContainer = galleryRef.current;
+    if (!scrollContainer) return;
+    
+    // Use scrollend event for better performance (modern browsers)
+    const handleScrollEnd = () => {
+      updateActiveIndexOnScroll();
+    };
+    
+    // Also listen for scroll events with debounce for older browsers
+    let scrollTimeout;
+    const handleScroll = () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        updateActiveIndexOnScroll();
+      }, 100);
+    };
+    
+    scrollContainer.addEventListener('scroll', handleScroll);
+    scrollContainer.addEventListener('scrollend', handleScrollEnd);
+    
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+      scrollContainer.removeEventListener('scrollend', handleScrollEnd);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, [updateActiveIndexOnScroll]);
+
+  /* ==========================================
+     UPDATE ACTIVE INDEX WHEN CARDS CHANGE
+  ========================================== */
+
+  useEffect(() => {
+    if (portfolioCategories.length > 0 && !isLoading) {
+      setTimeout(() => {
+        updateActiveIndexOnScroll();
+      }, 50);
+    }
+  }, [portfolioCategories, isLoading, updateActiveIndexOnScroll]);
+
+  /* ==========================================
      NAVIGATION
   ========================================== */
 
   const handlePrev = () => {
     const newIndex = activeIndex === 0 ? portfolioCategories.length - 1 : activeIndex - 1;
     setActiveIndex(newIndex);
+    setHoveredIndex(null);
+    setIsHovering(false);
+    setIsScrollingProgrammatically(true);
     scrollToCard(newIndex);
+    setTimeout(() => setIsScrollingProgrammatically(false), 500);
   };
 
   const handleNext = () => {
     const newIndex = activeIndex + 1 >= portfolioCategories.length ? 0 : activeIndex + 1;
     setActiveIndex(newIndex);
+    setHoveredIndex(null);
+    setIsHovering(false);
+    setIsScrollingProgrammatically(true);
     scrollToCard(newIndex);
+    setTimeout(() => setIsScrollingProgrammatically(false), 500);
+  };
+
+  /* ==========================================
+     HANDLE DOT CLICK
+  ========================================== */
+
+  const handleDotClick = (index) => {
+    setActiveIndex(index);
+    setHoveredIndex(null);
+    setIsHovering(false);
+    setIsScrollingProgrammatically(true);
+    scrollToCard(index);
+    setTimeout(() => setIsScrollingProgrammatically(false), 500);
   };
 
   /* ==========================================
@@ -244,58 +371,66 @@ export default function PortfolioSection() {
         style={{ scrollSnapType: "x mandatory" }}
       >
         <div className="flex gap-6 px-12 sm:px-20 py-8">
-          {portfolioCategories.map((category, index) => (
-            <div
-              key={category.id}
-              onClick={() => router.push(`/portfolio/${category.slug}`)}
-              className={`
-                portfolio-card relative w-[280px] sm:w-[320px] md:w-[360px] lg:w-[380px]
-                flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
-                transition-all duration-500 group
-                ${activeIndex === index
-                  ? "ring-2 ring-yellow-500 shadow-2xl shadow-yellow-500/25 scale-105 z-20"
-                  : "border border-white/10 scale-95 opacity-70 hover:opacity-100"
-                }
-              `}
-              style={{ aspectRatio: "3/4" }}
-            >
-              {/* Background Image */}
-              <img
-                src={category.image || "/placeholder.jpg"}
-                alt={category.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
+          {portfolioCategories.map((category, index) => {
+            // Determine if this card should be highlighted
+            const isActive = activeIndex === index;
+            const isHovered = hoveredIndex === index;
+            
+            return (
+              <div
+                key={category.id}
+                onClick={() => router.push(`/portfolio/${category.slug}`)}
+                onMouseEnter={() => handleCardHover(index)}
+                onMouseLeave={handleCardLeave}
+                className={`
+                  portfolio-card relative w-[280px] sm:w-[320px] md:w-[360px] lg:w-[380px]
+                  flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
+                  transition-all duration-500 group
+                  ${isActive || isHovered
+                    ? "ring-2 ring-yellow-500 shadow-2xl shadow-yellow-500/25 scale-105 z-20"
+                    : "border border-white/10 scale-95 opacity-70 hover:opacity-100"
+                  }
+                `}
+                style={{ aspectRatio: "3/4" }}
+              >
+                {/* Background Image */}
+                <img
+                  src={category.image || "/placeholder.jpg"}
+                  alt={category.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-              {/* Hover Glow */}
-              <div className="absolute inset-0 bg-yellow-500/0 group-hover:bg-yellow-500/10 transition-all duration-500" />
+                {/* Hover Glow */}
+                <div className="absolute inset-0 bg-yellow-500/0 group-hover:bg-yellow-500/10 transition-all duration-500" />
 
-              {/* Active Indicator */}
-              {activeIndex === index && (
-                <div className="absolute top-4 right-4 z-20">
-                  <div className="flex items-center gap-1 rounded-full bg-yellow-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
-                    <Star className="w-2.5 h-2.5 fill-black" />
-                    Current
+                {/* Active/Hover Indicator */}
+                {(isActive || isHovered) && (
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="flex items-center gap-1 rounded-full bg-yellow-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
+                      <Star className="w-2.5 h-2.5 fill-black" />
+                      {isHovered ? "Hovering" : "Current"}
+                    </div>
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 z-10 transition-transform duration-500 group-hover:-translate-y-2">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 line-clamp-2">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-300 text-xs md:text-sm mb-3 line-clamp-2">
+                    {category.description || "Explore our collection of work in this category."}
+                  </p>
+                  <div className="inline-flex items-center gap-2 text-yellow-400 font-semibold text-sm group-hover:gap-3 transition-all">
+                    View Portfolio <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </div>
-              )}
-
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 z-10 transition-transform duration-500 group-hover:-translate-y-2">
-                <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 line-clamp-2">
-                  {category.name}
-                </h3>
-                <p className="text-gray-300 text-xs md:text-sm mb-3 line-clamp-2">
-                  {category.description || "Explore our collection of work in this category."}
-                </p>
-                <div className="inline-flex items-center gap-2 text-yellow-400 font-semibold text-sm group-hover:gap-3 transition-all">
-                  View Portfolio <ArrowRight className="w-3.5 h-3.5" />
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -306,10 +441,7 @@ export default function PortfolioSection() {
         {portfolioCategories.map((_, index) => (
           <button
             key={index}
-            onClick={() => {
-              setActiveIndex(index);
-              scrollToCard(index);
-            }}
+            onClick={() => handleDotClick(index)}
             className={`
               rounded-full transition-all duration-300
               ${activeIndex === index
