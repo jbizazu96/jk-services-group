@@ -1,1139 +1,526 @@
 "use client";
 
-/* =========================================
+/* ==========================================
    REACT
-========================================= */
+========================================== */
 
 import {
   useEffect,
-  useMemo,
   useState,
+  useRef,
 } from "react";
 
-/* =========================================
+/* ==========================================
+   NEXT
+========================================== */
+
+import {
+  useParams,
+} from "next/navigation";
+
+/* ==========================================
    FRAMER MOTION
-========================================= */
+========================================== */
 
 import {
   motion,
-  AnimatePresence,
+  useScroll,
+  useTransform,
 } from "framer-motion";
 
-/* =========================================
-   ICONS
-========================================= */
+import Link from "next/link";
 
 import {
-  Plus,
+  ArrowLeft,
   Star,
-  Trash2,
-  Pencil,
-  Upload,
+  Clock,
+  Calendar,
+  ChevronRight,
   Sparkles,
-  Search,
-  X,
-  FolderKanban,
-  Eye,
-  CheckCircle2,
-  ImageIcon,
+  Music,
+  Mic,
+  Camera,
+  Wifi,
+  Briefcase,
+  Heart,
+  Quote,
+  Send,
 } from "lucide-react";
 
-/* =========================================
+import ServiceCategoryHero from "@/components/service/ServiceCategoryHero";
+import BookingModal from "@/components/home/modals/BookingModal";
+
+/* ==========================================
    FIREBASE
-========================================= */
+========================================== */
 
 import {
   collection,
-  addDoc,
   getDocs,
-  deleteDoc,
-  updateDoc,
-  doc,
-  orderBy,
   query,
+  where,
+  orderBy,
 } from "firebase/firestore";
 
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
+import { db } from "@/lib/firebase";
 
-import {
-  db,
-  storage,
-} from "@/lib/firebase";
 
-import { serverTimestamp } from "firebase/firestore";
+/* ==========================================
+   PAGE
+========================================== */
 
-/* =========================================
-   COMPONENT
-========================================= */
+export default function CategoryPage() {
+  const params = useParams();
+  const slug = params.slug;
+  const sectionRef = useRef(null);
+  const [activeCardIndex, setActiveCardIndex] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-export default function ServiceCategoriesManagement() {
+  const [category, setCategory] = useState(null);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /* =========================================
-     STATES
-  ========================================= */
+  /* ==========================================
+     BOOKING MODAL
+  ========================================== */
 
-  const [serviceCategories,
-        setServiceCategories] =
-    useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [bookingModal, setBookingModal] = useState(false);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  const [search, setSearch] =
-    useState("");
-
-  const [uploading, setUploading] =
-    useState(false);
-
-  const [editUploading,
-        setEditUploading] =
-    useState(false);
-
-  const [editingCategory,
-        setEditingCategory] =
-    useState(null);
-    
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-
-  /* =========================================
-     FORM STATE
-  ========================================= */
-
-  const [formData, setFormData] =
-    useState({
-      name: "",
-      description: "",
-      image: "",
-      featured: false,
-    });
-
-  /* =========================================
-     EDIT FORM STATE
-  ========================================= */
-
-  const [editData, setEditData] =
-    useState({
-      name: "",
-      description: "",
-      image: "",
-    });
-
-  /* =========================================
-     LOAD PORTFOLIO CATEGORIES
-  ========================================= */
-
-  const loadServiceCategories =
-    async () => {
-
-      try {
-
-        setLoading(true);
-
-        const q = query(
-          collection(
-            db,
-            "serviceCategories"
-          ),
-          orderBy(
-            "createdAt",
-            "desc"
-          )
-        );
-
-        const snapshot =
-          await getDocs(q);
-
-        const items = snapshot.docs.map(
-          (item) => ({
-            id: item.id,
-            ...item.data(),
-          })
-        );
-
-        setServiceCategories(items);
-
-      } catch (error) {
-
-        console.error(error);
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
+  /* ==========================================
+     DETECT MOBILE DEVICE
+  ========================================== */
 
   useEffect(() => {
-
-    loadServiceCategories();
-
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  /* =========================================
-     FILTERED DATA
-  ========================================= */
+  /* ==========================================
+     LOAD DATA
+  ========================================== */
 
-  const filteredCategories =
-    useMemo(() => {
+  useEffect(() => {
+    if (!slug) return;
+    loadPage();
+  }, [slug]);
 
-      return serviceCategories.filter(
-        (item) =>
-          item.name
-            ?.toLowerCase()
-            .includes(
-              search.toLowerCase()
-            )
-      );
-
-    }, [
-      serviceCategories,
-      search,
-    ]);
-
-  /* =========================================
-     HANDLE FORM CHANGE
-  ========================================= */
-
-  const handleChange = (
-    field,
-    value
-  ) => {
-
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  /* =========================================
-     HANDLE EDIT CHANGE
-  ========================================= */
-
-  const handleEditChange = (
-    field,
-    value
-  ) => {
-
-    setEditData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  /* =========================================
-     IMAGE UPLOAD
-  ========================================= */
-
-  const uploadImage = async (
-    file,
-    isEditing = false
-  ) => {
-
-    if (!file) return;
-
+  const loadPage = async () => {
     try {
+      setLoading(true);
 
-      if (isEditing) {
-        setEditUploading(true);
-      } else {
-        setUploading(true);
-      }
-
-      const imageRef = ref(
-        storage,
-        `serviceCat/${Date.now()}-${file.name}`
+      const categoryQuery = query(
+        collection(db, "serviceCategories"),
+        where("slug", "==", slug),
+        where("active", "==", true)
       );
 
-      await uploadBytes(
-        imageRef,
-        file
-      );
+      const categorySnapshot = await getDocs(categoryQuery);
 
-      const downloadURL =
-        await getDownloadURL(imageRef);
-
-      if (isEditing) {
-
-        handleEditChange(
-          "image",
-          downloadURL
-        );
-
-      } else {
-
-        handleChange(
-          "image",
-          downloadURL
-        );
+      if (categorySnapshot.empty) {
+        setLoading(false);
+        return;
       }
 
+      const categoryDoc = categorySnapshot.docs[0];
+      const categoryData = {
+        id: categoryDoc.id,
+        ...categoryDoc.data(),
+      };
+
+      setCategory(categoryData);
+
+      const servicesQuery = query(
+        collection(db, "services"),
+        where("active", "==", true),
+        where("category", "==", categoryData.name),
+        orderBy("featured", "desc"),
+        orderBy("createdAt", "desc")
+      );
+
+      const servicesSnapshot = await getDocs(servicesQuery);
+      const serviceItems = servicesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setServices(serviceItems);
     } catch (error) {
-
       console.error(error);
-
-      alert("Image upload failed.");
-
     } finally {
-
-      setUploading(false);
-      setEditUploading(false);
+      setLoading(false);
     }
   };
 
-  /* =========================================
-     ADD CATEGORY
-  ========================================= */
+  /* ==========================================
+     HANDLE CARD CLICK FOR MOBILE
+  ========================================== */
 
-  const addServiceCategory =
-    async () => {
-
-      if (!formData.name) {
-
-        return alert(
-          "Category name is required"
-        );
+  const handleCardClick = (index) => {
+    if (isMobile) {
+      // If clicking the same card that's already active, reset it
+      if (activeCardIndex === index) {
+        setActiveCardIndex(null);
+      } else {
+        setActiveCardIndex(index);
+        // Auto reset after 3 seconds on mobile
+        setTimeout(() => {
+          setActiveCardIndex(null);
+        }, 3000);
       }
-
-      try {
-
-        const slug =
-          formData.name
-            .toLowerCase()
-            .replace(/&/g, "and")
-            .replace(/\s+/g, "-")
-            .replace(/[^\w-]/g, "");
-
-        await addDoc(
-          collection(
-            db,
-            "serviceCategories"
-          ),
-          {
-            ...formData,
-            slug,
-            active: true,
-            createdAt: serverTimestamp()
-          }
-        );
-
-        setFormData({
-          name: "",
-          description: "",
-          image: "",
-          featured: false,
-        });
-
-        loadServiceCategories();
-
-      } catch (error) {
-
-        console.error(error);
-      }
-    };
-
-  /* =========================================
-     DELETE CATEGORY
-  ========================================= */
-
-  const deleteServiceCategory =
-    async (id) => {
-
-      const confirmDelete =
-        confirm(
-          "Delete this category?"
-        );
-
-      if (!confirmDelete) return;
-
-      try {
-
-        await deleteDoc(
-          doc(
-            db,
-            "serviceCategories",
-            id
-          )
-        );
-
-        loadServiceCategories();
-
-      } catch (error) {
-
-        console.error(error);
-      }
-    };
-
-  /* =========================================
-     TOGGLE ACTIVE
-  ========================================= */
-
-  const toggleActive = async (
-    id,
-    current
-  ) => {
-
-    await updateDoc(
-      doc(
-        db,
-        "serviceCategories",
-        id
-      ),
-      {
-        active: !current,
-      }
-    );
-
-    setServiceCategories((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                active: !current,
-              }
-            : item
-        )
-      );
-  };
-
-  /* =========================================
-     TOGGLE FEATURED
-  ========================================= */
-
-const toggleFeatured =
-  async (id, current) => {
-
-    try {
-
-      await updateDoc(
-        doc(
-          db,
-          "serviceCategories",
-          id
-        ),
-        {
-          featured: !current,
-        }
-      );
-
-      setServiceCategories((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                featured: !current,
-              }
-            : item
-        )
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-    }
-};
-
-  /* =========================================
-     OPEN EDIT
-  ========================================= */
-
-  const openEdit = (category) => {
-
-    setEditingCategory(category);
-
-    setEditData({
-      name: category.name || "",
-      description:
-        category.description || "",
-      image: category.image || "",
-    });
-  };
-
-  /* =========================================
-     SAVE EDIT
-  ========================================= */
-
-  const saveEdit = async () => {
-
-    try {
-
-      await updateDoc(
-        doc(
-          db,
-          "serviceCategories",
-          editingCategory.id
-        ),
-        {
-          ...editData,
-        }
-      );
-
-      setEditingCategory(null);
-
-      loadServiceCategories();
-
-    } catch (error) {
-
-      console.error(error);
     }
   };
 
-  /* =========================================
-     STATS
-  ========================================= */
+  /* ==========================================
+     LOADING STATE
+  ========================================== */
 
-  const featuredCount =
-    serviceCategories.filter(
-      (item) => item.featured
-    ).length;
-
-  const activeCount =
-    serviceCategories.filter(
-      (item) => item.active
-    ).length;
-
-  /* =========================================
-     UI
-  ========================================= */
-
-  return (
-
-    <div className="relative min-h-screen overflow-hidden bg-black p-6 text-white md:p-8">
-
-      {/* =====================================
-          AMBIENT GLOW
-      ===================================== */}
-
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-
-        <div className="absolute left-0 top-0 h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
-
-        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-purple-500/10 blur-3xl" />
-      </div>
-
-      <div className="relative z-10">
-
-        {/* =====================================
-            HEADER
-        ===================================== */}
-
-        <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-
-          <div>
-
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 backdrop-blur-md">
-
-              <Sparkles size={16} />
-
-              Luxury Service System
-            </div>
-
-            <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-              Service Categories Management
-            </h1>
-
-            <p className="mt-4 max-w-2xl text-lg text-zinc-400">
-              Manage service categories with cinematic premium controls.
-            </p>
-          </div>
-
-          {/* STATS */}
-
-          <div className="grid grid-cols-2 gap-4 lg:w-auto">
-
-            <StatCard
-              icon={<FolderKanban size={22} />}
-              title="Categories"
-              value={serviceCategories.length}
-            />
-
-            <StatCard
-              icon={<Star size={22} />}
-              title="Featured"
-              value={featuredCount}
-            />
-
-            <StatCard
-              icon={<CheckCircle2 size={22} />}
-              title="Active"
-              value={activeCount}
-            />
-
-            <StatCard
-              icon={<Eye size={22} />}
-              title="Showcase"
-              value="Live"
-            />
-
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="h-[400px] bg-gradient-to-br from-zinc-900 to-black animate-pulse" />
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-[320px] rounded-2xl bg-white/[0.05] animate-pulse" />
+            ))}
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* =====================================
-            CONTENT GRID
-        ===================================== */}
+  /* ==========================================
+     CATEGORY NOT FOUND
+  ========================================== */
 
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[420px_1fr]">
+  if (!category) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="text-center"
+        >
+          <div className="text-8xl mb-6">🔍</div>
+          <h1 className="text-4xl font-bold text-white mb-4">Category Not Found</h1>
+          <p className="text-zinc-400 mb-8">The service category you're looking for doesn't exist.</p>
+           <Link 
+              href="/" 
+              scroll={false}
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = '/';
+                setTimeout(() => {
+                  const servicesSection = document.getElementById('services');
+                  if (servicesSection) {
+                    servicesSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="inline-flex items-center gap-2 bg-gold text-black px-6 py-3 rounded-full font-semibold hover:bg-gold-dark transition"
+            >
+              <ArrowLeft size={18} />
+              Back to Services
+            </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
-          {/* =====================================
-              LEFT PANEL
-          ===================================== */}
+  /* ==========================================
+     PAGE RENDER
+  ========================================== */
 
+  return (
+    <div className="relative min-h-screen bg-black text-white">
+      {/* Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ x: [0, 100, -50, 0], y: [0, -80, 50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-20 right-10 h-[500px] w-[500px] rounded-full bg-gold/5 blur-[120px]"
+        />
+        <motion.div
+          animate={{ x: [0, -40, 0], y: [0, 40, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-20 left-10 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-[100px]"
+        />
+      </div>
+
+      {/* =====================================
+          HERO
+      ===================================== */}
+
+      <ServiceCategoryHero
+        title={category.name}
+        description={category.description}
+        image={category.image}
+        serviceCount={services.length}
+      />
+
+      {/* =====================================
+          SERVICES SECTION
+      ===================================== */}
+
+      <section ref={sectionRef} className="relative z-30 bg-black pb-24">
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Section Header */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.3 }}
-            className="sticky top-6 h-fit rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
+            className="text-center mb-12 pt-8"
           >
-
-            <div className="mb-8 flex items-center gap-4">
-
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                <Plus />
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold">
-                  Add Category
-                </h2>
-
-                <p className="text-sm text-zinc-500">
-                  Create cinematic service categories.
-                </p>
-              </div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-4 py-1.5 backdrop-blur-sm mb-4">
+              <div className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                Our Services
+              </span>
             </div>
+            <h2 className="text-3xl md:text-5xl font-black text-white">
+              Choose Your
+              <span className="text-gold"> Experience</span>
+            </h2>
+          </motion.div>
 
-            <div className="space-y-5">
+          {/* Services Grid */}
+          {services.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="text-5xl mb-4">✨</div>
+              <h3 className="text-xl font-bold text-white mb-2">No Services Yet</h3>
+              <p className="text-zinc-400">This category is being curated. Check back soon!</p>
+            </div>
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {services.map((service, index) => {
+                const isActive = isMobile ? activeCardIndex === index : false;
+                
+                return (
+                  <div
+                    key={service.id}
+                    className={`
+                      group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] 
+                      transition-all duration-500 ease-out 
+                      ${!isMobile && 'hover:scale-105 hover:border-gold/40 hover:shadow-2xl hover:shadow-gold/25'}
+                      ${isActive && 'scale-105 border-gold/40 shadow-2xl shadow-gold/25'}
+                    `}
+                    onMouseEnter={() => !isMobile && setActiveCardIndex(index)}
+                    onMouseLeave={() => !isMobile && setActiveCardIndex(null)}
+                    onClick={() => handleCardClick(index)}
+                  >
+                    {/* Star "Current" Badge - Shows on hover (desktop) or tap (mobile) */}
+                    <div className={`
+                      absolute top-3 right-3 z-30 transition-all duration-300
+                      ${(activeCardIndex === index) 
+                        ? "opacity-100 scale-100" 
+                        : "opacity-0 scale-75"}
+                    `}>
+                      <div className="flex items-center gap-1.5 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold text-black shadow-lg">
+                        <Star className="w-3 h-3 fill-black" />
+                        {isMobile ? "Selected" : "Current"}
+                      </div>
+                    </div>
 
-              <InputField
-                label="Category Name"
-                value={formData.name}
-                onChange={(e) =>
-                  handleChange(
-                    "name",
-                    e.target.value
-                  )
-                }
-                placeholder="DJ Entertainment"
-              />
+                    {/* Featured Badge - Always visible if featured and not active */}
+                    {service.featured && activeCardIndex !== index && (
+                      <div className="absolute top-3 right-3 z-20">
+                        <div className="flex items-center gap-1 rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold text-black">
+                          <Star className="w-2.5 h-2.5 fill-black" />
+                          Featured
+                        </div>
+                      </div>
+                    )}
 
-              {/* IMAGE */}
+                    {/* Image */}
+                    <div className="relative h-36 overflow-hidden">
+                      <img
+                        src={service.image || "/images/placeholder-service.jpg"}
+                        alt={service.name}
+                        className={`
+                          h-full w-full object-cover transition-transform duration-700
+                          ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                            ? 'scale-110' 
+                            : 'group-hover:scale-110'}
+                        `}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-500" />
+                      
+                      {/* Shine effect */}
+                      <div className={`
+                        absolute inset-0 transition-opacity duration-500 bg-gradient-to-tr from-transparent via-gold/10 to-transparent
+                        ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                          ? 'opacity-100' 
+                          : 'opacity-0 group-hover:opacity-100'}
+                      `} />
+                    </div>
 
-              <div>
+                    {/* Content */}
+                    <div className={`
+                      p-4 transition-all duration-500
+                      ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                        ? 'translate-y-[-2px]' 
+                        : 'group-hover:translate-y-[-2px]'}
+                    `}>
+                      {/* Price Badge */}
+                      <div className="mb-2">
+                        <span className="inline-block rounded-full bg-gold/20 backdrop-blur-sm px-2.5 py-0.5 text-[11px] font-bold text-gold border border-gold/30 transition-all duration-300">
+                          {service.priceText || "Contact for pricing"}
+                        </span>
+                      </div>
 
-                <label className="mb-2 block text-sm text-zinc-400">
-                  Service Image
-                </label>
+                      {/* Title */}
+                      <h3 className={`
+                        text-lg font-bold mb-1 transition-all duration-300 line-clamp-1
+                        ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                          ? 'text-gold' 
+                          : 'text-white group-hover:text-gold'}
+                      `}>
+                        {service.name}
+                      </h3>
 
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center transition hover:border-blue-500/50 hover:bg-blue-500/5">
+                      {/* Description */}
+                      <p className={`
+                        text-xs leading-relaxed mb-3 line-clamp-2 transition-all duration-300
+                        ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                          ? 'text-zinc-300' 
+                          : 'text-zinc-400 group-hover:text-zinc-300'}
+                      `}>
+                        {service.description || "Professional service tailored to your needs."}
+                      </p>
 
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04]">
-                    <Upload size={28} />
+                      {/* Buttons */}
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedService(service.name);
+                            setBookingModal(true);
+                          }}
+                          className={`
+                            flex-1 rounded-xl bg-gold py-2 text-sm font-bold text-black transition-all duration-300 
+                            hover:bg-gold-dark flex items-center justify-center gap-1
+                            ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                              ? 'scale-[1.02]' 
+                              : 'group-hover:scale-[1.02]'}
+                          `}
+                        >
+                          <Calendar className="w-3.5 h-3.5" />
+                          Book
+                        </button>
+
+                        <Link href={`/client?service=${encodeURIComponent(service.name)}`} className="flex-1">
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className={`
+                              w-full rounded-xl border border-white/40 bg-white/5 py-2 text-sm font-semibold text-white backdrop-blur-sm 
+                              transition-all duration-300 hover:bg-white/10 hover:border-gold/50 flex items-center justify-center gap-1.5
+                              ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                                ? 'scale-[1.02]' 
+                                : 'group-hover:scale-[1.02]'}
+                            `}
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            Request Service
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Glow effect */}
+                    <div className={`
+                      absolute inset-0 rounded-2xl transition-opacity duration-500 pointer-events-none
+                      ${(!isMobile && activeCardIndex === index) || (isMobile && isActive) 
+                        ? 'opacity-100' 
+                        : 'opacity-0 group-hover:opacity-100'}
+                    `}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/5 to-gold/0 rounded-2xl" />
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+          )}
 
-                  <div>
-                    <p className="font-medium">
-                      Upload service image
-                    </p>
+          {/* Mobile Instruction Text */}
+          {isMobile && services.length > 0 && (
+            <div className="text-center mt-8 text-zinc-500 text-sm">
+              <p>👆 Tap on a card to preview it</p>
+            </div>
+          )}
 
-                    <p className="mt-1 text-sm text-zinc-500">
-                      PNG, JPG or WEBP
-                    </p>
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) =>
-                      uploadImage(
-                        e.target.files[0]
-                      )
-                    }
-                  />
-                </label>
-
-                {uploading && (
-                  <p className="mt-3 text-sm text-blue-400">
-                    Uploading image...
-                  </p>
-                )}
-
-                {formData.image && (
-                  <img
-                    src={formData.image}
-                    alt="Preview"
-                    className="mt-5 h-56 w-full rounded-3xl object-cover border border-white/10"
-                  />
-                )}
+          {/* Stats Row */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-wrap justify-center gap-6 mt-12"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-gold" />
               </div>
-
-              {/* DESCRIPTION */}
-
-              <div>
-
-                <label className="mb-2 block text-sm text-zinc-400">
-                  Description
-                </label>
-
-                <textarea
-                  rows={5}
-                  value={formData.description}
-                  onChange={(e) =>
-                    handleChange(
-                      "description",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Describe this service category..."
-                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
-                />
+              <span className="text-zinc-400 text-sm">{services.length} Services</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-gold" />
               </div>
-
-              {/* FEATURED */}
-
-              <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
-
-                <div>
-                  <p className="font-medium">
-                    Featured Category
-                  </p>
-
-                  <p className="text-sm text-zinc-500">
-                    Highlight on homepage.
-                  </p>
-                </div>
-
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) =>
-                    handleChange(
-                      "featured",
-                      e.target.checked
-                    )
-                  }
-                  className="h-5 w-5"
-                />
+              <span className="text-zinc-400 text-sm">24/7 Support</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
+                <Heart className="w-4 h-4 text-gold" />
               </div>
+              <span className="text-zinc-400 text-sm">100% Guaranteed</span>
+            </div>
+          </motion.div>
 
+          {/* Trust Banner */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
+            className="mt-12 rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.03] to-transparent p-5"
+          >
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-center md:text-left">
+                <p className="text-xs uppercase tracking-[0.2em] text-gold mb-1">Free Consultation</p>
+                <h3 className="text-base font-semibold text-white">Not sure which service fits your needs?</h3>
+              </div>
               <button
-                onClick={addServiceCategory}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-4 font-semibold transition hover:bg-blue-500"
+                onClick={() => {
+                  setSelectedService("General Consultation");
+                  setBookingModal(true);
+                }}
+                className="px-5 py-2 bg-gold text-black font-semibold rounded-xl hover:bg-gold-dark transition-all duration-300 text-sm hover:scale-105"
               >
-                <Plus size={18} />
-                Add Category
+                Book Free Consultation →
               </button>
             </div>
           </motion.div>
-
-          {/* =====================================
-              RIGHT SIDE
-          ===================================== */}
-
-          <div>
-
-            {/* SEARCH */}
-
-            <div className="mb-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 backdrop-blur-xl">
-
-              <Search className="text-zinc-500" />
-
-              <input
-                type="text"
-                placeholder="Search categories..."
-                value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
-                className="w-full bg-transparent outline-none placeholder:text-zinc-500"
-              />
-            </div>
-
-            {/* GRID - NO ENTRANCE ANIMATIONS */}
-
-            {loading ? (
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-
-                {[1, 2, 3, 4].map((item) => (
-                  <div
-                    key={item}
-                    className="h-[420px] animate-pulse rounded-3xl border border-white/10 bg-white/[0.03]"
-                  />
-                ))}
-              </div>
-
-            ) : (
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-
-                {filteredCategories.map((category, index) => (
-
-                  <div
-                    key={category.id}
-                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl transition-all duration-500 ease-out hover:scale-105 hover:border-yellow-500/50 hover:shadow-2xl hover:shadow-yellow-500/25"
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  >
-
-                    {/* Star "Current" Badge - Shows on hover */}
-                    <div className={`absolute top-4 right-4 z-30 transition-all duration-300 ${
-                      hoveredIndex === index 
-                        ? "opacity-100 scale-100" 
-                        : "opacity-0 scale-75"
-                    }`}>
-                      <div className="flex items-center gap-1.5 rounded-full bg-yellow-500 px-2.5 py-1 text-[10px] font-bold text-black shadow-lg">
-                        <Star className="w-3 h-3 fill-black" />
-                        Current
-                      </div>
-                    </div>
-
-                    {/* IMAGE */}
-
-                    <div className="relative overflow-hidden">
-
-                      {category.image ? (
-
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className="h-72 w-full object-cover transition duration-700 group-hover:scale-110"
-                        />
-
-                      ) : (
-
-                        <div className="flex h-72 items-center justify-center bg-white/[0.03]">
-                          <ImageIcon
-                            size={50}
-                            className="text-zinc-700"
-                          />
-                        </div>
-                      )}
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent transition-opacity duration-500 group-hover:bg-black/30" />
-                      
-                      {/* Shine effect overlay */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-transparent via-yellow-500/10 to-transparent" />
-
-                      <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-
-                        <div>
-                          <p className="text-sm text-zinc-300">
-                            Service Category
-                          </p>
-
-                          <h3 className="text-3xl font-black transition-all duration-300 group-hover:text-yellow-400">
-                            {category.name}
-                          </h3>
-                        </div>
-
-                        {category.featured && (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500 text-black transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
-                            <Star fill="black" size={20} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* CONTENT */}
-
-                    <div className="p-6 transition-all duration-500 group-hover:translate-y-[-4px]">
-
-                      <p className="line-clamp-3 text-zinc-400 transition-all duration-300 group-hover:text-zinc-300">
-                        {category.description}
-                      </p>
-
-                      <div className="mt-5 flex items-center justify-between">
-
-                        <div
-                          className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                            category.active
-                              ? "bg-green-500/20 text-green-400 group-hover:bg-green-500/30"
-                              : "bg-red-500/20 text-red-400 group-hover:bg-red-500/30"
-                          }`}
-                        >
-                          {category.active
-                            ? "Active"
-                            : "Inactive"}
-                        </div>
-
-                        <div className="text-sm text-zinc-500 transition-all duration-300 group-hover:text-zinc-400">
-                          /service/{category.slug}
-                        </div>
-                      </div>
-
-                      {/* ACTIONS */}
-
-                      <div className="mt-6 grid grid-cols-2 gap-3">
-
-                        <button
-                          onClick={() =>
-                            toggleActive(
-                              category.id,
-                              category.active
-                            )
-                          }
-                          className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all duration-300 hover:bg-white/[0.06] group-hover:border-white/20"
-                        >
-                          {category.active
-                            ? "Disable"
-                            : "Enable"}
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            toggleFeatured(
-                              category.id,
-                              category.featured
-                            )
-                          }
-                          className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400 transition-all duration-300 hover:bg-yellow-500/20 group-hover:scale-[1.02]"
-                        >
-                          {category.featured
-                            ? "Featured"
-                            : "Feature"}
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            openEdit(category)
-                          }
-                          className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-medium transition-all duration-300 hover:bg-blue-500 group-hover:scale-[1.02]"
-                        >
-                          <Pencil size={16} />
-                          Edit
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            deleteServiceCategory(
-                              category.id
-                            )
-                          }
-                          className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-medium transition-all duration-300 hover:bg-red-500 group-hover:scale-[1.02]"
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Glow effect on hover */}
-                    <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/0 via-yellow-500/5 to-yellow-500/0 rounded-3xl" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
-      </div>
+      </section>
 
       {/* =====================================
-          EDIT MODAL
+          BOOKING MODAL
       ===================================== */}
 
-      <AnimatePresence>
-
-        {editingCategory && (
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-          >
-
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-white/10 bg-[#0B0B0F] p-8"
-            >
-
-              <div className="mb-8 flex items-center justify-between">
-
-                <div>
-                  <h2 className="text-3xl font-bold">
-                    Edit Category
-                  </h2>
-
-                  <p className="mt-1 text-zinc-500">
-                    Update service information.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() =>
-                    setEditingCategory(null)
-                  }
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] transition hover:bg-white/[0.08]"
-                >
-                  <X />
-                </button>
-              </div>
-
-              <div className="space-y-5">
-
-                <InputField
-                  label="Category Name"
-                  value={editData.name}
-                  onChange={(e) =>
-                    handleEditChange(
-                      "name",
-                      e.target.value
-                    )
-                  }
-                />
-
-                {/* IMAGE */}
-
-                <div>
-
-                  <label className="mb-2 block text-sm text-zinc-400">
-                    Service Image
-                  </label>
-
-                  {editData.image && (
-                    <img
-                      src={editData.image}
-                      alt="Category"
-                      className="mb-5 h-72 w-full rounded-3xl object-cover border border-white/10"
-                    />
-                  )}
-
-                  <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-5 py-5 transition hover:border-blue-500/50 hover:bg-blue-500/5">
-
-                    <Upload size={18} />
-
-                    Change Image
-
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) =>
-                        uploadImage(
-                          e.target.files[0],
-                          true
-                        )
-                      }
-                    />
-                  </label>
-
-                  {editUploading && (
-                    <p className="mt-3 text-blue-400">
-                      Uploading image...
-                    </p>
-                  )}
-                </div>
-
-                <div>
-
-                  <label className="mb-2 block text-sm text-zinc-400">
-                    Description
-                  </label>
-
-                  <textarea
-                    rows={6}
-                    value={editData.description}
-                    onChange={(e) =>
-                      handleEditChange(
-                        "description",
-                        e.target.value
-                      )
-                    }
-                    className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-8 flex justify-end gap-4">
-
-                <button
-                  onClick={() =>
-                    setEditingCategory(null)
-                  }
-                  className="rounded-2xl border border-white/10 px-6 py-3 transition hover:bg-white/[0.03]"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={saveEdit}
-                  className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-500"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-/* =========================================
-   INPUT FIELD
-========================================= */
-
-function InputField({
-  label,
-  type = "text",
-  value,
-  onChange,
-  placeholder,
-}) {
-
-  return (
-
-    <div>
-
-      <label className="mb-2 block text-sm text-zinc-400">
-        {label}
-      </label>
-
-      <input
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
+      <BookingModal
+        bookingModal={bookingModal}
+        setBookingModal={setBookingModal}
+        selectedService={selectedService}
       />
-    </div>
-  );
-}
-
-/* =========================================
-   STAT CARD
-========================================= */
-
-function StatCard({
-  icon,
-  title,
-  value,
-}) {
-
-  return (
-
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl">
-
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] text-blue-400">
-        {icon}
-      </div>
-
-      <p className="text-sm text-zinc-500">
-        {title}
-      </p>
-
-      <h3 className="mt-1 text-3xl font-black">
-        {value}
-      </h3>
     </div>
   );
 }

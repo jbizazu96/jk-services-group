@@ -44,6 +44,7 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
+ 
   /* ==========================================
      OPEN SERVICE BOOKING
   ========================================== */
