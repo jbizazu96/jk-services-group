@@ -145,11 +145,13 @@ export default function Navbar() {
         }}
       />
 
-      {/* DESKTOP CONTAINER - Compact version */}
+      {/* ==========================================
+          DESKTOP VERSION - WITH FIXES (Compact)
+      ========================================== */}
       <div className="hidden lg:block">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           
-          {/* LOGO - Desktop */}
+          {/* LOGO - Desktop (Compact) */}
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -198,7 +200,7 @@ export default function Navbar() {
             </div>
           </motion.div>
 
-          {/* DESKTOP MENU - Compact */}
+          {/* DESKTOP MENU - Compact (with fixes) */}
           <div className="flex items-center gap-3 xl:gap-5">
             {navLinks.map((link, index) => (
               <motion.div
@@ -250,13 +252,13 @@ export default function Navbar() {
               </motion.div>
             ))}
 
-            {/* DONATE BUTTON - Desktop */}
+            {/* DONATE BUTTON - Desktop (Compact) */}
             <div className="relative ml-2">
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setDonationMenu(!donationMenu)}
-                className="relative overflow-hidden group cursor-pointer rounded-full px-6 py-3"
+                className="relative overflow-hidden group cursor-pointer rounded-full px-5 md:px-6 py-2.5 md:py-3"
               >
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-full"
@@ -271,10 +273,10 @@ export default function Navbar() {
                   style={{ backgroundSize: "200% auto" }}
                 />
                 
-                <div className="relative z-10 flex items-center gap-2 text-black font-bold">
-                  <Heart size={18} className="group-hover:animate-pulse" />
+                <div className="relative z-10 flex items-center gap-1.5 text-black font-bold text-sm md:text-base">
+                  <Heart size={16} className="group-hover:animate-pulse" />
                   <span>Donate</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </div>
                 
                 <motion.div
@@ -374,12 +376,12 @@ export default function Navbar() {
       </div>
 
       {/* ==========================================
-          MOBILE CONTAINER - Original version (full name, tagline visible)
+          MOBILE VERSION - ORIGINAL (No fixes, original spacing)
       ========================================== */}
       <div className="lg:hidden">
         <div className="px-6 py-4 flex items-center justify-between">
           
-          {/* LOGO - Mobile (Original - full size) */}
+          {/* LOGO - Mobile (Original - no flex-shrink, full size) */}
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -389,10 +391,10 @@ export default function Navbar() {
             <img 
               src="/images/logo1.png" 
               alt="Logo" 
-              className="w-12 h-12 object-contain"
+              className="w-14 h-14 object-contain"
             />
             <div>
-              <h1 className="text-lg font-bold text-white">J&K Services Group</h1>
+              <h1 className="text-xl font-bold text-white">J&K Services Group</h1>
               <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
             </div>
           </motion.div>
