@@ -1,420 +1,163 @@
-/*
-|--------------------------------------------------------------------------
-| NEXT STEP — REAL UPLOAD PROGRESS SYSTEM
-|--------------------------------------------------------------------------
-|
-| FILE:
-| /components/client/UploadZone.jsx
-|
-| REPLACE YOUR ENTIRE FILE WITH THIS
-|
-|--------------------------------------------------------------------------
-*/
-
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { Upload, X, FileText, Image as ImageIcon, Video, CheckCircle2, Loader2 } from "lucide-react";
 
-import {
-  Upload,
-  X,
-  FileText,
-  Image as ImageIcon,
-  Video,
-  CheckCircle2,
-  Loader2,
-} from "lucide-react";
+export default function UploadZone({ files, setFiles }) {
+  const [isDragging, setIsDragging] = useState(false);
 
-export default function UploadZone({
-  files,
-  setFiles,
-}) {
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      files.forEach((item) => {
+        if (item.preview) URL.revokeObjectURL(item.preview);
+      });
+    };
+  }, []);
 
-  /*
-  |--------------------------------------------------------------------------
-  | HANDLE FILES
-  |--------------------------------------------------------------------------
-  */
+  const generateId = () => {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   const handleFiles = (selectedFiles) => {
-
     const fileArray = Array.from(selectedFiles);
-
     const validFiles = fileArray.filter((file) => {
-
       const maxSize = 100 * 1024 * 1024;
-
       if (file.size > maxSize) {
-
         alert(`${file.name} exceeds 100MB`);
-
         return false;
       }
-
       return true;
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | FILE STRUCTURE
-    |--------------------------------------------------------------------------
-    */
-
     const mappedFiles = validFiles.map((file) => ({
       file,
-      preview: URL.createObjectURL(file),
-
-      id: crypto.randomUUID(),
-
-      progress: 100,
-
-      status: "Ready",
+      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+      id: generateId(),
+      progress: 0,
+      status: "ready",
+      name: file.name,
+      size: file.size,
+      type: file.type,
     }));
 
     setFiles((prev) => [...prev, ...mappedFiles]);
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | DRAG DROP
-  |--------------------------------------------------------------------------
-  */
-
   const handleDrop = (e) => {
-
     e.preventDefault();
-
+    setIsDragging(false);
     handleFiles(e.dataTransfer.files);
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | REMOVE FILE
-  |--------------------------------------------------------------------------
-  */
-
-  const removeFile = (id) => {
-
-    setFiles((prev) =>
-      prev.filter((item) => item.id !== id)
-    );
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | FILE ICONS
-  |--------------------------------------------------------------------------
-  */
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const removeFile = (id) => {
+    const fileToRemove = files.find((item) => item.id === id);
+    if (fileToRemove?.preview) {
+      URL.revokeObjectURL(fileToRemove.preview);
+    }
+    setFiles((prev) => prev.filter((item) => item.id !== id));
+  };
 
   const getFileIcon = (type) => {
-
-    if (type.startsWith("image/")) {
-      return <ImageIcon className="h-5 w-5" />;
-    }
-
-    if (type.startsWith("video/")) {
-      return <Video className="h-5 w-5" />;
-    }
-
+    if (type?.startsWith("image/")) return <ImageIcon className="h-5 w-5" />;
+    if (type?.startsWith("video/")) return <Video className="h-5 w-5" />;
     return <FileText className="h-5 w-5" />;
   };
 
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "0 MB";
+    return (bytes / 1024 / 1024).toFixed(2) + " MB";
+  };
+
   return (
-    <div className="mt-14">
-
-      {/* HEADER */}
-      <div className="mb-5">
-
-        <h3 className="text-2xl font-semibold text-[#111111]">
-          Upload Files
-        </h3>
-
-        <p className="text-[#666666] mt-2">
-          Upload inspiration images, logos,
-          videos, PDFs, screenshots, or references.
-        </p>
+    <div className="mt-8">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Upload Files</h3>
+        <p className="text-gray-500 text-sm mt-1">Upload inspiration images, logos, videos, PDFs, or references (Max 100MB)</p>
       </div>
 
-      {/* DROPZONE */}
+      {/* Dropzone */}
       <motion.div
         whileHover={{ scale: 1.01 }}
         onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        className="
-          relative
-          rounded-[2rem]
-          border-2
-          border-dashed
-          border-[#D4AF37]/40
-          bg-white/75
-          backdrop-blur-3xl
-          p-12
-          text-center
-          transition-all
-          duration-300
-          hover:border-[#D4AF37]
-          hover:bg-white
-          shadow-[0_10px_40px_rgba(0,0,0,0.06)]
-        "
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        className={`relative rounded-xl border-2 border-dashed transition-all duration-300 p-10 text-center cursor-pointer ${
+          isDragging ? "border-gold bg-gold/5" : "border-gray-300 bg-gray-50 hover:border-gold/50"
+        }`}
       >
-
-        {/* GLOW */}
-        <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-[#D4AF37]/5 to-transparent pointer-events-none" />
-
-        {/* ICON */}
-        <div className="flex justify-center mb-6">
-
-          <div className="rounded-3xl bg-[#D4AF37]/10 p-6">
-
-            <Upload className="h-10 w-10 text-[#b8860b]" />
+        <div className="flex flex-col items-center">
+          <div className={`rounded-full p-4 mb-4 ${isDragging ? "bg-gold/20" : "bg-gray-100"}`}>
+            <Upload className={`h-8 w-8 ${isDragging ? "text-gold" : "text-gray-400"}`} />
           </div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Drag & Drop Files</h4>
+          <p className="text-gray-500 text-sm mb-4">or click to browse</p>
+          <label className="inline-flex cursor-pointer rounded-xl bg-gold px-6 py-2.5 font-semibold text-black transition-all hover:bg-gold-dark">
+            Choose Files
+            <input type="file" multiple hidden accept="image/*,video/*,application/pdf" onChange={(e) => handleFiles(e.target.files)} />
+          </label>
+          <p className="text-xs text-gray-400 mt-4">Supported: Images, Videos, PDFs (up to 100MB)</p>
         </div>
-
-        {/* TITLE */}
-        <h4 className="text-2xl font-semibold text-[#111111] mb-3">
-          Drag & Drop Files
-        </h4>
-
-        {/* TEXT */}
-        <p className="text-[#666666] mb-6 max-w-xl mx-auto leading-relaxed">
-          Upload images, videos, PDFs,
-          logos, screenshots, and references.
-        </p>
-
-        {/* BUTTON */}
-        <label className="
-          inline-flex
-          cursor-pointer
-          items-center
-          gap-3
-          rounded-2xl
-          bg-gradient-to-r
-          from-[#f5deb3]
-          to-[#D4AF37]
-          px-7
-          py-4
-          font-semibold
-          text-black
-          transition-all
-          duration-300
-          hover:scale-[1.02]
-        ">
-          Choose Files
-
-          <input
-            type="file"
-            multiple
-            hidden
-            accept="
-              image/*,
-              video/*,
-              application/pdf
-            "
-            onChange={(e) =>
-              handleFiles(e.target.files)
-            }
-          />
-        </label>
-
-        {/* LIMIT */}
-        <p className="text-sm text-[#888888] mt-5">
-          Maximum file size: 100MB
-        </p>
       </motion.div>
 
-      {/* FILE LIST */}
+      {/* File List */}
       {files.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          {files.map((item) => (
+            <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <button type="button" onClick={() => removeFile(item.id)} className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 hover:bg-red-100 hover:text-red-500 transition">
+                <X className="h-3.5 w-3.5" />
+              </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
-
-          {files.map((item) => {
-
-            const file = item.file;
-
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="
-                  relative
-                  rounded-[1.7rem]
-                  border
-                  border-white/60
-                  bg-white/80
-                  backdrop-blur-2xl
-                  p-5
-                  shadow-[0_10px_40px_rgba(0,0,0,0.05)]
-                "
-              >
-
-                {/* REMOVE */}
-                <button
-                  type="button"
-                  onClick={() => removeFile(item.id)}
-                  className="
-                    absolute
-                    right-4
-                    top-4
-                    rounded-full
-                    bg-red-50
-                    p-2
-                    text-red-500
-                    hover:bg-red-100
-                  "
-                >
-                  <X className="h-4 w-4" />
-                </button>
-
-                {/* PREVIEW */}
-                <div className="mb-5 overflow-hidden rounded-2xl bg-[#f5f5f5]">
-
-                  {file.type.startsWith("image/") ? (
-
-                    <img
-                      src={item.preview}
-                      alt={file.name}
-                      className="
-                        h-[220px]
-                        w-full
-                        object-cover
-                      "
-                    />
-
-                  ) : (
-
-                    <div className="
-                      flex
-                      h-[220px]
-                      items-center
-                      justify-center
-                    ">
-
-                      <div className="
-                        rounded-3xl
-                        bg-[#D4AF37]/10
-                        p-6
-                        text-[#b8860b]
-                      ">
-                        {getFileIcon(file.type)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* FILE INFO */}
-                <div className="flex items-center justify-between mb-4">
-
-                  <div className="flex items-center gap-3">
-
-                    <div className="
-                      rounded-xl
-                      bg-[#D4AF37]/10
-                      p-2
-                      text-[#b8860b]
-                    ">
-                      {getFileIcon(file.type)}
-                    </div>
-
-                    <div className="min-w-0">
-
-                      <p className="
-                        truncate
-                        font-semibold
-                        text-[#111111]
-                      ">
-                        {file.name}
-                      </p>
-
-                      <p className="text-sm text-[#777777]">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
+              {/* Preview */}
+              <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
+                {item.preview ? (
+                  <img src={item.preview} alt={item.name} className="h-32 w-full object-cover" />
+                ) : (
+                  <div className="flex h-32 items-center justify-center">
+                    <div className="rounded-xl bg-gray-200 p-4">{getFileIcon(item.type)}</div>
                   </div>
+                )}
+              </div>
 
-                  {/* STATUS */}
-                  <div>
-
-                    {item.status === "uploading" && (
-                      <Loader2 className="h-5 w-5 animate-spin text-[#D4AF37]" />
-                    )}
-
-                    {item.status === "completed" && (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    )}
-                  </div>
+              {/* File Info */}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <p className="truncate font-medium text-gray-900 text-sm">{item.name}</p>
+                  <p className="text-xs text-gray-400">{formatFileSize(item.size)}</p>
                 </div>
-
-                {/* PROGRESS */}
                 <div>
-
-                    {/* STATUS */}
-
-                    <div className="mt-2">
-
-                      {item.status === "ready" && (
-                        <div className="flex items-center gap-2">
-
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-
-                          <span className="text-green-600 font-medium">
-                            File Attached
-                          </span>
-
-                        </div>
-                      )}
-
-                      {item.status === "uploading" && (
-                        <div className="flex items-center gap-2">
-
-                          <Loader2 className="h-4 w-4 animate-spin text-[#D4AF37]" />
-
-                          <span className="text-[#666666]">
-                            Uploading...
-                          </span>
-
-                        </div>
-                      )}
-
-                      {item.status === "completed" && (
-                        <div className="flex items-center gap-2">
-
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-
-                          <span className="text-green-600 font-medium">
-                            Uploaded Successfully
-                          </span>
-
-                        </div>
-                      )}
-
-                    </div>
-
-                  {/* BAR */}
-                  <div className="
-                    h-3
-                    overflow-hidden
-                    rounded-full
-                    bg-[#ececec]
-                  ">
-
-                    <motion.div
-                      animate={{
-                        width: `${item.progress || 0}%`,
-                      }}
-                      className="
-                        h-full
-                        rounded-full
-                        bg-gradient-to-r
-                        from-[#f5deb3]
-                        to-[#D4AF37]
-                      "
-                    />
-                  </div>
+                  {item.status === "uploading" && <Loader2 className="h-4 w-4 animate-spin text-gold" />}
+                  {item.status === "completed" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                  {item.status === "ready" && <CheckCircle2 className="h-4 w-4 text-gray-300" />}
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+
+              {/* Progress Bar */}
+              <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
+                <motion.div animate={{ width: `${item.progress || 0}%` }} className="h-full rounded-full bg-gold" />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                {item.status === "ready" && "Ready to upload"}
+                {item.status === "uploading" && `Uploading... ${item.progress}%`}
+                {item.status === "completed" && "Uploaded successfully"}
+              </p>
+            </motion.div>
+          ))}
         </div>
       )}
     </div>

@@ -1,28 +1,15 @@
 "use client";
 
 import UploadZone from "./UploadZone";
-
-import {
-  useState,
-  useEffect,
-} from "react";
-
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-
 import { uploadFile } from "@/utils/uploadFile";
-
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-
+import { addDoc, collection, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useSearchParams } from "next/navigation";
 
+// Icons
 import {
   Sparkles,
   User,
@@ -31,10 +18,7 @@ import {
   Calendar,
   MapPin,
   Briefcase,
-  DollarSign,
   Send,
-  Globe,
-  Users,
   Music,
   Palette,
   LayoutDashboard,
@@ -44,1551 +28,719 @@ import {
   Network,
   Monitor,
   Building2,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 
-import {
-  useSearchParams,
-} from "next/navigation";
-
-/*
-|--------------------------------------------------------------------------
-| MAIN COMPONENT
-|--------------------------------------------------------------------------
-*/
+/* ==========================================
+   MAIN COMPONENT
+========================================== */
 
 export default function ClientPortal() {
+  const searchParams = useSearchParams();
+  const serviceFromUrl = searchParams.get("service");
 
-  /*
-  |--------------------------------------------------------------------------
-  | STATES
-  |--------------------------------------------------------------------------
-  */
-      const [serviceFromUrl,
-      setServiceFromUrl] =
-      useState(null);
-
-    useEffect(() => {
-
-      if (
-        typeof window !==
-        "undefined"
-      ) {
-
-        const params =
-          new URLSearchParams(
-            window.location.search
-          );
-
-        setServiceFromUrl(
-          params.get("service")
-        );
-      }
-
-    }, []);
   const [selectedService, setSelectedService] = useState("");
-
   const [loading, setLoading] = useState(false);
-
   const [success, setSuccess] = useState(false);
-
   const [requestId, setRequestId] = useState("");
-
   const [files, setFiles] = useState([]);
-
   const [categories, setCategories] = useState([]);
-
   const [services, setServices] = useState([]);
-
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
-
-            useEffect(() => {
-
-              loadCategories();
-
-            }, []);
-
-            const loadCategories =
-              async () => {
-
-                const snapshot =
-                  await getDocs(
-                    collection(
-                      db,
-                      "serviceCategories"
-                    )
-                  );
-
-                const categoryData =
-                  snapshot.docs.map(
-                    (doc) => ({
-                      id: doc.id,
-                      ...doc.data(),
-                    })
-                  );
-
-                setCategories(
-                  categoryData
-                );
-
-                /*
-                --------------------------------------------------
-                PRESELECT CATEGORY
-                --------------------------------------------------
-                */
-
-                if (
-                  serviceFromUrl
-                ) {
-
-                  const serviceSnapshot =
-                    await getDocs(
-                      collection(
-                        db,
-                        "services"
-                      )
-                    );
-
-                  const foundService =
-                    serviceSnapshot.docs
-                      .map(
-                        (doc) => ({
-                          id: doc.id,
-                          ...doc.data(),
-                        })
-                      )
-                      .find(
-                        (service) =>
-                          service.name ===
-                          serviceFromUrl
-                      );
-
-                  if (
-                    foundService
-                  ) {
-
-                    setSelectedCategory(
-                      foundService.category
-                    );
-                  }
-                }
-              };
-
-              /*
-|--------------------------------------------------------------------------
-| LOAD SERVICES
-|--------------------------------------------------------------------------
-*/
-
-useEffect(() => {
-
-  if (!selectedCategory) {
-
-    setServices([]);
-
-    return;
-  }
-
-  loadServices();
-
-}, [selectedCategory]);
-
-const loadServices =
-  async () => {
-
-    const snapshot =
-      await getDocs(
-        query(
-          collection(
-            db,
-            "services"
-          ),
-          where(
-            "category",
-            "==",
-            selectedCategory
-          )
-        )
-      );
-
-    const data =
-      snapshot.docs.map(
-        (doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })
-      );
-
-    setServices(data);
-
-    /*
-    --------------------------------------------------
-    PRESELECT SERVICE
-    --------------------------------------------------
-    */
-
-    if (serviceFromUrl) {
-
-      const foundService =
-        data.find(
-          (service) =>
-            service.name ===
-            serviceFromUrl
-        );
-
-      if (foundService) {
-
-        handleServiceSelect(
-          foundService.name
-        );
-
-      }
-
-    }
-
-  };
-    /*
-  |--------------------------------------------------------------------------
-  | FORM DATA
-  |--------------------------------------------------------------------------
-  */
+  /* ==========================================
+     FORM DATA
+  ========================================== */
 
   const [formData, setFormData] = useState({
-
     customerName: "",
     email: "",
     phone: "",
-
     serviceType: "",
-
     businessName: "",
     projectTitle: "",
     description: "",
     budget: "",
-
     eventType: "",
     eventDate: "",
     eventTime: "",
     eventLocation: "",
     audienceSize: "",
-
     musicPreferences: "",
-
     photoStyle: "",
     videoStyle: "",
-
     flyerSize: "",
     brandColors: "",
     inspirationLinks: "",
-
-    website: "",
     websiteType: "",
     websiteGoals: "",
-    websiteFeatures: "",
-
     supportType: "",
     issueType: "",
-
     networkType: "",
     buildingSize: "",
-
     conferenceType: "",
     technicalNeeds: "",
-
     additionalNotes: "",
     city: "",
     state: "",
-
     photoType: "",
     videoType: "",
     mcStyle: "",
-
-    flyerType: "",
     flyerPurpose: "",
-
     eventPlanningType: "",
     guestCount: "",
-    themeStyle: "",
+    domainName: "",
   });
 
-        /*
-      |--------------------------------------------------------------------------
-      | PRESELECT SERVICE FROM URL
-      |--------------------------------------------------------------------------
-      */
+  /* ==========================================
+     LOAD CATEGORIES
+  ========================================== */
 
-      useEffect(() => {
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
-        if (
-          !serviceFromUrl ||
-          services.length === 0
-        ) {
-          return;
+  const loadCategories = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "serviceCategories"));
+      const categoryData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCategories(categoryData);
+
+      // Preselect category from URL service
+      if (serviceFromUrl) {
+        const serviceSnapshot = await getDocs(collection(db, "services"));
+        const foundService = serviceSnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .find((service) => service.name === serviceFromUrl);
+
+        if (foundService) {
+          setSelectedCategory(foundService.category);
         }
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
 
-        const foundService =
-          services.find(
-            (service) =>
-              service.name ===
-              serviceFromUrl
-          );
+  /* ==========================================
+     LOAD SERVICES
+  ========================================== */
 
-        if (
-          foundService
-        ) {
+  useEffect(() => {
+    if (!selectedCategory) {
+      setServices([]);
+      return;
+    }
+    loadServices();
+  }, [selectedCategory]);
 
-          setSelectedService(
-            foundService.name
-          );
+  const loadServices = async () => {
+    try {
+      const snapshot = await getDocs(
+        query(collection(db, "services"), where("category", "==", selectedCategory))
+      );
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setServices(data);
 
-          setFormData(
-            (prev) => ({
-
-              ...prev,
-
-              serviceType:
-                foundService.name,
-
-            })
-          );
+      // Preselect service from URL
+      if (serviceFromUrl) {
+        const foundService = data.find((service) => service.name === serviceFromUrl);
+        if (foundService) {
+          handleServiceSelect(foundService.name);
         }
+      }
+    } catch (error) {
+      console.error("Error loading services:", error);
+    }
+  };
 
-      }, [
-        serviceFromUrl,
-        services,
-      ]);
-  /*
-  |--------------------------------------------------------------------------
-  | HANDLE CHANGE
-  |--------------------------------------------------------------------------
-  */
+  /* ==========================================
+     PRESELECT SERVICE FROM URL
+  ========================================== */
+
+  useEffect(() => {
+    if (!serviceFromUrl || services.length === 0) return;
+    const foundService = services.find((service) => service.name === serviceFromUrl);
+    if (foundService) {
+      setSelectedService(foundService.name);
+      setFormData((prev) => ({ ...prev, serviceType: foundService.name }));
+    }
+  }, [serviceFromUrl, services]);
+
+  /* ==========================================
+     HANDLE CHANGE
+  ========================================== */
 
   const handleChange = (e) => {
-
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field when user types
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | SELECT SERVICE
-  |--------------------------------------------------------------------------
-  */
+  /* ==========================================
+     SELECT SERVICE
+  ========================================== */
 
   const handleServiceSelect = (service) => {
-
     setSelectedService(service);
-
-    setFormData({
-      ...formData,
-      serviceType: service,
-    });
+    setFormData((prev) => ({ ...prev, serviceType: service }));
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | SUBMIT
-  |--------------------------------------------------------------------------
-  */
+  /* ==========================================
+     VALIDATE FORM
+  ========================================== */
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.customerName.trim()) errors.customerName = "Full name is required";
+    if (!formData.email.trim()) errors.email = "Email is required";
+    if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email is invalid";
+    if (!formData.phone.trim()) errors.phone = "Phone number is required";
+    if (!selectedService) errors.service = "Please select a service";
+    if (!formData.city.trim()) errors.city = "City is required";
+    if (!formData.state.trim()) errors.state = "State is required";
+    if (!formData.description.trim()) errors.description = "Project description is required";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  /* ==========================================
+     SUBMIT
+  ========================================== */
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     try {
-
       setLoading(true);
+      const generatedRequestId = `REQ-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
-      /*
-      |--------------------------------------------------------------------------
-      | REQUEST ID
-      |--------------------------------------------------------------------------
-      */
+      // Upload files
+      let uploadedFiles = [];
+      if (files.length > 0) {
+        uploadedFiles = await Promise.all(
+          files.map(async (item) => {
+            setFiles((prev) =>
+              prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" } : f))
+            );
 
-      const generatedRequestId =
-        `REQ-${Date.now()}`;
+            const result = await uploadFile({
+              file: item.file,
+              requestId: generatedRequestId,
+              onProgress: (progress) => {
+                setFiles((prev) =>
+                  prev.map((f) => (f.id === item.id ? { ...f, progress } : f))
+                );
+              },
+            });
 
-      /*
-      |--------------------------------------------------------------------------
-      | UPLOAD FILES
-      |--------------------------------------------------------------------------
-      */
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === item.id ? { ...f, progress: 100, status: "completed" } : f
+              )
+            );
 
-            let uploadedFiles = [];
+            return result;
+          })
+        );
+      }
 
-            if (files.length > 0) {
-
-              uploadedFiles = await Promise.all(
-
-                files.map(async (item) => {
-
-                  /*
-                  ---------------------------------------
-                  SET STATUS TO UPLOADING
-                  ---------------------------------------
-                  */
-
-                  setFiles((prev) =>
-                    prev.map((f) =>
-                      f.id === item.id
-                        ? {
-                            ...f,
-                            status: "uploading",
-                          }
-                        : f
-                    )
-                  );
-
-                  const result =
-                    await uploadFile({
-
-                      file: item.file,
-
-                      requestId:
-                        generatedRequestId,
-
-                      onProgress:
-                        (progress) => {
-
-                          setFiles((prev) =>
-                            prev.map((f) =>
-                              f.id === item.id
-                                ? {
-                                    ...f,
-                                    progress,
-                                  }
-                                : f
-                            )
-                          );
-
-                        },
-
-                    });
-
-                  /*
-                  ---------------------------------------
-                  SET STATUS TO COMPLETED
-                  ---------------------------------------
-                  */
-
-                  setFiles((prev) =>
-                    prev.map((f) =>
-                      f.id === item.id
-                        ? {
-                            ...f,
-                            progress: 100,
-                            status: "completed",
-                          }
-                        : f
-                    )
-                  );
-
-                  return result;
-
-                })
-
-              );
-
-            }
-
-      /*
-      |--------------------------------------------------------------------------
-      | SAVE TO FIRESTORE
-      |--------------------------------------------------------------------------
-      */
-
-      await addDoc(
-        collection(db, "serviceRequests"),
-        {
-          ...formData,
-
-          requestId: generatedRequestId,
-
-          uploads: uploadedFiles,
-
-          status: "pending",
-
-          source: "website",
-
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        }
-      );
-
-      /*
-      |--------------------------------------------------------------------------
-      | SUCCESS
-      |--------------------------------------------------------------------------
-      */
+      // Save to Firestore
+      await addDoc(collection(db, "serviceRequests"), {
+        ...formData,
+        requestId: generatedRequestId,
+        uploads: uploadedFiles,
+        status: "pending",
+        source: "website",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
 
       setRequestId(generatedRequestId);
-
-        setSuccess(true);
-
+      setSuccess(true);
     } catch (error) {
-
       console.error(error);
-
-      alert("Something went wrong.");
-
+      alert("Something went wrong. Please try again.");
     } finally {
-
       setLoading(false);
     }
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | SUCCESS SCREEN
-  |--------------------------------------------------------------------------
-  */
+  /* ==========================================
+     RESET FORM
+  ========================================== */
+
+  const resetForm = () => {
+    setSuccess(false);
+    setFormData({
+      customerName: "",
+      email: "",
+      phone: "",
+      serviceType: "",
+      businessName: "",
+      projectTitle: "",
+      description: "",
+      budget: "",
+      eventType: "",
+      eventDate: "",
+      eventTime: "",
+      eventLocation: "",
+      audienceSize: "",
+      musicPreferences: "",
+      photoStyle: "",
+      videoStyle: "",
+      flyerSize: "",
+      brandColors: "",
+      inspirationLinks: "",
+      websiteType: "",
+      websiteGoals: "",
+      supportType: "",
+      issueType: "",
+      networkType: "",
+      buildingSize: "",
+      conferenceType: "",
+      technicalNeeds: "",
+      additionalNotes: "",
+      city: "",
+      state: "",
+      photoType: "",
+      videoType: "",
+      mcStyle: "",
+      flyerPurpose: "",
+      eventPlanningType: "",
+      guestCount: "",
+      domainName: "",
+    });
+    setSelectedService("");
+    setFiles([]);
+    setFormErrors({});
+  };
+
+  /* ==========================================
+     SUCCESS SCREEN
+  ========================================== */
 
   if (success) {
-
     return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#f8f5ef] px-6">
-
-        {/* BACKGROUND */}
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2070&auto=format&fit=crop"
-            alt="Background"
-            fill
-            priority
-            className="object-cover opacity-[0.14]"
-          />
-        </div>
-
-        {/* OVERLAY */}
-        <div className="absolute inset-0 bg-white/80" />
-
-        {/* GOLD LIGHT */}
-        <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-[#D4AF37]/20 blur-[140px]" />
-
-        {/* CARD */}
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 px-6">
+        <div className="absolute inset-0 bg-[url('/images/pattern-bg.png')] opacity-5" />
+        
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 max-w-2xl w-full rounded-[2.5rem] border border-white/50 bg-white/70 backdrop-blur-3xl p-10 shadow-[0_20px_80px_rgba(0,0,0,0.08)]"
+          className="relative z-10 max-w-2xl w-full rounded-3xl border border-gray-200 bg-white/90 backdrop-blur-xl p-10 shadow-2xl"
         >
-
           <div className="flex justify-center mb-8">
-            <div className="rounded-3xl bg-[#D4AF37]/10 p-6">
-              <Sparkles className="h-12 w-12 text-[#b8860b]" />
+            <div className="rounded-full bg-gold/10 p-6">
+              <CheckCircle className="h-12 w-12 text-gold" />
             </div>
           </div>
 
-          <h1 className="text-5xl font-bold text-center text-[#111111] mb-6">
-            Request Submitted
+          <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Request Submitted!
           </h1>
 
-          <p className="text-[#555555] text-lg leading-relaxed text-center mb-10">
-            We've received your request and will contact you soon with the next steps.
+          <p className="text-gray-600 text-lg text-center mb-8">
+            We've received your request and will contact you within 24 hours.
           </p>
 
-          <div className="rounded-3xl bg-[#faf7f2] border border-[#ece6da] p-6 mb-8">
-
-            <p className="text-sm uppercase tracking-[0.3em] text-[#777777] mb-3 text-center">
+          <div className="rounded-2xl bg-gray-50 border border-gray-200 p-6 mb-8">
+            <p className="text-xs uppercase tracking-wider text-gray-500 mb-2 text-center">
               Request ID
             </p>
-
-            <p className="text-2xl font-semibold text-center text-[#111111]">
+            <p className="text-2xl font-mono font-semibold text-center text-gray-900">
               {requestId}
+            </p>
+            <p className="text-sm text-gray-500 text-center mt-3">
+              Please save this ID for future reference
             </p>
           </div>
 
-                        <div
-                className="
-                  flex
-                  flex-col
-                  sm:flex-row
-                  items-center
-                  justify-center
-                  gap-4
-                "
-              >
-
-                {/* SUBMIT ANOTHER */}
-                <button
-                  onClick={() => {
-
-                    setSuccess(false);
-
-                    /* RESET FORM */
-
-                    setFormData({
-
-                      customerName: "",
-                      email: "",
-                      phone: "",
-                      businessName: "",
-
-                      city: "",
-                      state: "",
-
-                      serviceType: "",
-
-                      projectTitle: "",
-                      description: "",
-
-                      eventDate: "",
-                      eventTime: "",
-                      eventLocation: "",
-
-                      audienceSize: "",
-
-                      websiteType: "",
-                      pagesNeeded: "",
-
-                      djStyle: "",
-                      mcStyle: "",
-
-                      photoType: "",
-                      videoType: "",
-
-                      flyerType: "",
-                      flyerPurpose: "",
-
-                      eventPlanningType: "",
-                      guestCount: "",
-                      themeStyle: "",
-
-                      additionalNotes: "",
-
-                    });
-
-                    /* RESET SERVICE */
-
-                    setSelectedService("");
-
-                    /* RESET FILES */
-
-                    setFiles([]);
-
-                  }}
-                  className="
-                    rounded-2xl
-                    bg-gradient-to-r
-                    from-[#f5deb3]
-                    to-[#D4AF37]
-                    text-black
-                    px-8
-                    py-4
-                    font-semibold
-                    transition-all
-                    duration-300
-                    hover:scale-[1.02]
-                  "
-                >
-
-                  Submit Another Request
-
-                </button>
-
-                {/* HOME PAGE */}
-                <button
-                  onClick={() => {
-
-                    window.location.href = "/";
-
-                  }}
-                  className="
-                    rounded-2xl
-                    border
-                    border-[#D4AF37]/30
-                    bg-white/70
-                    backdrop-blur-xl
-                    px-8
-                    py-4
-                    font-semibold
-                    text-[#111111]
-                    transition-all
-                    duration-300
-                    hover:bg-white
-                  "
-                >
-
-                  Home Page
-
-                </button>
-
-              </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={resetForm}
+              className="rounded-xl bg-gold text-black px-8 py-3 font-semibold transition-all hover:bg-gold-dark hover:scale-[1.02]"
+            >
+              Submit Another Request
+            </button>
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="rounded-xl border border-gray-300 bg-white px-8 py-3 font-semibold text-gray-700 transition-all hover:bg-gray-50"
+            >
+              Back to Home
+            </button>
+          </div>
         </motion.div>
       </div>
     );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | MAIN PAGE
-  |--------------------------------------------------------------------------
-  */
+  /* ==========================================
+     MAIN FORM
+  ========================================== */
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f8f5ef]">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[url('/images/pattern-bg.png')] opacity-5" />
 
-      {/* BACKGROUND */}
-      <div className="absolute inset-0">
-        <Image
-          src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2070&auto=format&fit=crop"
-          alt="Background"
-          fill
-          priority
-          className="object-cover opacity-[0.14]"
-        />
-      </div>
+      {/* Gold Glow */}
+      <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-gold/10 blur-[120px]" />
 
-      {/* OVERLAY */}
-      <div className="absolute inset-0 bg-white/82" />
-
-      {/* GOLD LIGHT */}
-      <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 h-[700px] w-[700px] rounded-full bg-[#D4AF37]/15 blur-[140px]" />
-
-      {/* CONTENT */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-28">
-
-        {/* HERO */}
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 md:py-24">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-24"
+          className="text-center mb-12"
         >
-
-          {/* LOGO */}
-          <div className="flex justify-center mb-10">
-            <div className="rounded-[2rem] border border-white/50 bg-white/70 backdrop-blur-3xl px-10 py-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
-
-              <Image
-                src="/images/logo1.webp"
-                alt="J&K Services Group"
-                width={240}
-                height={80}
-                priority
-                className="h-auto w-auto object-contain"
-                />
-            </div>
-          </div>
-
-          {/* BADGE */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37]/10 px-5 py-2 text-sm text-[#b8860b] mb-8">
-
-            <Sparkles className="h-4 w-4" />
-
-            Premium Client Portal
-          </div>
-
-          {/* TITLE */}
-          <h1 className="text-5xl md:text-8xl font-bold tracking-tight leading-[0.95] max-w-6xl mx-auto text-[#111111]">
-
-            Servcie Request Form
-
-            <span className="block bg-gradient-to-r from-[#111111] via-[#b8860b] to-[#D4AF37] bg-clip-text text-transparent">
-             Tell Us About Your Project
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-5 py-2 backdrop-blur-sm mb-6">
+            <div className="h-2 w-2 rounded-full bg-gold animate-pulse" />
+            <span className="text-sm font-semibold uppercase tracking-wider text-gold">
+              Client Portal
             </span>
+          </div>
+
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+            Service Request
+            <span className="text-gold"> Form</span>
           </h1>
 
-          {/* SUBTITLE */}
-          <p className="max-w-3xl mx-auto mt-10 text-lg md:text-xl text-[#555555] leading-relaxed">
-            Complete the form below and we'll contact you with a quote and next steps.
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Tell us about your project and we'll get back to you with a custom quote.
           </p>
         </motion.div>
 
-        {/* FORM */}
+        {/* Form */}
         <motion.form
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           onSubmit={handleSubmit}
-          className="rounded-[2.5rem] border border-white/50 bg-white/70 backdrop-blur-3xl p-8 md:p-12 shadow-[0_20px_80px_rgba(0,0,0,0.08)]"
+          className="rounded-3xl border border-gray-200 bg-white/80 backdrop-blur-xl p-6 md:p-10 shadow-xl"
         >
-
-            {/*
-            |--------------------------------------------------------------------------
-            | UNIVERSAL FIELDS
-            |--------------------------------------------------------------------------
-            */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-
-            <InputField
-                icon={<User className="h-5 w-5" />}
+          {/* Contact Information */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-5 flex items-center gap-2">
+              <User className="w-5 h-5 text-gold" />
+              Contact Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <InputField
                 label="Full Name *"
                 name="customerName"
                 value={formData.customerName}
                 onChange={handleChange}
                 placeholder="John Doe"
+                error={formErrors.customerName}
                 required
-            />
-
-            <InputField
-                icon={<Mail className="h-5 w-5" />}
+              />
+              <InputField
                 label="Email Address *"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="john@example.com"
+                error={formErrors.email}
                 required
-            />
-
-            <InputField
-                icon={<Phone className="h-5 w-5" />}
+              />
+              <InputField
                 label="Phone Number *"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="(515) 000-0000"
-            />
-
-            <InputField
-                icon={<Briefcase className="h-5 w-5" />}
+                error={formErrors.phone}
+                required
+              />
+              <InputField
                 label="Business / Organization"
                 name="businessName"
                 value={formData.businessName}
                 onChange={handleChange}
-                placeholder="Company or organization"
-            />
-
-            {/* CITY */}
-            <InputField
-                icon={<MapPin className="h-5 w-5" />}
+                placeholder="Your company name"
+              />
+              <InputField
                 label="City *"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="Fort Dodge"
-            />
-
-            {/* STATE */}
-            <InputField
-                icon={<MapPin className="h-5 w-5" />}
+                error={formErrors.city}
+                required
+              />
+              <InputField
                 label="State *"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
                 placeholder="Iowa"
-            />
+                error={formErrors.state}
+                required
+              />
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mt-10">
-
-              {/* CATEGORY */}
-
+          {/* Service Selection */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-5 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-gold" />
+              Service Details
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-
-                <label
-                  className="
-                    block
-                    text-sm
-                    text-[#444444]
-                    mb-3
-                  "
-                >
-
-                  Service Category
-
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Service Category *
                 </label>
-
                 <select
-
-                  value={
-                    selectedCategory
-                  }
-
+                  value={selectedCategory}
                   onChange={(e) => {
-
-                    setSelectedCategory(
-                      e.target.value
-                    );
-
+                    setSelectedCategory(e.target.value);
                     setSelectedService("");
-
                   }}
-
-                  className="
-                    w-full
-                    rounded-2xl
-                    border
-                    border-[#e5e5e5]
-                    bg-white/80
-                    px-4
-                    py-4
-                  "
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all"
                 >
-
-                  <option value="">
-                    Select Category
-                  </option>
-
-                  {categories.map(
-                    (category) => (
-
-                      <option
-                        key={category.id}
-                        value={category.name}
-                      >
-
-                        {category.name}
-
-                      </option>
-
-                    )
-                  )}
-
+                  <option value="">Select Category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
-
               </div>
-
-              {/* SERVICE */}
 
               <div>
-
-                <label
-                  className="
-                    block
-                    text-sm
-                    text-[#444444]
-                    mb-3
-                  "
-                >
-
-                  Service
-
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Service *
                 </label>
-
                 <select
-
-                  value={
-                    selectedService
-                  }
-
-                  onChange={(e) => {
-
-                    handleServiceSelect(
-                      e.target.value
-                    );
-
-                  }}
-
-                  disabled={
-                    !selectedCategory
-                  }
-
-                  className="
-                    w-full
-                    rounded-2xl
-                    border
-                    border-[#e5e5e5]
-                    bg-white/80
-                    px-4
-                    py-4
-                  "
+                  value={selectedService}
+                  onChange={(e) => handleServiceSelect(e.target.value)}
+                  disabled={!selectedCategory}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all disabled:opacity-50"
                 >
-
-                  <option value="">
-                    Select Service
-                  </option>
-
-                  {services.map(
-                    (service) => (
-
-                      <option
-                        key={service.id}
-                        value={service.name}
-                      >
-
-                        {service.name}
-
-                      </option>
-
-                    )
-                  )}
-
+                  <option value="">Select Service</option>
+                  {services.map((service) => (
+                    <option key={service.id} value={service.name}>
+                      {service.name}
+                    </option>
+                  ))}
                 </select>
-
               </div>
-
             </div>
-
-            { /*
-            |--------------------------------------------------------------------------
-            | DJ ENTERTAINMENT
-            |--------------------------------------------------------------------------
-            */}
-          {selectedService === "DJ Services" && (
-
-            <ServiceSection
-              icon={<Music className="h-5 w-5" />}
-              title="DJ Event Details"
-            >
-
-              <InputField
-                label="Event Type *"
-                name="eventType"
-                value={formData.eventType}
-                onChange={handleChange}
-                placeholder="Wedding, Birthday..."
-              />
-
-              <InputField
-                type="date"
-                label="Event Date *"
-                name="eventDate"
-                value={formData.eventDate}
-                onChange={handleChange}
-              />
-
-              <InputField
-                type="time *"
-                label="Event Time"
-                name="eventTime"
-                value={formData.eventTime}
-                onChange={handleChange}
-              />
-
-              <InputField
-                label="Venue *"
-                name="eventLocation"
-                value={formData.eventLocation}
-                onChange={handleChange}
-                placeholder="Venue name"
-              />
-
-              <InputField
-                label="Audience Size *"
-                name="audienceSize"
-                value={formData.audienceSize}
-                onChange={handleChange}
-                placeholder="100, 300..."
-              />
-
-            </ServiceSection>
-          )}
-
-            {/*
-            |--------------------------------------------------------------------------
-            | MC SERVICES
-            |--------------------------------------------------------------------------
-            */}
-
-            {selectedService === "MC Services" && (
-
-            <ServiceSection
-                icon={<Mic className="h-5 w-5" />}
-                title="MC Service Details"
-            >
-
-                <InputField
-                label="Event Type *"
-                name="eventType"
-                value={formData.eventType}
-                onChange={handleChange}
-                placeholder="Wedding, Conference..."
-                />
-
-                <InputField
-                type="date *"
-                label="Event Date"
-                name="eventDate"
-                value={formData.eventDate}
-                onChange={handleChange}
-                />
-
-                <InputField
-                label="Venue *"
-                name="eventLocation"
-                value={formData.eventLocation}
-                onChange={handleChange}
-                placeholder="Venue Name"
-                />
-
-                <InputField
-                label="Audience Size *"
-                name="audienceSize"
-                value={formData.audienceSize}
-                onChange={handleChange}
-                placeholder="100, 500..."
-                />
-
-                <InputField
-                label="Languages Needed *"
-                name="additionalNotes"
-                value={formData.additionalNotes}
-                onChange={handleChange}
-                placeholder="English, French..."
-                />
-
-            </ServiceSection>
+            {formErrors.service && (
+              <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" /> {formErrors.service}
+              </p>
             )}
+          </div>
 
-                {/*
-                |--------------------------------------------------------------------------
-                | PHOTOGRAPHY
-                |--------------------------------------------------------------------------
-                */}
+          {/* Dynamic Service Sections */}
+          {selectedService === "DJ Services" && (
+            <ServiceSection icon={<Music />} title="DJ Event Details">
+              <InputField label="Event Type *" name="eventType" value={formData.eventType} onChange={handleChange} placeholder="Wedding, Birthday..." />
+              <InputField type="date" label="Event Date *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+              <InputField type="time" label="Event Time" name="eventTime" value={formData.eventTime} onChange={handleChange} />
+              <InputField label="Venue *" name="eventLocation" value={formData.eventLocation} onChange={handleChange} placeholder="Venue name" />
+              <InputField label="Audience Size *" name="audienceSize" value={formData.audienceSize} onChange={handleChange} placeholder="100, 300..." />
+            </ServiceSection>
+          )}
 
-                {selectedService === "Photography" && (
+          {selectedService === "MC Services" && (
+            <ServiceSection icon={<Mic />} title="MC Service Details">
+              <InputField label="Event Type *" name="eventType" value={formData.eventType} onChange={handleChange} placeholder="Wedding, Conference..." />
+              <InputField type="date" label="Event Date *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+              <InputField label="Venue *" name="eventLocation" value={formData.eventLocation} onChange={handleChange} placeholder="Venue Name" />
+              <InputField label="Audience Size *" name="audienceSize" value={formData.audienceSize} onChange={handleChange} placeholder="100, 500..." />
+              <InputField label="Languages Needed" name="additionalNotes" value={formData.additionalNotes} onChange={handleChange} placeholder="English, French..." />
+            </ServiceSection>
+          )}
 
-                <ServiceSection
-                    icon={<ImageIcon className="h-5 w-5" />}
-                    title="Photography Details"
-                >
+          {selectedService === "Photography" && (
+            <ServiceSection icon={<ImageIcon />} title="Photography Details">
+              <InputField label="Photography Type *" name="photoType" value={formData.photoType} onChange={handleChange} placeholder="Wedding, Portrait..." />
+              <InputField type="date" label="Session Date *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+              <InputField label="Location *" name="eventLocation" value={formData.eventLocation} onChange={handleChange} placeholder="Venue or City" />
+            </ServiceSection>
+          )}
 
-                    <InputField
-                    label="Photography Type *"
-                    name="photoType"
-                    value={formData.photoType}
-                    onChange={handleChange}
-                    placeholder="Wedding, Portrait..."
-                    />
+          {selectedService === "Videography" && (
+            <ServiceSection icon={<Video />} title="Videography Details">
+              <InputField label="Video Type *" name="videoType" value={formData.videoType} onChange={handleChange} placeholder="Wedding, Promo..." />
+              <InputField type="date" label="Shoot Date *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+              <InputField label="Location *" name="eventLocation" value={formData.eventLocation} onChange={handleChange} placeholder="Venue or City" />
+            </ServiceSection>
+          )}
 
-                    <InputField
-                    type="date *"
-                    label="Session Date"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleChange}
-                    />
+          {selectedService === "Flyer Design" && (
+            <ServiceSection icon={<Palette />} title="Flyer Design Details">
+              <InputField label="Flyer Purpose *" name="flyerPurpose" value={formData.flyerPurpose} onChange={handleChange} placeholder="Event, Promotion..." />
+              <InputField type="date" label="Deadline *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+            </ServiceSection>
+          )}
 
-                    <InputField
-                    label="Location *"
-                    name="eventLocation"
-                    value={formData.eventLocation}
-                    onChange={handleChange}
-                    placeholder="Venue or City"
-                    />
-
-                </ServiceSection>
-                )}
-
-                {/*
-                |--------------------------------------------------------------------------
-                | VIDEOGRAPHY
-                |--------------------------------------------------------------------------
-                */}
-
-                {selectedService === "Videography" && (
-
-                <ServiceSection
-                    icon={<Video className="h-5 w-5" />}
-                    title="Videography Details"
-                >
-
-                    <InputField
-                    label="Video Type *"
-                    name="videoType"
-                    value={formData.videoType}
-                    onChange={handleChange}
-                    placeholder="Wedding, Promo..."
-                    />
-
-                    <InputField
-                    type="date"
-                    label="Shoot Date *"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleChange}
-                    />
-
-                    <InputField
-                    label="Location *"
-                    name="eventLocation"
-                    value={formData.eventLocation}
-                    onChange={handleChange}
-                    placeholder="Venue or City"
-                    />
-
-                </ServiceSection>
-                )}
-
-                {/*
-                |--------------------------------------------------------------------------
-                | FLYER DESIGN
-                |--------------------------------------------------------------------------
-                */}
-
-                {selectedService === "Flyer Design" && (
-
-                <ServiceSection
-                    icon={<Palette className="h-5 w-5" />}
-                    title="Flyer Design Details"
-                >
-
-                    <InputField
-                    label="Flyer Purpose *"
-                    name="flyerPurpose"
-                    value={formData.flyerPurpose}
-                    onChange={handleChange}
-                    placeholder="Event, Promotion..."
-                    />
-
-                    <InputField
-                    label="Deadline *"
-                    type="date"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleChange}
-                    />
-
-                </ServiceSection>
-                )}
-
-                {/*
-                |--------------------------------------------------------------------------
-                | EVENT PLANNING
-                |--------------------------------------------------------------------------
-                */}
-
-                {selectedService === "Event Planning" && (
-
-                <ServiceSection
-                    icon={<Calendar className="h-5 w-5" />}
-                    title="Event Planning Details"
-                >
-
-                    <InputField
-                    label="Event Type *"
-                    name="eventPlanningType"
-                    value={formData.eventPlanningType}
-                    onChange={handleChange}
-                    placeholder="Wedding, Birthday..."
-                    />
-
-                    <InputField
-                    type="date"
-                    label="Event Date *"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleChange}
-                    />
-
-                    <InputField
-                    label="Venue / Location *"
-                    name="eventLocation"
-                    value={formData.eventLocation}
-                    onChange={handleChange}
-                    placeholder="Venue Name"
-                    />
-
-                    <InputField
-                    label="Estimated Guests *"
-                    name="guestCount"
-                    value={formData.guestCount}
-                    onChange={handleChange}
-                    placeholder="100, 500..."
-                    />
-
-                </ServiceSection>
-                )}
-
-            {/*
-            |--------------------------------------------------------------------------
-            | DOMAIN MANAGEMENT
-            |--------------------------------------------------------------------------
-            */}
-          {selectedService === "Domain Registration & Management" && (
-
-            <ServiceSection
-              icon={<LayoutDashboard className="h-5 w-5" />}
-              title="Domain Name"
-            >
-
-              <InputField
-                label="Domain Name *"
-                name="DomainName"
-                value={formData.websiteType}
-                onChange={handleChange}
-                placeholder="myDomain.com, myDomain.org..."
-              />
-
-              </ServiceSection>
-              )}
-
-            {/*
-            |--------------------------------------------------------------------------
-            | WEBSITES
-            |--------------------------------------------------------------------------
-            */}
           {selectedService === "Website Development" && (
-
-            <ServiceSection
-              icon={<LayoutDashboard className="h-5 w-5" />}
-              title="Website Details"
-            >
-
-              <InputField
-                label="Website Type *"
-                name="websiteType"
-                value={formData.websiteType}
-                onChange={handleChange}
-                placeholder="Business, Ecommerce..."
-              />
-
-              <InputField
-                label="Project Goals *"
-                name="websiteGoals"
-                value={formData.websiteGoals}
-                onChange={handleChange}
-                placeholder="Sales, leads..."
-              />
-
+            <ServiceSection icon={<LayoutDashboard />} title="Website Details">
+              <InputField label="Website Type *" name="websiteType" value={formData.websiteType} onChange={handleChange} placeholder="Business, Ecommerce..." />
+              <InputField label="Project Goals *" name="websiteGoals" value={formData.websiteGoals} onChange={handleChange} placeholder="Sales, leads..." />
             </ServiceSection>
           )}
 
-            { /*
-            |--------------------------------------------------------------------------
-            | IT SUPPORTS
-            |--------------------------------------------------------------------------
-            */}
+          {selectedService === "Domain Registration & Management" && (
+            <ServiceSection icon={<LayoutDashboard />} title="Domain Details">
+              <InputField label="Domain Name *" name="domainName" value={formData.domainName} onChange={handleChange} placeholder="mydomain.com" />
+            </ServiceSection>
+          )}
+
           {selectedService === "IT Support" && (
-
-            <ServiceSection
-              icon={<Monitor className="h-5 w-5" />}
-              title="IT Support Details"
-            >
-
-              <InputField
-                label="Support Type *"
-                name="supportType"
-                value={formData.supportType}
-                onChange={handleChange}
-                placeholder="Residential or Business"
-              />
-
-              <InputField
-                label="Describe Issue *"
-                name="issueType"
-                value={formData.issueType}
-                onChange={handleChange}
-                placeholder="Printer, Email, Virus..."
-              />
+            <ServiceSection icon={<Monitor />} title="IT Support Details">
+              <InputField label="Support Type *" name="supportType" value={formData.supportType} onChange={handleChange} placeholder="Residential or Business" />
+              <InputField label="Describe Issue *" name="issueType" value={formData.issueType} onChange={handleChange} placeholder="Printer, Email, Virus..." />
             </ServiceSection>
           )}
 
-            {/*
-            |--------------------------------------------------------------------------
-            | NETWORKING
-            |--------------------------------------------------------------------------
-            */}
           {selectedService === "Network Installation" && (
-
-            <ServiceSection
-              icon={<Network className="h-5 w-5" />}
-              title="Network Project Details"
-            >
-
-              <InputField
-                label="Network Type *"
-                name="networkType"
-                value={formData.networkType}
-                onChange={handleChange}
-                placeholder="Office, Home, WiFi..."
-              />
-
-
+            <ServiceSection icon={<Network />} title="Network Project Details">
+              <InputField label="Network Type *" name="networkType" value={formData.networkType} onChange={handleChange} placeholder="Office, Home, WiFi..." />
             </ServiceSection>
           )}
 
-            {/*
-            |--------------------------------------------------------------------------
-            | CONFERENCES
-            |--------------------------------------------------------------------------
-            */}
           {selectedService === "Conferences" && (
-
-            <ServiceSection
-              icon={<Building2 className="h-5 w-5" />}
-              title="Conference Details"
-            >
-
-              <InputField
-                label="Conference Type *"
-                name="conferenceType"
-                value={formData.conferenceType}
-                onChange={handleChange}
-                placeholder="Business, Church..."
-              />
-
-              <InputField
-                label="Technical Needs *"
-                name="technicalNeeds"
-                value={formData.technicalNeeds}
-                onChange={handleChange}
-                placeholder="Streaming, Audio..."
-              />
+            <ServiceSection icon={<Building2 />} title="Conference Details">
+              <InputField label="Conference Type *" name="conferenceType" value={formData.conferenceType} onChange={handleChange} placeholder="Business, Church..." />
+              <InputField label="Technical Needs *" name="technicalNeeds" value={formData.technicalNeeds} onChange={handleChange} placeholder="Streaming, Audio..." />
             </ServiceSection>
           )}
 
-          {/* DESCRIPTION */}
-          <div className="mt-10">
+          {selectedService === "Event Planning" && (
+            <ServiceSection icon={<Calendar />} title="Event Planning Details">
+              <InputField label="Event Type *" name="eventPlanningType" value={formData.eventPlanningType} onChange={handleChange} placeholder="Wedding, Birthday..." />
+              <InputField type="date" label="Event Date *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
+              <InputField label="Venue *" name="eventLocation" value={formData.eventLocation} onChange={handleChange} placeholder="Venue Name" />
+              <InputField label="Estimated Guests *" name="guestCount" value={formData.guestCount} onChange={handleChange} placeholder="100, 500..." />
+            </ServiceSection>
+          )}
 
+          {/* Project Description */}
+          <div className="mt-8">
             <TextareaField
               label="Project Description *"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Tell us about your project..."
+              placeholder="Tell us about your project in detail..."
+              error={formErrors.description}
               required
             />
           </div>
 
-          {/* UPLOADS */}
-          <UploadZone
-            files={files}
-            setFiles={setFiles}
-          />
+          {/* File Upload */}
+          <UploadZone files={files} setFiles={setFiles} />
 
-          {/* NOTES 
-          <div className="mt-10">
-
-            <TextareaField
-              label="Additional Notes"
-              name="additionalNotes"
-              value={formData.additionalNotes}
-              onChange={handleChange}
-              placeholder="Anything else?"
-            />
-          </div> */}
-
-          {/* SUBMIT */}
-          <div className="mt-14 flex justify-center">
-
+          {/* Submit Button */}
+          <div className="mt-10 flex justify-center">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading || !selectedService}
-              className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-[#f5deb3] to-[#D4AF37] text-black px-10 py-5 text-lg font-semibold transition-all duration-300 hover:shadow-[0_20px_60px_rgba(212,175,55,0.35)] disabled:opacity-50"
+              className="inline-flex items-center gap-3 rounded-xl bg-gold px-10 py-4 text-lg font-semibold text-black transition-all hover:bg-gold-dark hover:shadow-lg disabled:opacity-50"
             >
-
-              {loading
-                ? "Submitting..."
-                : "Submit Project Request"}
-
-              <Send className="h-5 w-5" />
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="h-5 w-5" />
+                  Submit Project Request
+                </>
+              )}
             </motion.button>
           </div>
         </motion.form>
-
       </div>
-
     </div>
-  
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| SERVICE SECTION
-|--------------------------------------------------------------------------
-*/
+/* ==========================================
+   SERVICE SECTION COMPONENT
+========================================== */
 
-function ServiceSection({
-  icon,
-  title,
-  children,
-}) {
-
+function ServiceSection({ icon, title, children }) {
   return (
-    <div className="mt-14">
-
-      <div className="flex items-center gap-3 mb-8">
-
-        <div className="rounded-xl bg-[#D4AF37]/10 p-3 text-[#b8860b]">
-          {icon}
-        </div>
-
-        <h3 className="text-2xl font-semibold text-[#111111]">
-          {title}
-        </h3>
+    <div className="mt-8 pt-6 border-t border-gray-200">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="rounded-xl bg-gold/10 p-2.5 text-gold">{icon}</div>
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-        {children}
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{children}</div>
     </div>
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| INPUT FIELD
-|--------------------------------------------------------------------------
-*/
+/* ==========================================
+   INPUT FIELD COMPONENT
+========================================== */
 
-function InputField({
-  icon,
-  label,
-  name,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  required = false,
-}) {
-
+function InputField({ label, name, value, onChange, placeholder, type = "text", error, required }) {
   return (
     <div>
-
-      <label className="block text-sm text-[#444444] mb-3">
-        {label}
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-gold">*</span>}
       </label>
-
-      <div className="relative">
-
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#999999]">
-            {icon}
-          </div>
-        )}
-
-        <input
-          type={type}
-          name={name}
-          value={value || ""}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          className={`w-full rounded-2xl border border-[#e5e5e5] bg-white/80 py-4 pr-4 text-[#111111] placeholder:text-[#999999] outline-none transition-all duration-300 focus:border-[#D4AF37]/40 focus:bg-white ${
-            icon ? "pl-12" : "px-4"
-          }`}
-        />
-      </div>
+      <input
+        type={type}
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full rounded-xl border ${error ? "border-red-400" : "border-gray-300"} bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none`}
+      />
+      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
     </div>
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| TEXTAREA FIELD
-|--------------------------------------------------------------------------
-*/
+/* ==========================================
+   TEXTAREA FIELD COMPONENT
+========================================== */
 
-function TextareaField({
-  label,
-  name,
-  value,
-  onChange,
-  placeholder,
-  rows = 5,
-  required = false,
-}) {
-
+function TextareaField({ label, name, value, onChange, placeholder, rows = 5, error, required }) {
   return (
     <div>
-
-      <label className="block text-sm text-[#444444] mb-3">
-        {label}
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-gold">*</span>}
       </label>
-
       <textarea
         rows={rows}
         name={name}
         value={value || ""}
         onChange={onChange}
-        required={required}
         placeholder={placeholder}
-        className="w-full rounded-[2rem] border border-[#e5e5e5] bg-white/80 px-5 py-5 text-[#111111] placeholder:text-[#999999] outline-none transition-all duration-300 focus:border-[#D4AF37]/40 focus:bg-white resize-none"
+        className={`w-full rounded-xl border ${error ? "border-red-400" : "border-gray-300"} bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none resize-none`}
       />
+      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
     </div>
   );
 }
