@@ -4,7 +4,7 @@
    IMPORTS
    ========================================== */
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles, Heart, ArrowRight, Zap, Compass, Users, Camera, Info, Phone } from "lucide-react";
 
 /* ==========================================
@@ -145,16 +145,16 @@ export default function Navbar() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-4">
         
         {/* ==========================================
-            LOGO / BRAND SECTION - Premium Version
+            LOGO / BRAND SECTION - RESPONSIVE FIX
         ========================================== */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-2 md:gap-3 cursor-pointer group flex-shrink-0"
         >
           {/* Animated Logo Container */}
           <div className="relative">
@@ -172,13 +172,13 @@ export default function Navbar() {
             <img 
               src="/images/logo1.png" 
               alt="Logo" 
-              className="w-14 h-14 object-contain relative z-10 rounded-full"
+              className="w-10 h-10 md:w-14 md:h-14 object-contain relative z-10 rounded-full"
             />
           </div>
           
           <div>
             <motion.h1 
-              className="text-2xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent"
+              className="text-sm md:text-2xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent whitespace-nowrap"
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
               }}
@@ -189,9 +189,10 @@ export default function Navbar() {
               }}
               style={{ backgroundSize: "200% auto" }}
             >
-              J&K Services Group
+              <span className="hidden sm:inline">J&K Services Group</span>
+              <span className="sm:hidden">J&K</span>
             </motion.h1>
-            <div className="flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1">
               <Sparkles size={12} className="text-yellow-400" />
               <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
               <Sparkles size={12} className="text-yellow-400" />
@@ -200,9 +201,9 @@ export default function Navbar() {
         </motion.div>
 
         {/* ==========================================
-            DESKTOP MENU - Premium Version
+            DESKTOP MENU - COMPACT VERSION
         ========================================== */}
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-3 xl:gap-5">
           {navLinks.map((link, index) => (
             <motion.div
               key={link.name}
@@ -216,12 +217,12 @@ export default function Navbar() {
             >
               <motion.button
                 onClick={() => handleNavigation(link.name)}
-                className="relative text-white font-medium group cursor-pointer bg-transparent border-none px-3 py-2"
+                className="relative text-white font-medium group cursor-pointer bg-transparent border-none px-2 xl:px-3 py-2"
               >
                 {/* Link Content */}
-                <div className="flex items-center gap-2 relative z-10">
-                  <link.icon size={16} className="transition-colors duration-300" style={{ color: hoveredLink === link.name ? link.color : "white" }} />
-                  <span className="tracking-wide">{link.name}</span>
+                <div className="flex items-center gap-1.5 relative z-10">
+                  <link.icon size={14} className="transition-colors duration-300 hidden xl:block" style={{ color: hoveredLink === link.name ? link.color : "white" }} />
+                  <span className="tracking-wide text-sm xl:text-base whitespace-nowrap">{link.name}</span>
                 </div>
                 
                 {/* Animated Underline with Color */}
@@ -248,7 +249,7 @@ export default function Navbar() {
               
               {/* Index Badge */}
               <motion.span
-                className="absolute -top-2 -right-2 text-[8px] font-bold text-yellow-400"
+                className="absolute -top-2 -right-1 text-[8px] font-bold text-yellow-400"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: hoveredLink === link.name ? 1 : 0, scale: hoveredLink === link.name ? 1 : 0 }}
               >
@@ -260,12 +261,12 @@ export default function Navbar() {
           {/* ==========================================
               DONATE BUTTON (Desktop) - Premium Version
           ========================================== */}
-          <div className="relative">
+          <div className="relative ml-2">
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setDonationMenu(!donationMenu)}
-              className="relative overflow-hidden group cursor-pointer rounded-full px-8 py-3"
+              className="relative overflow-hidden group cursor-pointer rounded-full px-5 md:px-6 py-2.5 md:py-3"
             >
               {/* Button Background with Gradient Animation */}
               <motion.div
@@ -282,10 +283,10 @@ export default function Navbar() {
               />
               
               {/* Button Content */}
-              <div className="relative z-10 flex items-center gap-2 text-black font-bold">
-                <Heart size={18} className="group-hover:animate-pulse" />
+              <div className="relative z-10 flex items-center gap-1.5 text-black font-bold text-sm md:text-base">
+                <Heart size={16} className="group-hover:animate-pulse" />
                 <span>Donate</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </div>
               
               {/* Button Shine Effect */}
@@ -302,7 +303,7 @@ export default function Navbar() {
               />
             </motion.button>
 
-            {/* Donation Dropdown Menu - Premium */}
+            {/* Donation Dropdown Menu */}
             <AnimatePresence>
               {donationMenu && (
                 <motion.div
@@ -310,9 +311,8 @@ export default function Navbar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-                  className="absolute right-0 mt-4 w-80 bg-black/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-2xl z-50 overflow-hidden"
+                  className="absolute right-0 mt-4 w-72 bg-black/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-2xl z-50 overflow-hidden"
                 >
-                  {/* Decorative Top Border */}
                   <motion.div 
                     className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent"
                     animate={{
@@ -369,7 +369,6 @@ export default function Navbar() {
                     ))}
                   </div>
                   
-                  {/* Impact Counter */}
                   <motion.div 
                     className="mt-4 pt-4 border-t border-white/10 text-center"
                     initial={{ opacity: 0 }}
@@ -387,24 +386,24 @@ export default function Navbar() {
         </div>
 
         {/* ==========================================
-            MOBILE MENU BUTTON - Premium
+            MOBILE MENU BUTTON
         ========================================== */}
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => setMobileMenu(!mobileMenu)}
-          className="lg:hidden relative w-12 h-12 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center"
+          className="lg:hidden relative w-10 h-10 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center flex-shrink-0"
         >
           <motion.div
             animate={{ rotate: mobileMenu ? 90 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            {mobileMenu ? <X size={24} className="text-yellow-400" /> : <Menu size={24} className="text-white" />}
+            {mobileMenu ? <X size={20} className="text-yellow-400" /> : <Menu size={20} className="text-white" />}
           </motion.div>
         </motion.button>
       </div>
 
       {/* ==========================================
-          MOBILE MENU - Premium Version
+          MOBILE MENU
       ========================================== */}
       <AnimatePresence>
         {mobileMenu && (
