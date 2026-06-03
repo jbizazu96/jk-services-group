@@ -43,10 +43,14 @@ export default function PortfolioHero({
   const imageY = useTransform(scrollY, [0, 500], [0, 120]);
   const textY = useTransform(scrollY, [0, 500], [0, 180]);
 
+  /* ==========================================
+     FALLBACK IMAGE IF NONE PROVIDED
+  ========================================== */
   const heroImage = image || "/images/portfolio-placeholder.jpg";
 
   return (
     <div className="relative h-[360px] md:h-[500px] overflow-hidden">
+      {/* HERO IMAGE */}
       <motion.div
         style={{ scale: imageScale, y: imageY }}
         className="absolute inset-0"
@@ -60,16 +64,18 @@ export default function PortfolioHero({
         />
       </motion.div>
 
+      {/* DARK OVERLAY */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
 
+      {/* HERO CONTENT */}
       <motion.div
         style={{ y: textY }}
         className="relative z-10 h-full max-w-7xl mx-auto px-6 flex flex-col justify-center"
       >
-        {/* BACK BUTTON - Now links to /portfolio page (just like service page links to /#services) */}
+        {/* BACK BUTTON - Matches service page pattern */}
         <Link
-          href="/portfolio"
+          href="/#gallery"
           className="inline-flex items-center gap-2 mb-8 text-yellow-400 hover:text-yellow-300 font-semibold transition w-fit group"
         >
           <motion.span
@@ -82,6 +88,7 @@ export default function PortfolioHero({
           Back To Portfolio
         </Link>
 
+        {/* CATEGORY BADGE */}
         <div className="mb-4">
           <span className="inline-flex items-center gap-2 rounded-full bg-yellow-500 px-4 py-1.5 text-sm font-bold text-black shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
@@ -89,6 +96,7 @@ export default function PortfolioHero({
           </span>
         </div>
 
+        {/* TITLE */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -98,6 +106,7 @@ export default function PortfolioHero({
           {title}
         </motion.h1>
 
+        {/* DESCRIPTION */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -107,6 +116,7 @@ export default function PortfolioHero({
           {description || "Explore our curated collection of cinematic projects and creative work."}
         </motion.p>
 
+        {/* STATS ROW */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

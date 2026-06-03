@@ -175,13 +175,24 @@ export default function CategoryPage() {
           <div className="text-8xl mb-6">🔍</div>
           <h1 className="text-4xl font-bold text-white mb-4">Category Not Found</h1>
           <p className="text-zinc-400 mb-8">The service category you're looking for doesn't exist.</p>
-          <Link
-            href="/#services"
-            className="inline-flex items-center gap-2 bg-gold text-black px-6 py-3 rounded-full font-semibold hover:bg-gold-dark transition"
-          >
-            <ArrowLeft size={18} />
-            Back to Services
-          </Link>
+           <Link 
+              href="/" 
+              scroll={false}  // Add this!
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = '/';
+                setTimeout(() => {
+                  const servicesSection = document.getElementById('services');
+                  if (servicesSection) {
+                    servicesSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="inline-flex items-center gap-2 bg-gold text-black px-6 py-3 rounded-full font-semibold hover:bg-gold-dark transition"
+            >
+              <ArrowLeft size={18} />
+              Back to Services
+            </Link>
         </motion.div>
       </div>
     );

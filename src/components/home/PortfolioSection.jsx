@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
    NEXT.JS
 ========================================== */
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 /* ==========================================
    FIREBASE
@@ -32,6 +32,7 @@ import { ArrowRight, Sparkles, ChevronLeft, ChevronRight, Star, ExternalLink } f
 
 export default function PortfolioSection() {
   const router = useRouter();
+  const pathname = usePathname();
   const galleryRef = useRef(null);
   const [portfolioCategories, setPortfolioCategories] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -42,6 +43,7 @@ export default function PortfolioSection() {
 
   /* ==========================================
      LOAD PORTFOLIO CATEGORIES
+     - NO AUTO-SCROLL ON LOAD
   ========================================== */
 
   useEffect(() => {
@@ -61,16 +63,12 @@ export default function PortfolioSection() {
         ...doc.data(),
       }));
       setPortfolioCategories(items);
-      // Set middle card as active on load
+      
+      // Set middle card as active (visual only) - NO SCROLLING
       if (items.length > 0) {
         const middleIndex = Math.floor(items.length / 2);
         setActiveIndex(middleIndex);
-        // Scroll to middle card after load
-        setTimeout(() => {
-          setIsScrollingProgrammatically(true);
-          scrollToCard(middleIndex);
-          setTimeout(() => setIsScrollingProgrammatically(false), 500);
-        }, 100);
+        // REMOVED: The auto-scroll setTimeout that was here
       }
     } catch (error) {
       console.error("Portfolio Error:", error);
@@ -80,7 +78,7 @@ export default function PortfolioSection() {
   };
 
   /* ==========================================
-     SCROLL TO CARD - SMOOTH CENTERING
+     SCROLL TO CARD - ONLY FOR ARROWS/DOTS
   ========================================== */
 
   const scrollToCard = (index) => {
@@ -98,12 +96,11 @@ export default function PortfolioSection() {
 
   /* ==========================================
      DETECT WHICH CARD IS MOST VISIBLE
-     - Used when user manually scrolls
   ========================================== */
 
   const updateActiveIndexOnScroll = useCallback(() => {
-    if (isScrollingProgrammatically) return; // Skip if we're programmatically scrolling
-    if (isHovering) return; // Skip if user is hovering over a card
+    if (isScrollingProgrammatically) return;
+    if (isHovering) return;
     
     if (!galleryRef.current) return;
     
@@ -131,7 +128,7 @@ export default function PortfolioSection() {
   }, [activeIndex, isScrollingProgrammatically, isHovering]);
 
   /* ==========================================
-     HOVER HANDLER - Makes hovered card active
+     HOVER HANDLER
   ========================================== */
 
   const handleCardHover = (index) => {
@@ -143,7 +140,6 @@ export default function PortfolioSection() {
   const handleCardLeave = () => {
     setHoveredIndex(null);
     setIsHovering(false);
-    // After hover ends, re-sync with scroll position
     setTimeout(() => {
       updateActiveIndexOnScroll();
     }, 50);
@@ -151,19 +147,16 @@ export default function PortfolioSection() {
 
   /* ==========================================
      SCROLL EVENT LISTENER
-     - Updates active index when user scrolls manually
   ========================================== */
 
   useEffect(() => {
     const scrollContainer = galleryRef.current;
     if (!scrollContainer) return;
     
-    // Use scrollend event for better performance (modern browsers)
     const handleScrollEnd = () => {
       updateActiveIndexOnScroll();
     };
     
-    // Also listen for scroll events with debounce for older browsers
     let scrollTimeout;
     const handleScroll = () => {
       if (scrollTimeout) clearTimeout(scrollTimeout);
@@ -183,19 +176,20 @@ export default function PortfolioSection() {
   }, [updateActiveIndexOnScroll]);
 
   /* ==========================================
-     UPDATE ACTIVE INDEX WHEN CARDS CHANGE
+     UPDATE ACTIVE INDEX ON RESIZE
   ========================================== */
 
   useEffect(() => {
-    if (portfolioCategories.length > 0 && !isLoading) {
-      setTimeout(() => {
-        updateActiveIndexOnScroll();
-      }, 50);
-    }
-  }, [portfolioCategories, isLoading, updateActiveIndexOnScroll]);
+    const handleResize = () => {
+      updateActiveIndexOnScroll();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateActiveIndexOnScroll]);
 
   /* ==========================================
-     NAVIGATION
+     NAVIGATION - Only these trigger scrolling
   ========================================== */
 
   const handlePrev = () => {
@@ -217,10 +211,6 @@ export default function PortfolioSection() {
     scrollToCard(newIndex);
     setTimeout(() => setIsScrollingProgrammatically(false), 500);
   };
-
-  /* ==========================================
-     HANDLE DOT CLICK
-  ========================================== */
 
   const handleDotClick = (index) => {
     setActiveIndex(index);
@@ -269,9 +259,7 @@ export default function PortfolioSection() {
       id="gallery"
       className="py-24 md:py-32 relative overflow-hidden bg-gradient-to-br from-[#050505] via-[#0f172a] to-[#111827] text-white"
     >
-      {/* ==========================================
-          BACKGROUND GLOWS
-      ========================================== */}
+      {/* BACKGROUND GLOWS */}
       <motion.div
         animate={{ x: [0, 40, 0], y: [0, -20, 0] }}
         transition={{ duration: 10, repeat: Infinity }}
@@ -288,9 +276,7 @@ export default function PortfolioSection() {
         <div className="h-full w-full bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:50px_50px]" />
       </div>
 
-      {/* ==========================================
-          HEADER
-      ========================================== */}
+      {/* HEADER */}
       <div className="max-w-7xl mx-auto px-6 mb-16 relative z-20">
         <motion.div
           initial="hidden"
@@ -301,29 +287,24 @@ export default function PortfolioSection() {
         >
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              {/* Badge */}
               <div className="inline-flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 backdrop-blur-md px-5 py-2 mb-6">
                 <motion.div animate={pulseDot} className="w-2 h-2 rounded-full bg-yellow-400" />
                 <span className="text-yellow-300 tracking-wide text-sm uppercase font-semibold">
                   Our Portfolio
                 </span>
               </div>
-
-              {/* Title */}
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
                 Projects &
                 <span className="text-yellow-400"> Portfolio</span>
               </h2>
             </div>
 
-            {/* Description and Button Row */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <p className="text-gray-300 text-base md:text-lg max-w-xl leading-relaxed">
                 Browse our portfolio categories and explore completed projects, events, photography,
                 videography, networking installations, and digital solutions.
               </p>
               
-              {/* View All Portfolio Button */}
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -339,9 +320,7 @@ export default function PortfolioSection() {
         </motion.div>
       </div>
 
-      {/* ==========================================
-          NAVIGATION ARROWS
-      ========================================== */}
+      {/* NAVIGATION ARROWS */}
       <button
         onClick={handlePrev}
         className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 bg-black/60 backdrop-blur-xl border border-white/10 hover:bg-yellow-500 hover:text-black w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl"
@@ -356,15 +335,11 @@ export default function PortfolioSection() {
         <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
       </button>
 
-      {/* ==========================================
-          FADE OVERLAYS
-      ========================================== */}
+      {/* FADE OVERLAYS */}
       <div className="absolute left-0 top-0 w-24 sm:w-32 h-full bg-gradient-to-r from-[#050505] via-[#050505]/80 to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 w-24 sm:w-32 h-full bg-gradient-to-l from-[#111827] via-[#111827]/80 to-transparent z-10 pointer-events-none" />
 
-      {/* ==========================================
-          CAROUSEL
-      ========================================== */}
+      {/* CAROUSEL */}
       <div
         ref={galleryRef}
         className="overflow-x-auto scrollbar-hide snap-x snap-mandatory relative z-20 scroll-smooth"
@@ -372,7 +347,6 @@ export default function PortfolioSection() {
       >
         <div className="flex gap-6 px-12 sm:px-20 py-8">
           {portfolioCategories.map((category, index) => {
-            // Determine if this card should be highlighted
             const isActive = activeIndex === index;
             const isHovered = hoveredIndex === index;
             
@@ -393,30 +367,25 @@ export default function PortfolioSection() {
                 `}
                 style={{ aspectRatio: "3/4" }}
               >
-                {/* Background Image */}
                 <img
                   src={category.image || "/placeholder.jpg"}
                   alt={category.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
-                {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-
-                {/* Hover Glow */}
                 <div className="absolute inset-0 bg-yellow-500/0 group-hover:bg-yellow-500/10 transition-all duration-500" />
 
-                {/* Active/Hover Indicator */}
+                {/* Current/Hovering Badge */}
                 {(isActive || isHovered) && (
                   <div className="absolute top-4 right-4 z-20">
                     <div className="flex items-center gap-1 rounded-full bg-yellow-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
                       <Star className="w-2.5 h-2.5 fill-black" />
-                      {isHovered ? "Hovering" : "Current"}
+                      {isHovered ? "Current" : "Current"}
                     </div>
                   </div>
                 )}
 
-                {/* Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 z-10 transition-transform duration-500 group-hover:-translate-y-2">
                   <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 line-clamp-2">
                     {category.name}
@@ -434,9 +403,7 @@ export default function PortfolioSection() {
         </div>
       </div>
 
-      {/* ==========================================
-          DOT INDICATORS
-      ========================================== */}
+      {/* DOT INDICATORS */}
       <div className="flex justify-center items-center gap-2 mt-6 relative z-30">
         {portfolioCategories.map((_, index) => (
           <button
@@ -453,9 +420,7 @@ export default function PortfolioSection() {
         ))}
       </div>
 
-      {/* ==========================================
-          STATS BADGE & VIEW ALL BUTTON (Mobile)
-      ========================================== */}
+      {/* STATS BADGE & VIEW ALL BUTTON (Mobile) */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
         <div className="inline-flex items-center gap-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 px-5 py-2">
           <Sparkles className="w-4 h-4 text-yellow-400" />
@@ -465,7 +430,6 @@ export default function PortfolioSection() {
           <Sparkles className="w-4 h-4 text-yellow-400" />
         </div>
         
-        {/* Mobile View All Button */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}

@@ -266,7 +266,7 @@ export default function FooterSection() {
                 </div>
               ))}
             </div>
-            <span className="text-gray-500 text-xs">Trusted by clients</span>
+            <span className="text-gray-500 text-xs">Trusted by <span className="text-gold font-semibold">happy</span>  clients</span>
 
           </div>
         </motion.div>

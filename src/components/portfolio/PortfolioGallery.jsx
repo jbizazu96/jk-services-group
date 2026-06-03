@@ -160,7 +160,7 @@ export default function PortfolioGallery({
      GO BACK TO PORTFOLIO PAGE
   ========================================== */
   const goBackToPortfolio = () => {
-    router.push("/portfolio");
+    router.push("/#gallery");
   };
 
   /* ==========================================
