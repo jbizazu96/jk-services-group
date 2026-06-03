@@ -1,4 +1,3 @@
-
 "use client";
 
 /* =========================================
@@ -97,6 +96,8 @@ export default function ServiceCategoriesManagement() {
   const [editingCategory,
         setEditingCategory] =
     useState(null);
+    
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   /* =========================================
      FORM STATE
@@ -527,11 +528,11 @@ const toggleFeatured =
 
               <Sparkles size={16} />
 
-              Luxury ServiceSystem
+              Luxury Service System
             </div>
 
             <h1 className="text-4xl font-black tracking-tight md:text-5xl">
-              ServiceCategoriesManagement
+              Service Categories Management
             </h1>
 
             <p className="mt-4 max-w-2xl text-lg text-zinc-400">
@@ -581,8 +582,9 @@ const toggleFeatured =
           ===================================== */}
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className="sticky top-6 h-fit rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
           >
 
@@ -598,7 +600,7 @@ const toggleFeatured =
                 </h2>
 
                 <p className="text-sm text-zinc-500">
-                  Create cinematic   servicecategories.
+                  Create cinematic service categories.
                 </p>
               </div>
             </div>
@@ -622,7 +624,7 @@ const toggleFeatured =
               <div>
 
                 <label className="mb-2 block text-sm text-zinc-400">
-                  ServiceImage
+                  Service Image
                 </label>
 
                 <label className="flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center transition hover:border-blue-500/50 hover:bg-blue-500/5">
@@ -633,7 +635,7 @@ const toggleFeatured =
 
                   <div>
                     <p className="font-medium">
-                      Upload   serviceimage
+                      Upload service image
                     </p>
 
                     <p className="mt-1 text-sm text-zinc-500">
@@ -685,7 +687,7 @@ const toggleFeatured =
                       e.target.value
                     )
                   }
-                  placeholder="Describe this   servicecategory..."
+                  placeholder="Describe this service category..."
                   className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-blue-500"
                 />
               </div>
@@ -750,7 +752,7 @@ const toggleFeatured =
               />
             </div>
 
-            {/* GRID */}
+            {/* GRID - NO ENTRANCE ANIMATIONS */}
 
             {loading ? (
 
@@ -768,15 +770,26 @@ const toggleFeatured =
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-                {filteredCategories.map((category) => (
+                {filteredCategories.map((category, index) => (
 
-                  <motion.div
+                  <div
                     key={category.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl"
+                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl transition-all duration-500 ease-out hover:scale-105 hover:border-yellow-500/50 hover:shadow-2xl hover:shadow-yellow-500/25"
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                   >
+
+                    {/* Star "Current" Badge - Shows on hover */}
+                    <div className={`absolute top-4 right-4 z-30 transition-all duration-300 ${
+                      hoveredIndex === index 
+                        ? "opacity-100 scale-100" 
+                        : "opacity-0 scale-75"
+                    }`}>
+                      <div className="flex items-center gap-1.5 rounded-full bg-yellow-500 px-2.5 py-1 text-[10px] font-bold text-black shadow-lg">
+                        <Star className="w-3 h-3 fill-black" />
+                        Current
+                      </div>
+                    </div>
 
                     {/* IMAGE */}
 
@@ -787,7 +800,7 @@ const toggleFeatured =
                         <img
                           src={category.image}
                           alt={category.name}
-                          className="h-72 w-full object-cover transition duration-700 group-hover:scale-105"
+                          className="h-72 w-full object-cover transition duration-700 group-hover:scale-110"
                         />
 
                       ) : (
@@ -800,22 +813,25 @@ const toggleFeatured =
                         </div>
                       )}
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent transition-opacity duration-500 group-hover:bg-black/30" />
+                      
+                      {/* Shine effect overlay */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-transparent via-yellow-500/10 to-transparent" />
 
                       <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
 
                         <div>
                           <p className="text-sm text-zinc-300">
-                            ServiceCategory
+                            Service Category
                           </p>
 
-                          <h3 className="text-3xl font-black">
+                          <h3 className="text-3xl font-black transition-all duration-300 group-hover:text-yellow-400">
                             {category.name}
                           </h3>
                         </div>
 
                         {category.featured && (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500 text-black">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500 text-black transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
                             <Star fill="black" size={20} />
                           </div>
                         )}
@@ -824,19 +840,19 @@ const toggleFeatured =
 
                     {/* CONTENT */}
 
-                    <div className="p-6">
+                    <div className="p-6 transition-all duration-500 group-hover:translate-y-[-4px]">
 
-                      <p className="line-clamp-3 text-zinc-400">
+                      <p className="line-clamp-3 text-zinc-400 transition-all duration-300 group-hover:text-zinc-300">
                         {category.description}
                       </p>
 
                       <div className="mt-5 flex items-center justify-between">
 
                         <div
-                          className={`rounded-full px-4 py-2 text-sm font-medium ${
+                          className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
                             category.active
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-red-500/20 text-red-400"
+                              ? "bg-green-500/20 text-green-400 group-hover:bg-green-500/30"
+                              : "bg-red-500/20 text-red-400 group-hover:bg-red-500/30"
                           }`}
                         >
                           {category.active
@@ -844,7 +860,7 @@ const toggleFeatured =
                             : "Inactive"}
                         </div>
 
-                        <div className="text-sm text-zinc-500">
+                        <div className="text-sm text-zinc-500 transition-all duration-300 group-hover:text-zinc-400">
                           /service/{category.slug}
                         </div>
                       </div>
@@ -860,7 +876,7 @@ const toggleFeatured =
                               category.active
                             )
                           }
-                          className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.06]"
+                          className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-all duration-300 hover:bg-white/[0.06] group-hover:border-white/20"
                         >
                           {category.active
                             ? "Disable"
@@ -874,7 +890,7 @@ const toggleFeatured =
                               category.featured
                             )
                           }
-                          className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400 transition hover:bg-yellow-500/20"
+                          className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400 transition-all duration-300 hover:bg-yellow-500/20 group-hover:scale-[1.02]"
                         >
                           {category.featured
                             ? "Featured"
@@ -885,7 +901,7 @@ const toggleFeatured =
                           onClick={() =>
                             openEdit(category)
                           }
-                          className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-medium transition hover:bg-blue-500"
+                          className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-medium transition-all duration-300 hover:bg-blue-500 group-hover:scale-[1.02]"
                         >
                           <Pencil size={16} />
                           Edit
@@ -897,14 +913,19 @@ const toggleFeatured =
                               category.id
                             )
                           }
-                          className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-medium transition hover:bg-red-500"
+                          className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 font-medium transition-all duration-300 hover:bg-red-500 group-hover:scale-[1.02]"
                         >
                           <Trash2 size={16} />
                           Delete
                         </button>
                       </div>
                     </div>
-                  </motion.div>
+
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/0 via-yellow-500/5 to-yellow-500/0 rounded-3xl" />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -942,7 +963,7 @@ const toggleFeatured =
                   </h2>
 
                   <p className="mt-1 text-zinc-500">
-                    Update   serviceinformation.
+                    Update service information.
                   </p>
                 </div>
 
@@ -974,7 +995,7 @@ const toggleFeatured =
                 <div>
 
                   <label className="mb-2 block text-sm text-zinc-400">
-                    ServiceImage
+                    Service Image
                   </label>
 
                   {editData.image && (
