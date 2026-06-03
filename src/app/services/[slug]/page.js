@@ -219,41 +219,17 @@ export default function CategoryPage() {
       />
 
       {/* =====================================
-          CURVED TRANSITION
-      ===================================== */}
-
-      <div className="relative z-20 -mt-16">
-        <svg
-          viewBox="0 0 1440 100"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-auto"
-        >
-          <path
-            d="M0 100L60 90C120 80 240 60 360 55C480 50 600 60 720 65C840 70 960 70 1080 65C1200 60 1320 50 1380 45L1440 40L1440 0L1380 0C1320 0 1200 0 1080 0C960 0 840 0 720 0C600 0 480 0 360 0C240 0 120 0 60 0L0 0V100Z"
-            fill="url(#waveGradient)"
-          />
-          <defs>
-            <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#18181B" />
-              <stop offset="100%" stopColor="#000000" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      {/* =====================================
-          SERVICES SECTION - SHORTER CARDS
+          SERVICES SECTION - Clean transition (no curve)
       ===================================== */}
 
       <section ref={sectionRef} className="relative z-30 bg-black pb-24">
         <div className="max-w-7xl mx-auto px-6">
-          {/* Section Header - Simplified */}
+          {/* Section Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-12 pt-8"
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-4 py-1.5 backdrop-blur-sm mb-4">
               <div className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
@@ -267,7 +243,7 @@ export default function CategoryPage() {
             </h2>
           </motion.div>
 
-          {/* Services Grid - Compact Cards */}
+          {/* Services Grid */}
           {services.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -299,7 +275,7 @@ export default function CategoryPage() {
                     </div>
                   )}
 
-                  {/* Image - Smaller */}
+                  {/* Image */}
                   <div className="relative h-36 overflow-hidden">
                     <img
                       src={service.image || "/images/placeholder-service.jpg"}
@@ -309,9 +285,9 @@ export default function CategoryPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   </div>
 
-                  {/* Content - Compact */}
+                  {/* Content */}
                   <div className="p-4">
-                    {/* Price Badge - Smaller */}
+                    {/* Price Badge */}
                     <div className="mb-2">
                       <span className="inline-block rounded-full bg-gold/20 backdrop-blur-sm px-2.5 py-0.5 text-[11px] font-bold text-gold border border-gold/30">
                         {service.priceText || "Contact for pricing"}
@@ -323,12 +299,12 @@ export default function CategoryPage() {
                       {service.name}
                     </h3>
 
-                    {/* Description - Shorter */}
+                    {/* Description */}
                     <p className="text-zinc-400 text-xs leading-relaxed mb-3 line-clamp-2">
                       {service.description || "Professional service tailored to your needs."}
                     </p>
 
-                    {/* Buttons - Compact */}
+                    {/* Buttons */}
                     <div className="flex gap-2 mt-3">
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -344,15 +320,15 @@ export default function CategoryPage() {
                       </motion.button>
 
                       <Link href={`/client?service=${encodeURIComponent(service.name)}`} className="flex-1">
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full rounded-xl border border-white/40 bg-white/5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:border-gold/50 flex items-center justify-center gap-1.5"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        Request Service
-                      </motion.button>
-                    </Link>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full rounded-xl border border-white/40 bg-white/5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:border-gold/50 flex items-center justify-center gap-1.5"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          Request Service
+                        </motion.button>
+                      </Link>
                     </div>
                   </div>
                 </motion.div>
@@ -360,7 +336,7 @@ export default function CategoryPage() {
             </div>
           )}
 
-          {/* Stats Row - Compact */}
+          {/* Stats Row */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -387,7 +363,7 @@ export default function CategoryPage() {
             </div>
           </motion.div>
 
-          {/* Trust Banner - Compact */}
+          {/* Trust Banner */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
