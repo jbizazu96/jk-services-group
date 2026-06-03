@@ -7,6 +7,8 @@
 import {
   useMemo,
   useState,
+  useEffect,
+  useCallback,
 } from "react";
 
 /* ==========================================
@@ -19,10 +21,10 @@ import {
 } from "framer-motion";
 
 /* ==========================================
-   NEXT IMAGE
+   NEXT NAVIGATION
 ========================================== */
 
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 /* ==========================================
    ICONS
@@ -35,861 +37,519 @@ import {
   Video,
   X,
   Play,
+  ArrowLeft,
+  FolderOpen,
+  Camera,
+  Sparkles,
+  Calendar,
+  MessageCircle,
 } from "lucide-react";
 
 /* ==========================================
    PORTFOLIO GALLERY
 ========================================== */
 
-export default function
-PortfolioGallery({
-  portfolioItems,
+export default function PortfolioGallery({
+  portfolioItems = [],
+  categoryName = "",
 }) {
+  const router = useRouter();
 
   /* ==========================================
      FILTER
   ========================================== */
-
-  const [
-    activeFilter,
-    setActiveFilter,
-  ] = useState("all");
-
-  /* ==========================================
-     SELECTED PROJECT
-  ========================================== */
-
-  const [
-    selectedProject,
-    setSelectedProject,
-  ] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [sanitizedItems, setSanitizedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   /* ==========================================
-     CURRENT MEDIA INDEX
+     SANITIZE DATA
   ========================================== */
-
-  const [
-    currentMediaIndex,
-    setCurrentMediaIndex,
-  ] = useState(0);
+  useEffect(() => {
+    setIsLoading(true);
+    if (portfolioItems && portfolioItems.length > 0) {
+      const sanitized = portfolioItems.map((item) => ({
+        id: item.id,
+        title: item.title || "Untitled",
+        description: item.description || "",
+        categoryId: item.categoryId || "",
+        categoryName: item.categoryName || "",
+        slug: item.slug || "",
+        featured: item.featured || false,
+        active: item.active || false,
+        media: item.media || [],
+      }));
+      setSanitizedItems(sanitized);
+    }
+    setIsLoading(false);
+  }, [portfolioItems]);
 
   /* ==========================================
      FILTERED PROJECTS
   ========================================== */
+  const filteredProjects = useMemo(() => {
+    if (!sanitizedItems.length) return [];
 
-  const filteredProjects =
-    useMemo(() => {
+    if (activeFilter === "all") {
+      return sanitizedItems;
+    }
 
-      if (
-        activeFilter === "all"
-      ) {
-
-        return portfolioItems;
-      }
-
-      return portfolioItems.filter(
-        (project) =>
-
-          project.media?.some(
-            (media) =>
-              media.type ===
-              activeFilter
-          )
-      );
-
-    }, [
-      portfolioItems,
-      activeFilter,
-    ]);
+    return sanitizedItems.filter(
+      (project) => project.media?.some((media) => media.type === activeFilter)
+    );
+  }, [sanitizedItems, activeFilter]);
 
   /* ==========================================
      OPEN PROJECT
   ========================================== */
-
-  const openProject = (
-    project
-  ) => {
-
-    setSelectedProject(
-      project
-    );
-
+  const openProject = (project) => {
+    setSelectedProject(project);
     setCurrentMediaIndex(0);
   };
 
   /* ==========================================
      CLOSE MODAL
   ========================================== */
-
   const closeModal = () => {
-
     setSelectedProject(null);
-
     setCurrentMediaIndex(0);
   };
 
   /* ==========================================
      CURRENT MEDIA
   ========================================== */
-
-  const currentMedia =
-
-    selectedProject?.media?.[
-      currentMediaIndex
-    ];
+  const currentMedia = selectedProject?.media?.[currentMediaIndex];
 
   /* ==========================================
      NEXT MEDIA
   ========================================== */
-
-  const nextMedia = () => {
-
-    if (!selectedProject)
-      return;
-
-    setCurrentMediaIndex(
-      (prev) =>
-
-        prev ===
-        selectedProject.media
-          .length - 1
-          ? 0
-          : prev + 1
+  const nextMedia = useCallback(() => {
+    if (!selectedProject) return;
+    setCurrentMediaIndex((prev) =>
+      prev === selectedProject.media.length - 1 ? 0 : prev + 1
     );
-  };
+  }, [selectedProject]);
 
   /* ==========================================
      PREVIOUS MEDIA
   ========================================== */
-
-  const previousMedia = () => {
-
-    if (!selectedProject)
-      return;
-
-    setCurrentMediaIndex(
-      (prev) =>
-
-        prev === 0
-          ? selectedProject
-              .media.length - 1
-          : prev - 1
+  const previousMedia = useCallback(() => {
+    if (!selectedProject) return;
+    setCurrentMediaIndex((prev) =>
+      prev === 0 ? selectedProject.media.length - 1 : prev - 1
     );
+  }, [selectedProject]);
+
+  /* ==========================================
+     KEYBOARD NAVIGATION
+  ========================================== */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedProject) return;
+      if (e.key === "ArrowLeft") previousMedia();
+      if (e.key === "ArrowRight") nextMedia();
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedProject, previousMedia, nextMedia]);
+
+  /* ==========================================
+     GO BACK TO PORTFOLIO PAGE
+  ========================================== */
+  const goBackToPortfolio = () => {
+    router.push("/portfolio");
   };
 
-  return (
+  /* ==========================================
+     OPEN CONSULTATION MODAL
+  ========================================== */
+  const openConsultation = () => {
+    const event = new CustomEvent("openConsultation");
+    window.dispatchEvent(event);
+  };
 
-    <>
+  /* ==========================================
+     LOADING STATE
+  ========================================== */
+  if (isLoading) {
+    return (
+      <div className="text-center py-32">
+        <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-gray-400">Loading portfolio...</p>
+      </div>
+    );
+  }
 
-      {/* =====================================
-          FILTERS
-      ===================================== */}
+  /* ==========================================
+     EMPTY STATE - NO PROJECTS AT ALL
+  ========================================== */
+  if (sanitizedItems.length === 0) {
+    return (
+      <div className="text-center py-32">
+        {/* Animated Icon */}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 0.6 }}
+          className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white/[0.05] border border-white/10 mb-6"
+        >
+          <FolderOpen className="w-12 h-12 text-yellow-400" />
+        </motion.div>
 
-      <div
-        className="
-          mb-14
-          flex
-          flex-wrap
-          gap-4
-        "
-      >
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl md:text-3xl font-bold text-white mb-3"
+        >
+          No Projects Yet
+        </motion.h3>
 
-        {[
-          {
-            label: "All",
-            value: "all",
-          },
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-gray-400 max-w-md mx-auto mb-8"
+        >
+          This category is being curated with amazing content. 
+          Check back soon for stunning photography and cinematic projects!
+        </motion.p>
 
-          {
-            label: "Photos",
-            value: "image",
-          },
-
-          {
-            label: "Videos",
-            value: "video",
-          },
-        ].map((filter) => (
-
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+        >
           <button
+            onClick={goBackToPortfolio}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Portfolio
+          </button>
+          
+          <button
+            onClick={openConsultation}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-yellow-500 text-black font-semibold hover:bg-yellow-400 transition"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Request a Custom Project
+            <Sparkles className="w-4 h-4" />
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  /* ==========================================
+     EMPTY STATE - NO RESULTS FOR FILTER
+  ========================================== */
+  if (filteredProjects.length === 0 && activeFilter !== "all") {
+    return (
+      <div className="text-center py-32">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 0.6 }}
+          className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white/[0.05] border border-white/10 mb-6"
+        >
+          {activeFilter === "image" ? (
+            <Camera className="w-12 h-12 text-yellow-400" />
+          ) : (
+            <Video className="w-12 h-12 text-yellow-400" />
+          )}
+        </motion.div>
+
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl md:text-3xl font-bold text-white mb-3"
+        >
+          No {activeFilter === "image" ? "Photos" : "Videos"} Found
+        </motion.h3>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-gray-400 max-w-md mx-auto mb-8"
+        >
+          {activeFilter === "image" 
+            ? "This category doesn't have any photos yet. Check out the videos instead!" 
+            : "This category doesn't have any videos yet. Browse through the photos!"}
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <button
+            onClick={() => setActiveFilter("all")}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-yellow-500 text-black font-semibold hover:bg-yellow-400 transition"
+          >
+            <Sparkles className="w-4 h-4" />
+            View All Projects
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  /* ==========================================
+     MAIN RENDER - WITH PROJECTS
+  ========================================== */
+
+  return (
+    <>
+      {/* BACK BUTTON */}
+      <div className="mb-8">
+        <button
+          onClick={goBackToPortfolio}
+          className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 font-semibold transition group"
+        >
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          Back to All Portfolio
+        </button>
+      </div>
+
+      {/* STATS BAR */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-gray-400">
+            <FolderOpen className="w-4 h-4" />
+            <span className="text-sm">{sanitizedItems.length} Total Projects</span>
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+          <div className="flex items-center gap-2 text-gray-400">
+            <Camera className="w-4 h-4" />
+            <span className="text-sm">
+              {sanitizedItems.filter(p => p.media?.some(m => m.type === "image")).length} Photos
+            </span>
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+          <div className="flex items-center gap-2 text-gray-400">
+            <Video className="w-4 h-4" />
+            <span className="text-sm">
+              {sanitizedItems.filter(p => p.media?.some(m => m.type === "video")).length} Videos
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* FILTERS */}
+      <div className="mb-12 flex flex-wrap gap-3">
+        {[
+          { label: "All Projects", value: "all", icon: Sparkles },
+          { label: "Photos", value: "image", icon: Camera },
+          { label: "Videos", value: "video", icon: Video },
+        ].map((filter) => (
+          <motion.button
             key={filter.value}
-            onClick={() =>
-              setActiveFilter(
-                filter.value
-              )
-            }
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setActiveFilter(filter.value)}
             className={`
-              rounded-full
-              px-7
-              py-3
-              font-semibold
-              transition-all
-              duration-300
-
+              inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300
               ${
-                activeFilter ===
-                filter.value
-
-                  ? `
-                    bg-white
-                    text-black
-                    shadow-2xl
-                  `
-
-                  : `
-                    border
-                    border-white/10
-                    bg-white/[0.03]
-                    text-white
-                    hover:bg-white/[0.08]
-                  `
+                activeFilter === filter.value
+                  ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/25"
+                  : "border border-white/20 text-white hover:border-yellow-500/50"
               }
             `}
           >
-
+            <filter.icon className="w-4 h-4" />
             {filter.label}
-
-          </button>
+          </motion.button>
         ))}
       </div>
 
-      {/* =====================================
-          PROJECT GRID
-      ===================================== */}
-
+      {/* PROJECTS GRID */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={{
           hidden: {},
-
-          visible: {
-            transition: {
-              staggerChildren: 0.08,
-            },
-          },
+          visible: { transition: { staggerChildren: 0.08 } },
         }}
-        className="
-          grid
-          grid-cols-1
-          gap-8
-          md:grid-cols-2
-          xl:grid-cols-3
-        "
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
       >
+        {filteredProjects.map((project, idx) => {
+          const coverMedia = project.media?.[0];
+          const imageCount = project.media?.filter((m) => m.type === "image").length || 0;
+          const videoCount = project.media?.filter((m) => m.type === "video").length || 0;
 
-        {filteredProjects.map(
-          (project) => {
-
-            const coverMedia =
-              project.media?.[0];
-
-            const imageCount =
-              project.media?.filter(
-                (media) =>
-                  media.type ===
-                  "image"
-              ).length;
-
-            const videoCount =
-              project.media?.filter(
-                (media) =>
-                  media.type ===
-                  "video"
-              ).length;
-
-            return (
-
-              <motion.div
-                key={project.id}
-
-                variants={{
-                  hidden: {
-                    opacity: 0,
-                    y: 40,
-                  },
-
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                  },
-                }}
-
-                transition={{
-                  duration: 0.6,
-                }}
-
-                onClick={() =>
-                  openProject(
-                    project
-                  )
-                }
-
-                className="
-                  group
-                  cursor-pointer
-                "
-              >
-
-                {/* CARD */}
-
-                <div
-                  className="
-                    overflow-hidden
-                    rounded-[32px]
-                    border
-                    border-white/10
-                    bg-white/[0.03]
-                    backdrop-blur-xl
-
-                    transition-all
-                    duration-500
-
-                    hover:-translate-y-2
-                    hover:border-white/20
-                    hover:shadow-2xl
-                  "
-                >
-
-                  {/* MEDIA */}
-
-                  <div
-                    className="
-                      relative
-                      h-[420px]
-                      overflow-hidden
-                      bg-black
-                    "
+          return (
+            <motion.div
+              key={project.id}
+              variants={{
+                hidden: { opacity: 0, y: 40 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ y: -8 }}
+              onClick={() => openProject(project)}
+              className="group relative cursor-pointer rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-yellow-500/40 transition-all duration-500"
+            >
+              {/* IMAGE CONTAINER */}
+              <div className="relative h-72 overflow-hidden">
+                {coverMedia?.type === "video" ? (
+                  <video
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   >
-
-                    {coverMedia?.type ===
-                    "video" ? (
-
-                      <video
-                        muted
-                        playsInline
-                        preload="metadata"
-                        className="
-                          h-full
-                          w-full
-                          object-cover
-
-                          transition-transform
-                          duration-700
-
-                          group-hover:scale-105
-                        "
-                      >
-                        <source
-                          src={
-                            coverMedia.url
-                          }
-                        />
-                      </video>
-
-                    ) : (
-
-                      <Image
-                        src={
-                          coverMedia?.url
-                        }
-                        alt={project.title}
-
-                        fill
-
-                        loading="lazy"
-
-                        className="
-                          object-cover
-
-                          transition-transform
-                          duration-700
-
-                          group-hover:scale-105
-                        "
-
-                        sizes="
-                          (max-width: 768px) 100vw,
-                          (max-width: 1280px) 50vw,
-                          33vw
-                        "
-                      />
-                    )}
-
-                    {/* OVERLAY */}
-
-                    <div
-                      className="
-                        absolute
-                        inset-0
-
-                        bg-gradient-to-t
-                        from-black
-                        via-black/20
-                        to-transparent
-                      "
-                    />
-
-                    {/* PLAY ICON */}
-
-                    {coverMedia?.type ===
-                      "video" && (
-
-                      <div
-                        className="
-                          absolute
-                          left-1/2
-                          top-1/2
-
-                          flex
-                          h-20
-                          w-20
-
-                          -translate-x-1/2
-                          -translate-y-1/2
-
-                          items-center
-                          justify-center
-
-                          rounded-full
-
-                          bg-black/40
-                          backdrop-blur-md
-                        "
-                      >
-
-                        <Play
-                          size={32}
-                          className="
-                            ml-1
-                            text-white
-                          "
-                          fill="white"
-                        />
-                      </div>
-                    )}
-
-                    {/* CONTENT */}
-
-                    <div
-                      className="
-                        absolute
-                        bottom-0
-                        left-0
-                        right-0
-
-                        p-6
-                      "
-                    >
-
-                      <p
-                        className="
-                          mb-3
-                          text-sm
-                          uppercase
-                          tracking-[0.3em]
-                          text-yellow-400
-                        "
-                      >
-                        Cinematic Project
-                      </p>
-
-                      <h3
-                        className="
-                          text-3xl
-                          font-black
-                          leading-tight
-                        "
-                      >
-                        {project.title}
-                      </h3>
-
-                      {/* COUNTS */}
-
-                      <div
-                        className="
-                          mt-5
-                          flex
-                          flex-wrap
-                          gap-3
-                        "
-                      >
-
-                        <div
-                          className="
-                            flex
-                            items-center
-                            gap-2
-
-                            rounded-full
-                            bg-white/10
-
-                            px-4
-                            py-2
-
-                            text-sm
-                            backdrop-blur-md
-                          "
-                        >
-
-                          <Images
-                            size={16}
-                          />
-
-                          {imageCount}
-                          {" "}
-                          Photos
-                        </div>
-
-                        <div
-                          className="
-                            flex
-                            items-center
-                            gap-2
-
-                            rounded-full
-                            bg-white/10
-
-                            px-4
-                            py-2
-
-                            text-sm
-                            backdrop-blur-md
-                          "
-                        >
-
-                          <Video
-                            size={16}
-                          />
-
-                          {videoCount}
-                          {" "}
-                          Videos
-                        </div>
-                      </div>
+                    <source src={coverMedia.url} />
+                  </video>
+                ) : (
+                  <img
+                    src={coverMedia?.url || "/placeholder.jpg"}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                )}
+                
+                {/* OVERLAY */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                
+                {/* PLAY ICON OVERLAY */}
+                {coverMedia?.type === "video" && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-16 h-16 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center">
+                      <Play className="w-7 h-7 text-white ml-1" fill="white" />
                     </div>
                   </div>
+                )}
+
+                {/* FEATURED BADGE */}
+                {project.featured && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <div className="flex items-center gap-1 rounded-full bg-yellow-500 px-2 py-1 text-[10px] font-bold text-black">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Featured
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* CONTENT */}
+              <div className="p-5">
+                <h3 className="text-xl font-bold text-white mb-1 line-clamp-1 group-hover:text-yellow-400 transition">
+                  {project.title}
+                </h3>
+                <p className="text-gray-400 text-sm line-clamp-2 mb-3">
+                  {project.description || "Explore this cinematic project..."}
+                </p>
+                
+                {/* MEDIA COUNTS */}
+                <div className="flex items-center gap-4">
+                  {imageCount > 0 && (
+                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                      <Camera className="w-3 h-3" /> {imageCount}
+                    </span>
+                  )}
+                  {videoCount > 0 && (
+                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                      <Video className="w-3 h-3" /> {videoCount}
+                    </span>
+                  )}
                 </div>
-              </motion.div>
-            );
-          }
-        )}
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
-      {/* =====================================
-          CINEMATIC MODAL
-      ===================================== */}
-
+      {/* CINEMATIC MODAL */}
       <AnimatePresence>
-
         {selectedProject && (
-
           <motion.div
-            initial={{
-              opacity: 0,
-            }}
-
-            animate={{
-              opacity: 1,
-            }}
-
-            exit={{
-              opacity: 0,
-            }}
-
-            className="
-              fixed
-              inset-0
-              z-[999]
-
-              flex
-              items-center
-              justify-center
-
-              bg-black/95
-              backdrop-blur-md
-
-              p-4
-            "
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4"
           >
-
-            {/* CLOSE */}
-
+            {/* CLOSE BUTTON */}
             <button
-              onClick={
-                closeModal
-              }
-              className="
-                absolute
-                right-6
-                top-6
-                z-50
-
-                flex
-                h-14
-                w-14
-                items-center
-                justify-center
-
-                rounded-full
-
-                border
-                border-white/10
-
-                bg-white/10
-
-                backdrop-blur-md
-              "
+              onClick={closeModal}
+              className="absolute right-6 top-6 z-50 w-12 h-12 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition"
             >
-
-              <X />
+              <X className="w-5 h-5" />
             </button>
 
-            {/* LEFT */}
-
+            {/* PREV BUTTON */}
             <button
-              onClick={
-                previousMedia
-              }
-              className="
-                absolute
-                left-6
-                z-50
-
-                flex
-                h-14
-                w-14
-                items-center
-                justify-center
-
-                rounded-full
-
-                border
-                border-white/10
-
-                bg-white/10
-
-                backdrop-blur-md
-              "
+              onClick={previousMedia}
+              className="absolute left-6 z-50 w-12 h-12 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition"
             >
-
-              <ChevronLeft />
+              <ChevronLeft className="w-5 h-5" />
             </button>
 
-            {/* RIGHT */}
-
+            {/* NEXT BUTTON */}
             <button
-              onClick={
-                nextMedia
-              }
-              className="
-                absolute
-                right-6
-                z-50
-
-                flex
-                h-14
-                w-14
-                items-center
-                justify-center
-
-                rounded-full
-
-                border
-                border-white/10
-
-                bg-white/10
-
-                backdrop-blur-md
-              "
+              onClick={nextMedia}
+              className="absolute right-6 z-50 w-12 h-12 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition"
             >
-
-              <ChevronRight />
+              <ChevronRight className="w-5 h-5" />
             </button>
 
             {/* CONTENT */}
-
-            <div
-              className="
-                mx-auto
-                flex
-                w-full
-                max-w-7xl
-                flex-col
-              "
-            >
-
-              {/* TITLE */}
-
-              <div
-                className="
-                  mb-8
-                  text-center
-                "
-              >
-
-                <h2
-                  className="
-                    text-4xl
-                    font-black
-                    md:text-6xl
-                  "
-                >
-                  {
-                    selectedProject.title
-                  }
+            <div className="max-w-6xl w-full">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-white">
+                  {selectedProject.title}
                 </h2>
-
-                <p
-                  className="
-                    mt-3
-                    text-zinc-400
-                  "
-                >
-                  Media
-                  {" "}
-                  {currentMediaIndex + 1}
-                  {" "}
-                  of
-                  {" "}
-                  {
-                    selectedProject
-                      .media.length
-                  }
+                <p className="text-gray-400 mt-2 flex items-center justify-center gap-2">
+                  <Camera className="w-4 h-4" />
+                  Media {currentMediaIndex + 1} of {selectedProject.media.length}
                 </p>
               </div>
 
-              {/* MEDIA */}
-
-              <div
-                className="
-                  relative
-                  overflow-hidden
-                  rounded-[32px]
-                "
-              >
-
-                {currentMedia?.type ===
-                "video" ? (
-
+              <div className="rounded-2xl overflow-hidden bg-black/50">
+                {currentMedia?.type === "video" ? (
                   <video
                     controls
                     autoPlay
-                    className="
-                      max-h-[75vh]
-                      w-full
-                      rounded-[32px]
-                      object-contain
-                    "
+                    className="w-full max-h-[70vh] object-contain"
                   >
-                    <source
-                      src={
-                        currentMedia.url
-                      }
-                    />
+                    <source src={currentMedia.url} />
                   </video>
-
                 ) : (
-
                   <img
-                    src={
-                      currentMedia?.url
-                    }
-                    alt=""
-                    className="
-                      max-h-[75vh]
-                      w-full
-                      rounded-[32px]
-                      object-contain
-                    "
+                    src={currentMedia?.url}
+                    alt={selectedProject.title}
+                    className="w-full max-h-[70vh] object-contain"
                   />
                 )}
               </div>
 
               {/* THUMBNAILS */}
-
-              <div
-                className="
-                  mt-8
-                  flex
-                  gap-4
-                  overflow-x-auto
-                  pb-2
-                "
-              >
-
-                {selectedProject.media.map(
-                  (
-                    media,
-                    index
-                  ) => (
-
+              {selectedProject.media.length > 1 && (
+                <div className="flex gap-2 mt-4 overflow-x-auto pb-2 justify-center">
+                  {selectedProject.media.map((media, idx) => (
                     <button
-                      key={index}
-
-                      onClick={() =>
-                        setCurrentMediaIndex(
-                          index
-                        )
-                      }
-
+                      key={idx}
+                      onClick={() => setCurrentMediaIndex(idx)}
                       className={`
-                        relative
-                        h-24
-                        min-w-[100px]
-                        overflow-hidden
-                        rounded-2xl
-                        border-2
-
-                        transition-all
-
-                        ${
-                          currentMediaIndex ===
-                          index
-
-                            ? `
-                              border-white
-                            `
-
-                            : `
-                              border-transparent
-                              opacity-60
-                            `
-                        }
+                        w-16 h-16 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0
+                        ${currentMediaIndex === idx ? "border-yellow-500" : "border-transparent opacity-60 hover:opacity-100"}
                       `}
                     >
-
-                      {media.type ===
-                      "video" ? (
-
-                        <video
-                          className="
-                            h-full
-                            w-full
-                            object-cover
-                          "
-                        >
-                          <source
-                            src={media.url}
-                          />
-                        </video>
-
-                      ) : (
-
-                        <img
-                          src={media.url}
-                          alt=""
-                          className="
-                            h-full
-                            w-full
-                            object-cover
-                          "
-                        />
-                      )}
+                      <img
+                        src={media.url}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
                     </button>
-                  )
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

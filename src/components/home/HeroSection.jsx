@@ -292,7 +292,7 @@ export default function HeroSection({ setBookingModalGS }) {
                   transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
                   className="text-xs text-gray-400"
                 >
-                  ✦ Trusted by 100+ happy clients ✦
+                  ✦ Trusted by <span className="text-gold font-semibold">happy</span>  clients ✦
                 </motion.p>
               </motion.div>
             </div>

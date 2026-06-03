@@ -4,395 +4,188 @@
    FRAMER MOTION
 ========================================== */
 
-import {
-  motion,
-} from "framer-motion";
+import { motion } from "framer-motion";
 
 /* ==========================================
    LUCIDE ICONS
 ========================================== */
 
-import {
-  ArrowRight,
-} from "lucide-react";
+import { ArrowRight, Sparkles, Calendar, CheckCircle } from "lucide-react";
 
 /* ==========================================
    COMPONENT
 ========================================== */
 
-export default function CTASection({
+export default function CTASection({ setBookingModalGS }) {
+  // Animation variants
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  };
 
-  setBookingModalGS,
+  const pulseDot = {
+    scale: [1, 1.3, 1],
+    transition: { duration: 2, repeat: Infinity },
+  };
 
-}) {
+  const bounceArrow = {
+    x: [0, 5, 0],
+    transition: { duration: 1.5, repeat: Infinity },
+  };
+
+  const floatingGlow = {
+    y: [0, -15, 0],
+    transition: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+  };
 
   return (
-
-    <section
-
-      className="
-        relative
-        py-32
-        overflow-hidden
-      "
-    >
-
+    <section className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black">
+      
       {/* ==========================================
-          ANIMATED BACKGROUND
+          ANIMATED BACKGROUND GLOWS
       ========================================== */}
-
+      
+      {/* Main gold glow */}
       <motion.div
-
         animate={{
-          scale: [1, 1.03, 1],
+          scale: [1, 1.1, 1],
+          opacity: [0.3, 0.5, 0.3],
         }}
-
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-        }}
-
-        className="
-          absolute
-          inset-0
-          bg-gradient-to-r
-          from-yellow-500
-          via-yellow-400
-          to-blue-900
-        "
-      ></motion.div>
-
-      {/* ==========================================
-          DARK OVERLAY
-      ========================================== */}
-
-      <div className="
-        absolute
-        inset-0
-        bg-black/10
-      "></div>
-
-      {/* ==========================================
-          AMBIENT GLOW - TOP LEFT
-      ========================================== */}
-
+        transition={{ duration: 8, repeat: Infinity }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gold/20 blur-[120px] pointer-events-none"
+      />
+      
+      {/* Floating orb top right */}
       <motion.div
-
-        animate={{
-          x: [0, 40, 0],
-          y: [0, -20, 0],
-        }}
-
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-        }}
-
-        className="
-          absolute
-          top-0
-          left-0
-          w-[450px]
-          h-[450px]
-          bg-white/10
-          blur-[60px] md:blur-[120px]
-          rounded-full
-        "
-      ></motion.div>
-
-      {/* ==========================================
-          AMBIENT GLOW - BOTTOM RIGHT
-      ========================================== */}
-
+        animate={floatingGlow}
+        className="absolute top-10 right-10 w-[300px] h-[300px] rounded-full bg-gold/10 blur-[80px] pointer-events-none"
+      />
+      
+      {/* Floating orb bottom left */}
       <motion.div
+        animate={floatingGlow}
+        transition={{ delay: 1, duration: 7 }}
+        className="absolute bottom-10 left-10 w-[350px] h-[350px] rounded-full bg-blue-500/10 blur-[80px] pointer-events-none"
+      />
 
-        animate={{
-          x: [0, -40, 0],
-          y: [0, 20, 0],
-        }}
-
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-        }}
-
-        className="
-          absolute
-          bottom-0
-          right-0
-          w-[450px]
-          h-[450px]
-          bg-blue-300/20
-          blur-[120px]
-          rounded-full
-        "
-      ></motion.div>
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+        <div className="h-full w-full bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:50px_50px]" />
+      </div>
 
       {/* ==========================================
           MAIN CONTENT
       ========================================== */}
-
-      <div className="
-        relative
-        z-10
-        max-w-5xl
-        mx-auto
-        px-6
-        text-center
-      ">
-
+      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+        
         {/* ==========================================
-            SMALL BADGE
+            TOP BADGE
         ========================================== */}
-
         <motion.div
-
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          viewport={{
-            once: true,
-          }}
-
-          transition={{
-            duration: 0.6,
-          }}
-
-          whileHover={{
-            scale: 1.03,
-          }}
-
-          className="
-            inline-flex
-            items-center
-            gap-2
-            bg-white/10
-            border
-            border-white/20
-            rounded-full
-            px-5
-            py-2
-            mb-8
-            backdrop-blur-xl
-          "
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          whileHover={{ scale: 1.03 }}
+          className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md px-5 py-2 mb-6"
         >
-
-          {/* ANIMATED DOT */}
-
-          <motion.div
-
-            animate={{
-              scale: [1, 1.3, 1],
-            }}
-
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-            }}
-
-            className="
-              w-2
-              h-2
-              rounded-full
-              bg-white
-            "
-          ></motion.div>
-
-          <span className="
-            text-sm
-            uppercase
-            tracking-wide
-            font-semibold
-            text-white
-          ">
-
-            Let’s Build Something Amazing
-
+          <motion.div animate={pulseDot} className="w-2 h-2 rounded-full bg-gold" />
+          <span className="text-sm font-semibold uppercase tracking-wider text-gold">
+            Let's Build Something Amazing
           </span>
-
         </motion.div>
 
         {/* ==========================================
             TITLE
         ========================================== */}
-
         <motion.h2
-
-          initial={{
-            opacity: 0,
-            y: 50,
-          }}
-
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          viewport={{
-            once: true,
-          }}
-
-          transition={{
-            duration: 0.8,
-          }}
-
-          className="
-            text-5xl
-            md:text-7xl
-            font-black
-            leading-tight
-            text-white
-          "
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.1 }}
+          className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight"
         >
-
           Ready To Work
           <br />
-
-          <span className="
-            text-black
-            drop-shadow-xl
-          ">
-
+          <span className="bg-gradient-to-r from-gold to-gold-dark bg-clip-text text-transparent">
             With Us?
-
           </span>
-
         </motion.h2>
 
         {/* ==========================================
             DESCRIPTION
         ========================================== */}
-
         <motion.p
-
-          initial={{
-            opacity: 0,
-            y: 50,
-          }}
-
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          viewport={{
-            once: true,
-          }}
-
-          transition={{
-            delay: 0.2,
-            duration: 0.8,
-          }}
-
-          className="
-            text-xl
-            mt-8
-            text-white/90
-            leading-relaxed
-            max-w-3xl
-            mx-auto
-          "
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.2 }}
+          className="text-base md:text-lg text-gray-300 mt-6 leading-relaxed max-w-2xl mx-auto"
         >
-
-          Let’s bring your event or business vision
-          to life with professional service,
+          Let's bring your event or business vision to life with professional service,
           innovation, and unmatched dedication.
-
         </motion.p>
+
+        {/* ==========================================
+            FEATURE LIST
+        ========================================== */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.3 }}
+          className="flex flex-wrap justify-center gap-4 mt-8"
+        >
+          {["Free Consultation", "No Obligation", "Quick Response"].map((feature, i) => (
+            <div key={i} className="flex items-center gap-1.5 text-gray-400 text-sm">
+              <CheckCircle className="w-3.5 h-3.5 text-gold" />
+              <span>{feature}</span>
+            </div>
+          ))}
+        </motion.div>
 
         {/* ==========================================
             CTA BUTTON
         ========================================== */}
-
-        <motion.button
-
-          initial={{
-            opacity: 0,
-            y: 50,
-          }}
-
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          viewport={{
-            once: true,
-          }}
-
-          transition={{
-            delay: 0.4,
-            duration: 0.8,
-          }}
-
-          whileHover={
-                typeof window !== "undefined" &&
-                window.innerWidth >= 1024
-                  ? {
-                      scale: 1.05,
-                      y: -5,
-                    }
-                  : {}
-              }
-
-          whileTap={{
-            scale: 0.98,
-          }}
-
-          onClick={() =>
-            setBookingModalGS(true)
-          }
-
-          className="
-            mt-12
-            bg-black
-            hover:bg-white
-            hover:text-black
-            text-white
-            px-10
-            py-5
-            rounded-full
-            text-xl
-            font-bold
-            transition-all
-            duration-300
-            shadow-[0_20px_60px_rgba(0,0,0,0.35)]
-            inline-flex
-            items-center
-            gap-3
-          "
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.4 }}
+          className="mt-10"
         >
-
-          Schedule Consultation
-
-          <motion.div
-
-            animate={{
-              x: [0, 5, 0],
-            }}
-
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-            }}
-
+          <motion.button
+            whileHover={{ scale: 1.05, y: -3 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setBookingModalGS(true)}
+            className="group relative overflow-hidden rounded-full bg-gold px-8 py-4 md:px-10 md:py-5 text-lg md:text-xl font-bold text-black transition-all duration-300 shadow-lg hover:shadow-gold/30 inline-flex items-center gap-3"
           >
+            {/* Button shine effect */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            
+            <Calendar className="w-5 h-5 md:w-6 md:h-6" />
+            Schedule Free Consultation
+            <motion.div animate={bounceArrow}>
+              <ArrowRight size={20} className="md:w-6 md:h-6" />
+            </motion.div>
+          </motion.button>
+        </motion.div>
 
-            <ArrowRight size={24} />
-
-          </motion.div>
-
-        </motion.button>
-
+        {/* ==========================================
+            TRUST INDICATOR
+        ========================================== */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-8"
+        >
+          <p className="text-gray-500 text-xs flex items-center justify-center gap-2">
+            <Sparkles className="w-3 h-3 text-gold" />
+            Trusted by <span className="text-gold font-semibold">happy</span>  clients
+            <Sparkles className="w-3 h-3 text-gold" />
+          </p>
+        </motion.div>
       </div>
-
     </section>
   );
 }

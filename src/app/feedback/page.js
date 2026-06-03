@@ -212,7 +212,7 @@ export default function FeedbackPage() {
   if (success) {
     return (
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 px-6">
-        <div className="absolute inset-0 bg-[url('/images/pattern-bg.png')] opacity-5" />
+        
         
         <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-gold/15 blur-[100px]" />
 
@@ -283,8 +283,7 @@ export default function FeedbackPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('/images/pattern-bg.png')] opacity-5" />
+    
 
       {/* Gold Glow */}
       <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-gold/10 blur-[120px]" />
