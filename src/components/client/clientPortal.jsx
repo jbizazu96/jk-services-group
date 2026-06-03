@@ -31,7 +31,65 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  DollarSign,
+  Package as PackageIcon,
+  Clock,
+  TrendingUp,
 } from "lucide-react";
+
+/* ==========================================
+   HELPER COMPONENTS (Moved BEFORE main component)
+========================================== */
+
+function InputField({ label, name, value, onChange, placeholder, type = "text", error, required }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-gold">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full rounded-xl border ${error ? "border-red-400" : "border-gray-300"} bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none`}
+      />
+      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
+    </div>
+  );
+}
+
+function TextareaField({ label, name, value, onChange, placeholder, rows = 5, error, required }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-gold">*</span>}
+      </label>
+      <textarea
+        rows={rows}
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full rounded-xl border ${error ? "border-red-400" : "border-gray-300"} bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none resize-none`}
+      />
+      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
+    </div>
+  );
+}
+
+function ServiceSection({ icon, title, children }) {
+  return (
+    <div className="mt-8 pt-6 border-t border-gray-200">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="rounded-xl bg-gold/10 p-2.5 text-gold">{icon}</div>
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{children}</div>
+    </div>
+  );
+}
 
 /* ==========================================
    MAIN COMPONENT
@@ -40,6 +98,10 @@ import {
 export default function ClientPortal() {
   const searchParams = useSearchParams();
   const serviceFromUrl = searchParams.get("service");
+  const packageFromUrl = searchParams.get("package");
+  const budgetFromUrl = searchParams.get("budget");
+  const sourceFromUrl = searchParams.get("source"); // "pricing", "contact", "general"
+  const requestTypeFromUrl = searchParams.get("type"); // "quote", "general"
 
   const [selectedService, setSelectedService] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,6 +112,9 @@ export default function ClientPortal() {
   const [services, setServices] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [formErrors, setFormErrors] = useState({});
+  
+  // Request type detection
+  const [requestType, setRequestType] = useState("general"); // "general" or "quote"
 
   /* ==========================================
      FORM DATA
@@ -93,7 +158,32 @@ export default function ClientPortal() {
     eventPlanningType: "",
     guestCount: "",
     domainName: "",
+    // New fields for quote/pricing
+    selectedPackage: "",
+    selectedAddOns: "",
+    expectedTimeline: "",
+    preferredContactMethod: "email",
   });
+
+  /* ==========================================
+     DETECT REQUEST TYPE FROM URL
+  ========================================== */
+
+  useEffect(() => {
+    if (sourceFromUrl === "pricing" || requestTypeFromUrl === "quote" || packageFromUrl) {
+      setRequestType("quote");
+      // Pre-fill budget if coming from pricing page
+      if (budgetFromUrl) {
+        setFormData(prev => ({ ...prev, budget: budgetFromUrl }));
+      }
+      // Pre-fill package info
+      if (packageFromUrl) {
+        setFormData(prev => ({ ...prev, selectedPackage: packageFromUrl }));
+      }
+    } else {
+      setRequestType("general");
+    }
+  }, [sourceFromUrl, requestTypeFromUrl, packageFromUrl, budgetFromUrl]);
 
   /* ==========================================
      LOAD CATEGORIES
@@ -112,7 +202,6 @@ export default function ClientPortal() {
       }));
       setCategories(categoryData);
 
-      // Preselect category from URL service
       if (serviceFromUrl) {
         const serviceSnapshot = await getDocs(collection(db, "services"));
         const foundService = serviceSnapshot.docs
@@ -151,7 +240,6 @@ export default function ClientPortal() {
       }));
       setServices(data);
 
-      // Preselect service from URL
       if (serviceFromUrl) {
         const foundService = data.find((service) => service.name === serviceFromUrl);
         if (foundService) {
@@ -183,7 +271,6 @@ export default function ClientPortal() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error for this field when user types
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -212,6 +299,11 @@ export default function ClientPortal() {
     if (!formData.city.trim()) errors.city = "City is required";
     if (!formData.state.trim()) errors.state = "State is required";
     if (!formData.description.trim()) errors.description = "Project description is required";
+    
+    // For quote requests, budget is required
+    if (requestType === "quote" && !formData.budget) {
+      errors.budget = "Budget is required for quote requests";
+    }
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -263,16 +355,29 @@ export default function ClientPortal() {
         );
       }
 
-      // Save to Firestore
-      await addDoc(collection(db, "serviceRequests"), {
+      // Prepare data for Firestore
+      const submissionData = {
         ...formData,
         requestId: generatedRequestId,
         uploads: uploadedFiles,
-        status: "pending",
-        source: "website",
+        status: requestType === "quote" ? "quote_requested" : "pending",
+        source: sourceFromUrl || "website",
+        requestType: requestType,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      };
+
+      // Add pricing context if this is a quote request
+      if (requestType === "quote") {
+        submissionData.pricingContext = {
+          selectedPackage: formData.selectedPackage,
+          budget: formData.budget,
+          expectedTimeline: formData.expectedTimeline,
+          source: "pricing_page",
+        };
+      }
+
+      await addDoc(collection(db, "serviceRequests"), submissionData);
 
       setRequestId(generatedRequestId);
       setSuccess(true);
@@ -328,6 +433,10 @@ export default function ClientPortal() {
       eventPlanningType: "",
       guestCount: "",
       domainName: "",
+      selectedPackage: "",
+      selectedAddOns: "",
+      expectedTimeline: "",
+      preferredContactMethod: "email",
     });
     setSelectedService("");
     setFiles([]);
@@ -341,8 +450,6 @@ export default function ClientPortal() {
   if (success) {
     return (
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 px-6">
-        
-        
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -355,11 +462,13 @@ export default function ClientPortal() {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Request Submitted!
+            {requestType === "quote" ? "Quote Request Submitted!" : "Request Submitted!"}
           </h1>
 
           <p className="text-gray-600 text-lg text-center mb-8">
-            We've received your request and will contact you within 24 hours.
+            {requestType === "quote" 
+              ? "We've received your quote request and will send you a detailed proposal within 24 hours."
+              : "We've received your request and will contact you within 24 hours."}
           </p>
 
           <div className="rounded-2xl bg-gray-50 border border-gray-200 p-6 mb-8">
@@ -399,8 +508,6 @@ export default function ClientPortal() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
-   
-
       {/* Gold Glow */}
       <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-gold/10 blur-[120px]" />
 
@@ -414,18 +521,28 @@ export default function ClientPortal() {
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-5 py-2 backdrop-blur-sm mb-6">
             <div className="h-2 w-2 rounded-full bg-gold animate-pulse" />
             <span className="text-sm font-semibold uppercase tracking-wider text-gold">
-              Client Portal
+              {requestType === "quote" ? "Quote Request" : "Client Portal"}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-            Service Request
-            <span className="text-gold"> Form</span>
+            {requestType === "quote" ? "Get a" : "Service"}
+            <span className="text-gold"> {requestType === "quote" ? "Quote" : "Request"}</span>
           </h1>
 
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Tell us about your project and we'll get back to you with a custom quote.
+            {requestType === "quote" 
+              ? "Tell us about your project and we'll send you a detailed quote within 24 hours."
+              : "Tell us about your project and we'll get back to you with a custom solution."}
           </p>
+          
+          {/* Quote badge if applicable */}
+          {requestType === "quote" && formData.budget && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold/20 px-4 py-2">
+              <DollarSign className="w-4 h-4 text-gold" />
+              <span className="text-sm font-medium">Pre-approved budget: ${formData.budget}</span>
+            </div>
+          )}
         </motion.div>
 
         {/* Form */}
@@ -495,6 +612,28 @@ export default function ClientPortal() {
                 error={formErrors.state}
                 required
               />
+              
+              {/* Preferred Contact Method - New for quotes */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preferred Contact Method
+                </label>
+                <div className="flex gap-4">
+                  {["email", "phone", "text"].map((method) => (
+                    <label key={method} className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="preferredContactMethod"
+                        value={method}
+                        checked={formData.preferredContactMethod === method}
+                        onChange={handleChange}
+                        className="text-gold focus:ring-gold"
+                      />
+                      <span className="text-gray-700 capitalize">{method}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -551,6 +690,54 @@ export default function ClientPortal() {
               </p>
             )}
           </div>
+
+          {/* Quote-specific fields */}
+          {requestType === "quote" && (
+            <div className="mb-8 p-4 rounded-xl bg-gold/5 border border-gold/20">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-gold" />
+                Project Budget & Timeline
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <InputField
+                  label="Estimated Budget *"
+                  name="budget"
+                  type="number"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="e.g., 5000"
+                  error={formErrors.budget}
+                />
+                <InputField
+                  label="Expected Start Date"
+                  name="expectedTimeline"
+                  type="date"
+                  value={formData.expectedTimeline}
+                  onChange={handleChange}
+                />
+              </div>
+              {formData.selectedPackage && (
+                <div className="mt-3 p-3 rounded-lg bg-white/50 text-sm">
+                  <PackageIcon className="w-4 h-4 inline mr-2 text-gold" />
+                  Selected Package: <span className="font-semibold">{formData.selectedPackage}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Budget field for general requests (optional) */}
+          {requestType !== "quote" && (
+            <div className="mb-8">
+              <InputField
+                label="Estimated Budget (Optional)"
+                name="budget"
+                type="number"
+                value={formData.budget}
+                onChange={handleChange}
+                placeholder="e.g., 5000"
+              />
+            </div>
+          )}
 
           {/* Dynamic Service Sections */}
           {selectedService === "DJ Services" && (
@@ -671,75 +858,13 @@ export default function ClientPortal() {
               ) : (
                 <>
                   <Send className="h-5 w-5" />
-                  Submit Project Request
+                  {requestType === "quote" ? "Request Quote" : "Submit Project Request"}
                 </>
               )}
             </motion.button>
           </div>
         </motion.form>
       </div>
-    </div>
-  );
-}
-
-/* ==========================================
-   SERVICE SECTION COMPONENT
-========================================== */
-
-function ServiceSection({ icon, title, children }) {
-  return (
-    <div className="mt-8 pt-6 border-t border-gray-200">
-      <div className="flex items-center gap-3 mb-5">
-        <div className="rounded-xl bg-gold/10 p-2.5 text-gold">{icon}</div>
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{children}</div>
-    </div>
-  );
-}
-
-/* ==========================================
-   INPUT FIELD COMPONENT
-========================================== */
-
-function InputField({ label, name, value, onChange, placeholder, type = "text", error, required }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-gold">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={value || ""}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`w-full rounded-xl border ${error ? "border-red-400" : "border-gray-300"} bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none`}
-      />
-      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
-    </div>
-  );
-}
-
-/* ==========================================
-   TEXTAREA FIELD COMPONENT
-========================================== */
-
-function TextareaField({ label, name, value, onChange, placeholder, rows = 5, error, required }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-gold">*</span>}
-      </label>
-      <textarea
-        rows={rows}
-        name={name}
-        value={value || ""}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`w-full rounded-xl border ${error ? "border-red-400" : "border-gray-300"} bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all outline-none resize-none`}
-      />
-      {error && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
     </div>
   );
 }

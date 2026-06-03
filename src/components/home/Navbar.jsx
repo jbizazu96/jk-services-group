@@ -145,343 +145,352 @@ export default function Navbar() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-4">
-        
-        {/* ==========================================
-            LOGO / BRAND SECTION - RESPONSIVE FIX
-        ========================================== */}
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="flex items-center gap-2 md:gap-3 cursor-pointer group flex-shrink-0"
-        >
-          {/* Animated Logo Container */}
-          <div className="relative">
-            <motion.div
-              className="absolute inset-0 rounded-full bg-yellow-400/20 blur-xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              }}
-            />
-            <img 
-              src="/images/logo1.png" 
-              alt="Logo" 
-              className="w-10 h-10 md:w-14 md:h-14 object-contain relative z-10 rounded-full"
-            />
-          </div>
+      {/* DESKTOP CONTAINER - Compact version */}
+      <div className="hidden lg:block">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           
-          <div>
-            <motion.h1 
-              className="text-sm md:text-2xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent whitespace-nowrap"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{ backgroundSize: "200% auto" }}
-            >
-              <span className="hidden sm:inline">J&K Services Group</span>
-              <span className="sm:hidden">J&K</span>
-            </motion.h1>
-            <div className="hidden md:flex items-center gap-1">
-              <Sparkles size={12} className="text-yellow-400" />
-              <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
-              <Sparkles size={12} className="text-yellow-400" />
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ==========================================
-            DESKTOP MENU - COMPACT VERSION
-        ========================================== */}
-        <div className="hidden lg:flex items-center gap-3 xl:gap-5">
-          {navLinks.map((link, index) => (
-            <motion.div
-              key={link.name}
-              variants={linkVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
-              onHoverStart={() => setHoveredLink(link.name)}
-              onHoverEnd={() => setHoveredLink(null)}
-              className="relative"
-            >
-              <motion.button
-                onClick={() => handleNavigation(link.name)}
-                className="relative text-white font-medium group cursor-pointer bg-transparent border-none px-2 xl:px-3 py-2"
-              >
-                {/* Link Content */}
-                <div className="flex items-center gap-1.5 relative z-10">
-                  <link.icon size={14} className="transition-colors duration-300 hidden xl:block" style={{ color: hoveredLink === link.name ? link.color : "white" }} />
-                  <span className="tracking-wide text-sm xl:text-base whitespace-nowrap">{link.name}</span>
-                </div>
-                
-                {/* Animated Underline with Color */}
-                <motion.span
-                  variants={underlineVariants}
-                  initial="initial"
-                  animate={hoveredLink === link.name ? "hover" : "initial"}
-                  className="absolute -bottom-2 left-0 h-[2px] rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${link.color}, ${link.color}80)` }}
-                />
-                
-                {/* Glow Effect on Hover */}
-                <motion.div
-                  variants={glowVariants}
-                  initial="initial"
-                  animate={hoveredLink === link.name ? "hover" : "initial"}
-                  className="absolute inset-0 rounded-xl"
-                  style={{ 
-                    background: `radial-gradient(circle at center, ${link.color}20, transparent 70%)`,
-                    filter: "blur(8px)"
-                  }}
-                />
-              </motion.button>
-              
-              {/* Index Badge */}
-              <motion.span
-                className="absolute -top-2 -right-1 text-[8px] font-bold text-yellow-400"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: hoveredLink === link.name ? 1 : 0, scale: hoveredLink === link.name ? 1 : 0 }}
-              >
-                {String(index + 1).padStart(2, "0")}
-              </motion.span>
-            </motion.div>
-          ))}
-
-          {/* ==========================================
-              DONATE BUTTON (Desktop) - Premium Version
-          ========================================== */}
-          <div className="relative ml-2">
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setDonationMenu(!donationMenu)}
-              className="relative overflow-hidden group cursor-pointer rounded-full px-5 md:px-6 py-2.5 md:py-3"
-            >
-              {/* Button Background with Gradient Animation */}
+          {/* LOGO - Desktop */}
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-3 cursor-pointer group flex-shrink-0"
+          >
+            <div className="relative">
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-full"
+                className="absolute inset-0 rounded-full bg-yellow-400/20 blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.6, 0.3],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              />
+              <img 
+                src="/images/logo1.png" 
+                alt="Logo" 
+                className="w-14 h-14 object-contain relative z-10 rounded-full"
+              />
+            </div>
+            
+            <div>
+              <motion.h1 
+                className="text-2xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent whitespace-nowrap"
                 animate={{
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                 }}
                 transition={{
-                  duration: 3,
+                  duration: 5,
                   repeat: Infinity,
                   ease: "linear",
                 }}
                 style={{ backgroundSize: "200% auto" }}
-              />
-              
-              {/* Button Content */}
-              <div className="relative z-10 flex items-center gap-1.5 text-black font-bold text-sm md:text-base">
-                <Heart size={16} className="group-hover:animate-pulse" />
-                <span>Donate</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              >
+                J&K Services Group
+              </motion.h1>
+              <div className="flex items-center gap-1">
+                <Sparkles size={12} className="text-yellow-400" />
+                <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
+                <Sparkles size={12} className="text-yellow-400" />
               </div>
-              
-              {/* Button Shine Effect */}
-              <motion.div
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                animate={{
-                  x: ["-100%", "100%"],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatDelay: 3,
-                }}
-              />
-            </motion.button>
+            </div>
+          </motion.div>
 
-            {/* Donation Dropdown Menu */}
-            <AnimatePresence>
-              {donationMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-                  className="absolute right-0 mt-4 w-72 bg-black/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-2xl z-50 overflow-hidden"
+          {/* DESKTOP MENU - Compact */}
+          <div className="flex items-center gap-3 xl:gap-5">
+            {navLinks.map((link, index) => (
+              <motion.div
+                key={link.name}
+                variants={linkVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                onHoverStart={() => setHoveredLink(link.name)}
+                onHoverEnd={() => setHoveredLink(null)}
+                className="relative"
+              >
+                <motion.button
+                  onClick={() => handleNavigation(link.name)}
+                  className="relative text-white font-medium group cursor-pointer bg-transparent border-none px-2 xl:px-3 py-2"
                 >
-                  <motion.div 
-                    className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent"
-                    animate={{
-                      x: ["-100%", "100%"],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                    }}
+                  <div className="flex items-center gap-1.5 relative z-10">
+                    <link.icon size={14} className="transition-colors duration-300 hidden xl:block" style={{ color: hoveredLink === link.name ? link.color : "white" }} />
+                    <span className="tracking-wide text-sm xl:text-base whitespace-nowrap">{link.name}</span>
+                  </div>
+                  
+                  <motion.span
+                    variants={underlineVariants}
+                    initial="initial"
+                    animate={hoveredLink === link.name ? "hover" : "initial"}
+                    className="absolute -bottom-2 left-0 h-[2px] rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${link.color}, ${link.color}80)` }}
                   />
                   
-                  <div className="flex items-center gap-2 mb-4">
-                    <Heart className="text-yellow-400" size={20} />
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent">
-                      Support Our Mission
-                    </h3>
-                  </div>
-                  
-                  <p className="text-gray-400 text-sm mb-4">
-                    Your donation helps us create unforgettable experiences
-                  </p>
-                  
-                  <div className="flex flex-col gap-3">
-                    {donationOptions.map((option, idx) => (
-                      <motion.a
-                        key={option.label}
-                        whileHover={{ scale: 1.02, x: 5 }}
-                        whileTap={{ scale: 0.98 }}
-                        onHoverStart={() => setActiveDonationOption(idx)}
-                        onHoverEnd={() => setActiveDonationOption(null)}
-                        href={option.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`
-                          relative overflow-hidden text-center py-3 rounded-2xl font-semibold transition-all duration-300
-                          ${option.type === "primary" 
-                            ? "bg-gradient-to-r from-yellow-500 to-yellow-400 text-black shadow-lg shadow-yellow-500/25"
-                            : option.type === "outline"
-                            ? "border border-yellow-500 text-yellow-400 hover:bg-yellow-500 hover:text-black"
-                            : "bg-white/10 text-white hover:bg-white hover:text-black"
-                          }
-                        `}
-                      >
-                        <span className="relative z-10">{option.label}</span>
-                        {option.type === "primary" && (
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-300"
-                            initial={{ x: "-100%" }}
-                            animate={{ x: activeDonationOption === idx ? "100%" : "-100%" }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        )}
-                      </motion.a>
-                    ))}
-                  </div>
-                  
-                  <motion.div 
-                    className="mt-4 pt-4 border-t border-white/10 text-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <p className="text-xs text-gray-500">
-                      <span className="text-yellow-400">♥</span> Join 500+ supporters
-                    </p>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* ==========================================
-            MOBILE MENU BUTTON
-        ========================================== */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setMobileMenu(!mobileMenu)}
-          className="lg:hidden relative w-10 h-10 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center flex-shrink-0"
-        >
-          <motion.div
-            animate={{ rotate: mobileMenu ? 90 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {mobileMenu ? <X size={20} className="text-yellow-400" /> : <Menu size={20} className="text-white" />}
-          </motion.div>
-        </motion.button>
-      </div>
-
-      {/* ==========================================
-          MOBILE MENU
-      ========================================== */}
-      <AnimatePresence>
-        {mobileMenu && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="lg:hidden bg-black/95 backdrop-blur-2xl border-t border-white/10 overflow-hidden"
-          >
-            <div className="flex flex-col p-6 gap-4">
-              {navLinks.map((link, index) => (
-                <motion.button
-                  key={link.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => handleNavigation(link.name)}
-                  whileHover={{ x: 10 }}
-                  className="flex items-center gap-3 text-white text-lg font-medium text-left bg-transparent border-none cursor-pointer group"
-                >
-                  <link.icon size={20} className="text-yellow-400" />
-                  <span>{link.name}</span>
-                  <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+                  <motion.div
+                    variants={glowVariants}
+                    initial="initial"
+                    animate={hoveredLink === link.name ? "hover" : "initial"}
+                    className="absolute inset-0 rounded-xl"
+                    style={{ 
+                      background: `radial-gradient(circle at center, ${link.color}20, transparent 70%)`,
+                      filter: "blur(8px)"
+                    }}
+                  />
                 </motion.button>
-              ))}
+                
+                <motion.span
+                  className="absolute -top-2 -right-1 text-[8px] font-bold text-yellow-400"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: hoveredLink === link.name ? 1 : 0, scale: hoveredLink === link.name ? 1 : 0 }}
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </motion.span>
+              </motion.div>
+            ))}
 
-              {/* Mobile Donate Button */}
+            {/* DONATE BUTTON - Desktop */}
+            <div className="relative ml-2">
               <motion.button
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setDonationMenu(!donationMenu)}
-                className="relative overflow-hidden bg-gradient-to-r from-yellow-500 to-yellow-400 text-black font-bold px-6 py-4 rounded-full transition cursor-pointer mt-4"
+                className="relative overflow-hidden group cursor-pointer rounded-full px-6 py-3"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <Heart size={18} />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-full"
+                  animate={{
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  style={{ backgroundSize: "200% auto" }}
+                />
+                
+                <div className="relative z-10 flex items-center gap-2 text-black font-bold">
+                  <Heart size={18} className="group-hover:animate-pulse" />
                   <span>Donate</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </div>
+                
+                <motion.div
+                  className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  animate={{
+                    x: ["-100%", "100%"],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                  }}
+                />
               </motion.button>
 
-              {/* Mobile Donation Options */}
               <AnimatePresence>
                 {donationMenu && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: 10, height: 0 }}
-                    className="bg-white/5 border border-white/10 rounded-3xl p-5 flex flex-col gap-3 overflow-hidden"
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
+                    className="absolute right-0 mt-4 w-72 bg-black/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-2xl z-50 overflow-hidden"
                   >
-                    <h3 className="text-xl font-bold text-white mb-2">Support Our Mission</h3>
-                    {donationOptions.map(({ label, link, type }) => (
-                      <motion.a
-                        key={label}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`
-                          text-center py-3 rounded-2xl transition font-semibold
-                          ${type === "primary" 
-                            ? "bg-yellow-500 hover:bg-yellow-400 text-black"
-                            : type === "outline"
-                            ? "border border-yellow-500 text-yellow-400 hover:bg-yellow-500 hover:text-black"
-                            : "bg-white/10 text-white hover:bg-white hover:text-black"
-                          }
-                        `}
-                      >
-                        {label}
-                      </motion.a>
-                    ))}
+                    <motion.div 
+                      className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent"
+                      animate={{
+                        x: ["-100%", "100%"],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                      }}
+                    />
+                    
+                    <div className="flex items-center gap-2 mb-4">
+                      <Heart className="text-yellow-400" size={20} />
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent">
+                        Support Our Mission
+                      </h3>
+                    </div>
+                    
+                    <p className="text-gray-400 text-sm mb-4">
+                      Your donation helps us create unforgettable experiences
+                    </p>
+                    
+                    <div className="flex flex-col gap-3">
+                      {donationOptions.map((option, idx) => (
+                        <motion.a
+                          key={option.label}
+                          whileHover={{ scale: 1.02, x: 5 }}
+                          whileTap={{ scale: 0.98 }}
+                          onHoverStart={() => setActiveDonationOption(idx)}
+                          onHoverEnd={() => setActiveDonationOption(null)}
+                          href={option.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`
+                            relative overflow-hidden text-center py-3 rounded-2xl font-semibold transition-all duration-300
+                            ${option.type === "primary" 
+                              ? "bg-gradient-to-r from-yellow-500 to-yellow-400 text-black shadow-lg shadow-yellow-500/25"
+                              : option.type === "outline"
+                              ? "border border-yellow-500 text-yellow-400 hover:bg-yellow-500 hover:text-black"
+                              : "bg-white/10 text-white hover:bg-white hover:text-black"
+                            }
+                          `}
+                        >
+                          <span className="relative z-10">{option.label}</span>
+                          {option.type === "primary" && (
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-300"
+                              initial={{ x: "-100%" }}
+                              animate={{ x: activeDonationOption === idx ? "100%" : "-100%" }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          )}
+                        </motion.a>
+                      ))}
+                    </div>
+                    
+                    <motion.div 
+                      className="mt-4 pt-4 border-t border-white/10 text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <p className="text-xs text-gray-500">
+                        <span className="text-yellow-400">♥</span> Join 500+ supporters
+                      </p>
+                    </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ==========================================
+          MOBILE CONTAINER - Original version (full name, tagline visible)
+      ========================================== */}
+      <div className="lg:hidden">
+        <div className="px-6 py-4 flex items-center justify-between">
+          
+          {/* LOGO - Mobile (Original - full size) */}
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-3 cursor-pointer"
+          >
+            <img 
+              src="/images/logo1.png" 
+              alt="Logo" 
+              className="w-12 h-12 object-contain"
+            />
+            <div>
+              <h1 className="text-lg font-bold text-white">J&K Services Group</h1>
+              <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+
+          {/* MOBILE MENU BUTTON */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setMobileMenu(!mobileMenu)}
+            className="relative w-10 h-10 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center"
+          >
+            <motion.div
+              animate={{ rotate: mobileMenu ? 90 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {mobileMenu ? <X size={20} className="text-yellow-400" /> : <Menu size={20} className="text-white" />}
+            </motion.div>
+          </motion.button>
+        </div>
+
+        {/* MOBILE MENU */}
+        <AnimatePresence>
+          {mobileMenu && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="bg-black/95 backdrop-blur-2xl border-t border-white/10 overflow-hidden"
+            >
+              <div className="flex flex-col p-6 gap-4">
+                {navLinks.map((link, index) => (
+                  <motion.button
+                    key={link.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleNavigation(link.name)}
+                    whileHover={{ x: 10 }}
+                    className="flex items-center gap-3 text-white text-lg font-medium text-left bg-transparent border-none cursor-pointer group"
+                  >
+                    <link.icon size={20} className="text-yellow-400" />
+                    <span>{link.name}</span>
+                    <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+                  </motion.button>
+                ))}
+
+                {/* Mobile Donate Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setDonationMenu(!donationMenu)}
+                  className="relative overflow-hidden bg-gradient-to-r from-yellow-500 to-yellow-400 text-black font-bold px-6 py-4 rounded-full transition cursor-pointer mt-4"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Heart size={18} />
+                    <span>Donate</span>
+                  </div>
+                </motion.button>
+
+                {/* Mobile Donation Options */}
+                <AnimatePresence>
+                  {donationMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: "auto" }}
+                      exit={{ opacity: 0, y: 10, height: 0 }}
+                      className="bg-white/5 border border-white/10 rounded-3xl p-5 flex flex-col gap-3 overflow-hidden"
+                    >
+                      <h3 className="text-xl font-bold text-white mb-2">Support Our Mission</h3>
+                      {donationOptions.map(({ label, link, type }) => (
+                        <motion.a
+                          key={label}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`
+                            text-center py-3 rounded-2xl transition font-semibold
+                            ${type === "primary" 
+                              ? "bg-yellow-500 hover:bg-yellow-400 text-black"
+                              : type === "outline"
+                              ? "border border-yellow-500 text-yellow-400 hover:bg-yellow-500 hover:text-black"
+                              : "bg-white/10 text-white hover:bg-white hover:text-black"
+                            }
+                          `}
+                        >
+                          {label}
+                        </motion.a>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.nav>
   );
 }
