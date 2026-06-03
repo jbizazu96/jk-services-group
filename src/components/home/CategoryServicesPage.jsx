@@ -277,7 +277,13 @@ export default function CategoryServicesPage() {
                     </p>
 
                     {/* Button */}
-                    <Link href={`/services/${category.slug}`}>
+                    <Link
+                        href={`/services/${category.slug}`}
+                        scroll={false}
+                        onClick={() => {
+                            sessionStorage.setItem("returnSection", "services");
+                          }}
+                      >
                       <button className={`
                         w-full rounded-2xl bg-yellow-500 py-4 text-lg font-bold text-black transition-all duration-300 
                         hover:bg-yellow-400 hover:shadow-lg hover:shadow-yellow-500/25

@@ -21,28 +21,28 @@ export default function HomePage() {
   /* ==========================================
      SCROLL TO PORTFOLIO WHEN RETURNING
   ========================================== */
-  useEffect(() => {
-    const scrollToGallery = () => {
-      if (window.location.hash === "#gallery") {
-        const section = document.getElementById("gallery");
+      useEffect(() => {
+        const scrollToHash = () => {
+          const hash = window.location.hash;
 
-        if (section) {
-          section.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-      }
-    };
+          if (!hash) return;
 
-    // Run immediately
-    scrollToGallery();
+          const section = document.querySelector(hash);
 
-    // Run again after components finish rendering
-    const timer = setTimeout(scrollToGallery, 1000);
+          if (section) {
+            section.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        };
 
-    return () => clearTimeout(timer);
-  }, []);
+        scrollToHash();
+
+        const timer = setTimeout(scrollToHash, 1000);
+
+        return () => clearTimeout(timer);
+      }, []);
 
  
   /* ==========================================
