@@ -387,10 +387,19 @@ export default function ServiceRequests() {
               <p className="text-xl font-semibold">{request.customerName}</p>
 
               {/* Pricing Context Preview */}
-              {request.pricingContext && (
+              {request.pricingContext && request.status == "quote_requested" && (
                 <div className="mt-3 text-xs text-gray-400 border-t border-white/10 pt-3">
+                  <p>RequestId: {request.requestId|| "N/A"}</p> 
                   <p>Package: {request.pricingContext.selectedPackage || "N/A"}</p>
-                  <p>Budget: ${request.pricingContext.estimatedBudget || "N/A"}</p>
+                  <p>Budget: ${request.pricingContext.budget || "N/A"}</p>
+                </div>
+              )}
+
+              {request.budget && request.status !== "quote_requested" && (
+                <div className="mt-3 text-xs text-gray-400 border-t border-white/10 pt-3">
+                  <p>RequestId: {request.requestId|| "N/A"}</p> 
+                  <p>Package: {request.serviceType || "N/A"}</p>
+                  <p>Budget: ${request.budget || "N/A"}</p>
                 </div>
               )}
 
@@ -516,24 +525,30 @@ export default function ServiceRequests() {
                             value={selectedRequest.serviceType || ""}
                             onChange={(value) => setSelectedRequest({ ...selectedRequest, serviceType: value })}
                           />
+                          <InputField
+                            label="Budget"
+                            value={selectedRequest.budget || ""}
+                            onChange={(value) => setSelectedRequest({ ...selectedRequest, budget: value })}
+                          />
 
                           {/* PRICING CONTEXT DISPLAY */}
                           {selectedRequest.pricingContext && (
                             <div className="mb-6 p-4 rounded-2xl bg-gold/5 border border-gold/20">
                               <h4 className="text-sm font-semibold text-gold mb-3 flex items-center gap-2">
                                 <TrendingUp className="h-4 w-4" />
-                                Pricing Context (from client)
+                                Client Package
                               </h4>
                               <div className="space-y-2 text-sm">
-                                <p><span className="text-gray-400">Package:</span> {selectedRequest.pricingContext.selectedPackage || "N/A"}</p>
-                                <p><span className="text-gray-400">Budget:</span> ${selectedRequest.pricingContext.estimatedBudget || "N/A"}</p>
-                                <p><span className="text-gray-400">Pages:</span> {selectedRequest.pricingContext.pageCount || "N/A"}</p>
+                                <p><span className="text-gray-400">Package :</span> {selectedRequest.pricingContext.selectedPackage || "N/A"}</p>
+                                <p><span className="text-gray-400">Pages :</span> {selectedRequest.pricingContext.details.pages || "N/A"}</p>                
+                                <p><span className="text-gray-400">Expected Date :</span> {selectedRequest.pricingContext.expectedTimeline|| "N/A"}</p>
                                 {selectedRequest.pricingContext.selectedAddOns && (
                                   <p><span className="text-gray-400">Add-ons:</span> {selectedRequest.pricingContext.selectedAddOns}</p>
                                 )}
                               </div>
                             </div>
                           )}
+
 
                           {/* STATUS */}
                           <div className="mb-6">

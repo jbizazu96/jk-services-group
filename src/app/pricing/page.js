@@ -1,111 +1,99 @@
 "use client";
 
 /* ==========================================
-   FRAMER MOTION
+   IMPORTS
 ========================================== */
 
 import { motion, AnimatePresence } from "framer-motion";
-
-/* ==========================================
-   LUCIDE ICONS
-========================================== */
-
-import {
-  Sparkles,
-  ChevronRight,
-  CheckCircle,
-  Zap,
-  Database,
-  CreditCard,
-  Globe,
-  Palette,
-  Calendar,
-  Video,
-  Music,
-  Monitor,
-  Wifi,
-  Building2,
-  LayoutDashboard,
-  ShoppingCart,
-  Phone,
-  Mail,
-  Clock,
-  Star,
-  TrendingUp,
-  Shield,
-  Rocket,
-  Layers,
-  Code,
-  Smartphone,
-  Server,
-  Cloud,
-  Lock,
-  BarChart,
-  Users,
-  Gift,
-  Plus,
-  Minus,
-  Package,
-  FileText,
-} from "lucide-react";
-
-/* ==========================================
-   REACT
-========================================== */
-
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
 /* ==========================================
-   PARTICLE POSITIONS
+   ICONS
 ========================================== */
 
-const particlePositions = [15, 25, 35, 45, 55, 65, 75, 85, 20, 40, 60, 80];
+import {
+  Sparkles,
+  CheckCircle,
+  Zap,
+  Database,
+  CreditCard,
+  Globe,
+  Palette,
+  LayoutDashboard,
+  ShoppingCart,
+  Clock,
+  Star,
+  TrendingUp,
+  Shield,
+  Layers,
+  Server,
+  Lock,
+  Gift,
+  Plus,
+  Minus,
+  Package,
+  FileText,
+  Cloud,
+} from "lucide-react";
 
 /* ==========================================
-   PRICING DATA (Base structure)
+   PRICING DATA
 ========================================== */
 
 const pricingPackages = {
-  static: {
+  basic: {
     icon: Globe,
-    title: "Static Website",
-    description: "Fast, responsive, perfect for small businesses & portfolios",
+    title: "Basic Website",
+    description: "Perfect for small businesses & startups",
     basePrice: 600,
     pagesIncluded: 5,
     extraPagePrice: 80,
     options: [
-      { name: "Basic", price: 600, features: ["5 pages (Home, About, Services, Contact, Blog)", "Domain registration (1 year)", "Mobile responsive design", "SEO meta tags setup", "Contact form"] },
-      { name: "Standard", price: 800, features: ["Everything in Basic", "Custom logo design", "Advanced contact form with spam protection", "Social media integration", "Google Maps embed"] },
-      { name: "Pro", price: 1100, features: ["Everything in Standard", "Calendly integration", "Zoom meeting scheduler", "Live chat widget", "Priority support (30 days)"] },
+      { name: "Starter", price: 600, features: ["5 pages", "Domain registration (1 year)", "Mobile responsive", "SEO meta tags", "Contact form", "Basic hosting setup"] },
+      { name: "Professional", price: 1200, features: ["Everything in Starter", "10 pages", "Custom logo design", "Advanced contact form", "Social media integration", "Google Maps embed", "Analytics setup"] },
+      { name: "Business", price: 2000, features: ["Everything in Professional", "15 pages", "E-commerce ready", "Payment integration", "Calendly/Zoom integration", "Live chat", "Priority support"] },
     ],
   },
-  dynamic: {
+  advanced: {
     icon: Zap,
-    title: "Dynamic Motion Site",
-    description: "Interactive, animated, modern web experiences",
-    basePrice: 900,
+    title: "Advanced Website",
+    description: "Dynamic, interactive, modern web experiences",
+    basePrice: 1500,
     pagesIncluded: 5,
     extraPagePrice: 130,
     options: [
-      { name: "Basic", price: 900, features: ["5 dynamic pages", "Smooth scroll animations", "Micro-interactions", "Custom transitions", "Domain registration"] },
-      { name: "Standard", price: 1200, features: ["Everything in Basic", "Custom logo design", "Animated contact form", "Parallax effects", "Lazy loading optimization"] },
-      { name: "Pro", price: 1600, features: ["Everything in Standard", "Calendly + Zoom integration", "Advanced GSAP animations", "3D elements", "Performance tuning"] },
+      { name: "Dynamic", price: 1500, features: ["5 dynamic pages", "Smooth animations", "Micro-interactions", "Custom transitions", "Domain registration", "CMS integration"] },
+      { name: "Premium", price: 2500, features: ["Everything in Dynamic", "10 pages", "Custom animations", "Database integration", "User authentication", "Admin dashboard", "API integrations"] },
+      { name: "Enterprise", price: 4000, features: ["Everything in Premium", "Unlimited pages", "Advanced database", "Custom backend", "Multi-user roles", "Advanced security", "Dedicated support"] },
     ],
   },
-  database: {
-    icon: Database,
-    title: "Database & Dashboard",
-    description: "Powerful backend systems & admin panels",
-    basePrice: 1200,
-    pagesIncluded: 3,
-    extraPagePrice: 180,
+  ecommerce: {
+    icon: ShoppingCart,
+    title: "E-commerce Website",
+    description: "Online stores with payment integration",
+    basePrice: 2000,
+    pagesIncluded: 5,
+    extraPagePrice: 150,
     options: [
-      { name: "Basic", price: 1200, features: ["3 pages + database", "Up to 5 database tables", "Secure authentication", "Data entry interface", "Backup system"] },
-      { name: "Simple Admin", price: 1700, features: ["Everything in Basic", "Simple admin dashboard", "CRUD operations", "User role management", "CSV export"] },
-      { name: "Premium Admin", price: 2800, features: ["Everything in Simple", "Advanced analytics charts", "Real-time filters", "Audit logs", "Custom reporting"] },
+      { name: "Basic Store", price: 2000, features: ["5 product pages", "Shopping cart", "Payment gateway", "Order management", "Basic inventory", "Domain registration"] },
+      { name: "Pro Store", price: 3500, features: ["Everything in Basic", "50 products", "Advanced inventory", "Discount codes", "Email notifications", "Customer accounts", "Analytics dashboard"] },
+      { name: "Enterprise Store", price: 5500, features: ["Everything in Pro", "Unlimited products", "Subscription system", "Multi-vendor support", "Advanced reporting", "API access", "Priority support"] },
+    ],
+  },
+  dashboard: {
+    icon: LayoutDashboard,
+    title: "Admin Dashboard",
+    description: "Powerful backend systems & admin panels",
+    basePrice: 1800,
+    pagesIncluded: 3,
+    extraPagePrice: 200,
+    options: [
+      { name: "Basic Dashboard", price: 1800, features: ["3 dashboard pages", "User management", "Basic analytics", "Data tables", "Authentication system", "Database setup"] },
+      { name: "Advanced Dashboard", price: 3200, features: ["Everything in Basic", "Advanced charts", "Real-time data", "Role-based access", "Activity logs", "Export reports", "Custom widgets"] },
+      { name: "Enterprise Dashboard", price: 5000, features: ["Everything in Advanced", "White-label ready", "Multi-tenant support", "Advanced security", "Audit trails", "API documentation", "24/7 support"] },
     ],
   },
 };
@@ -119,6 +107,8 @@ const addOns = [
   { name: "Premium Hosting", price: 20, description: "Fast, secure hosting with daily backups", icon: Server, recurring: true },
   { name: "Custom Logo Design", price: 150, description: "Professional logo with 3 concepts", icon: Palette },
   { name: "Content Writing (5 pages)", price: 400, description: "SEO-optimized content creation", icon: FileText },
+  { name: "Database Setup", price: 500, description: "Custom database configuration", icon: Database },
+  { name: "API Integration", price: 600, description: "Connect to external services", icon: Cloud },
 ];
 
 /* ==========================================
@@ -139,14 +129,12 @@ export default function PricingPage() {
     setMounted(true);
     loadCategories();
     
-    // Initialize selected tiers
     const initialTiers = {};
     Object.keys(pricingPackages).forEach(key => {
       initialTiers[key] = pricingPackages[key].options[0].name;
     });
     setSelectedTier(initialTiers);
     
-    // Initialize page counts
     const initialPages = {};
     Object.keys(pricingPackages).forEach(key => {
       initialPages[key] = pricingPackages[key].pagesIncluded;
@@ -162,17 +150,6 @@ export default function PricingPage() {
       setServiceCategories(items);
     } catch (error) {
       console.error("Error loading categories:", error);
-    }
-  };
-
-  const handleBookConsultation = () => {
-    const heroSection = document.getElementById("home");
-    if (heroSection) {
-      heroSection.scrollIntoView({ behavior: "smooth" });
-      const event = new CustomEvent("openConsultation");
-      window.dispatchEvent(event);
-    } else {
-      router.push("/#home");
     }
   };
 
@@ -197,36 +174,151 @@ export default function PricingPage() {
     return total;
   };
 
-  const handleStartProject = () => {
-    const params = new URLSearchParams();
-    if (selectedPackage) {
-      const pkg = pricingPackages[selectedPackage];
-      params.set("service", pkg.title);
+  /* ==========================================
+     BUILD DETAILED DESCRIPTION WITH ADD-ONS
+  ========================================== */
+  const buildDetailedDescription = (packageKey, tierName, pageCountValue, addOnsList) => {
+    const pkg = pricingPackages[packageKey];
+    const tier = pkg.options.find(opt => opt.name === tierName);
+    const basePrice = tier?.price || pkg.options[0].price;
+    const extraPages = Math.max(0, pageCountValue - pkg.pagesIncluded);
+    const extraCost = extraPages * pkg.extraPagePrice;
+    const packageTotal = basePrice + extraCost;
+    
+    let addOnsTotal = 0;
+    let addOnsDetails = [];
+    addOnsList.forEach(addonName => {
+      const addon = addOns.find(a => a.name === addonName);
+      if (addon) {
+        addOnsTotal += addon.price;
+        addOnsDetails.push(`   • ${addon.name}: +$${addon.price}`);
+      }
+    });
+    const finalTotal = packageTotal + addOnsTotal;
+    
+    let description = `📦 PACKAGE: ${pkg.title} - ${tierName}\n`;
+    description += `📄 PAGES: ${pageCountValue} (${pkg.pagesIncluded} included`;
+    if (extraPages > 0) {
+      description += `, +${extraPages} extra @ $${pkg.extraPagePrice}/page`;
     }
-    router.push(`/client-portal?${params.toString()}`);
+    description += `)\n`;
+    description += `💰 BASE PRICE: $${packageTotal}\n`;
+    
+    if (addOnsDetails.length > 0) {
+      description += `\n✅ ADD-ONS SELECTED:\n`;
+      addOnsDetails.forEach(detail => {
+        description += `${detail}\n`;
+      });
+      description += `\n📦 ADD-ONS TOTAL: +$${addOnsTotal}\n`;
+    }
+    
+    description += `\n💵 TOTAL QUOTE: $${finalTotal}`;
+    
+    return { description, finalTotal, packageTotal, addOnsTotal };
   };
 
   /* ==========================================
-     ANIMATION VARIANTS
+     SEND TO CLIENT PORTAL WITH FULL DETAILS
   ========================================== */
+  const handleStartProject = (packageKey) => {
+    const activePackage = packageKey || selectedPackage;
+    
+    if (!activePackage) {
+      console.error("No package selected");
+      return;
+    }
+    
+    const params = new URLSearchParams();
+    const pkg = pricingPackages[activePackage];
+    const selectedTierName = selectedTier[activePackage];
+    const currentPageCount = pageCount[activePackage];
+    
+    // Build detailed description with add-ons
+    const { description, finalTotal, packageTotal, addOnsTotal } = buildDetailedDescription(
+      activePackage,
+      selectedTierName,
+      currentPageCount,
+      selectedAddOns
+    );
+    
+    // Core service info
+    params.set("service", "Website Development");
+    params.set("category", "Website Development");
+    params.set("categorySlug", "website-development");
+    params.set("source", "pricing");
+    params.set("type", "quote");
+    
+    // Package details
+    params.set("package", `${pkg.title} - ${selectedTierName}`);
+    params.set("packageType", activePackage);
+    params.set("packageTier", selectedTierName);
+    
+    // Page details
+    params.set("pages", currentPageCount.toString());
+    params.set("pagesIncluded", pkg.pagesIncluded.toString());
+    params.set("extraPagePrice", pkg.extraPagePrice.toString());
+    
+    // Pricing
+    params.set("budget", finalTotal.toString());
+    params.set("basePrice", packageTotal.toString());
+    params.set("addonsTotal", addOnsTotal.toString());
+    
+    // Add-ons
+    if (selectedAddOns.length > 0) {
+      params.set("addons", selectedAddOns.join(","));
+      params.set("addonsCount", selectedAddOns.length.toString());
+    }
+    
+    // The detailed description (this will show in the form)
+    params.set("description", description);
+    
+    // Project title
+    params.set("projectTitle", `Quote: ${pkg.title} - ${selectedTierName}`);
+    
+    // Full details as JSON
+    const packageDetails = {
+      title: pkg.title,
+      tier: selectedTierName,
+      basePrice: packageTotal,
+      addons: selectedAddOns,
+      addonsTotal: addOnsTotal,
+      total: finalTotal,
+      pages: currentPageCount,
+      pagesIncluded: pkg.pagesIncluded,
+      extraPagePrice: pkg.extraPagePrice,
+      category: "Website Development",
+      categorySlug: "website-development",
+      description: description
+    };
+    params.set("details", JSON.stringify(packageDetails));
+    
+    console.log("=== SENDING TO CLIENT PORTAL ===");
+    console.log("Description:", description);
+    console.log("Final URL:", `/client?${params.toString()}`);
+    
+    router.push(`/client?${params.toString()}`);
+  };
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
   };
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading pricing...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
       
-      {/* Animated Background Orbs */}
+      {/* Background Effects */}
       <motion.div
         animate={{ x: [0, 60, 0], y: [0, -30, 0] }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
@@ -238,25 +330,8 @@ export default function PricingPage() {
         className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-200/20 blur-[120px] rounded-full pointer-events-none"
       />
       
-      {/* Gold Center Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gold/5 blur-[100px]" />
 
-      {/* Floating Particles */}
-      {mounted && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {particlePositions.map((pos, i) => (
-            <motion.div
-              key={i}
-              initial={{ x: `${pos}%`, y: "100%", opacity: 0 }}
-              animate={{ y: "-10%", opacity: [0, 0.2, 0] }}
-              transition={{ duration: 8 + (i % 5) * 1.5, repeat: Infinity, delay: i * 0.6, ease: "linear" }}
-              className="absolute w-1 h-1 rounded-full bg-yellow-400/40"
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 md:py-24">
         
         {/* Header */}
@@ -269,7 +344,7 @@ export default function PricingPage() {
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-5 py-2 backdrop-blur-sm mb-6">
             <div className="h-2 w-2 rounded-full bg-gold animate-pulse" />
             <span className="text-sm font-semibold uppercase tracking-wider text-gold">
-              Transparent Pricing
+              Website Development Pricing
             </span>
           </div>
 
@@ -278,17 +353,13 @@ export default function PricingPage() {
           </h1>
 
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Choose the perfect package for your needs. No hidden fees, no surprises.
-            Every project includes dedicated support and quality guarantee.
+            Choose the perfect package for your website needs. All packages include 
+            professional setup and dedicated support.
           </p>
         </motion.div>
 
         {/* Tab Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-center mb-10"
-        >
+        <div className="flex justify-center mb-10">
           <div className="inline-flex rounded-full border border-gray-200 bg-white/50 backdrop-blur-sm p-1">
             <button
               onClick={() => setActiveTab("packages")}
@@ -321,17 +392,12 @@ export default function PricingPage() {
               Custom Builder
             </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* PACKAGES TAB */}
         {activeTab === "packages" && (
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-          >
-            {Object.keys(pricingPackages).map((key, idx) => {
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+            {Object.keys(pricingPackages).map((key) => {
               const pkg = pricingPackages[key];
               const Icon = pkg.icon;
               const currentPrice = getPackagePrice(key);
@@ -340,10 +406,12 @@ export default function PricingPage() {
                 <motion.div
                   key={key}
                   variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
                   whileHover={{ y: -8 }}
                   className="relative rounded-3xl bg-white/90 backdrop-blur-sm border border-gray-200 p-6 shadow-xl transition-all hover:shadow-2xl"
                 >
-                  {key === "dynamic" && (
+                  {key === "advanced" && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-black text-xs font-bold px-4 py-1 rounded-full">
                       MOST POPULAR
                     </div>
@@ -363,18 +431,11 @@ export default function PricingPage() {
                     <span className="text-gray-500"> one-time</span>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-4 pb-4 border-b border-gray-200">
-                    <Layers className="w-4 h-4" />
-                    <span>{pkg.pagesIncluded} pages included</span>
-                    <span className="text-gold">• ${pkg.extraPagePrice}/extra page</span>
-                  </div>
-                  
-                  {/* Tier Selection */}
                   <div className="mb-4">
                     <select
                       value={selectedTier[key]}
                       onChange={(e) => setSelectedTier(prev => ({ ...prev, [key]: e.target.value }))}
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-gold focus:ring-1 focus:ring-gold transition-all"
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-gold focus:ring-1 focus:ring-gold"
                     >
                       {pkg.options.map(opt => (
                         <option key={opt.name} value={opt.name}>{opt.name} (${opt.price})</option>
@@ -382,21 +443,20 @@ export default function PricingPage() {
                     </select>
                   </div>
                   
-                  {/* Features */}
                   <ul className="space-y-2 mb-6">
-                    {pkg.options.find(opt => opt.name === selectedTier[key])?.features.map((feature, i) => (
+                    {pkg.options.find(opt => opt.name === selectedTier[key])?.features.slice(0, 4).map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
                         <CheckCircle className="w-4 h-4 text-gold shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
                     ))}
+                    {pkg.options.find(opt => opt.name === selectedTier[key])?.features.length > 4 && (
+                      <li className="text-xs text-gray-400 pl-6">+ more features</li>
+                    )}
                   </ul>
                   
                   <button
-                    onClick={() => {
-                      setSelectedPackage(key);
-                      handleStartProject();
-                    }}
+                    onClick={() => handleStartProject(key)}
                     className="w-full rounded-xl bg-gray-900 text-white py-3 font-semibold transition-all hover:bg-gold hover:text-black"
                   >
                     Get Started →
@@ -404,17 +464,12 @@ export default function PricingPage() {
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         )}
 
         {/* ADD-ONS TAB */}
         {activeTab === "addons" && (
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {addOns.map((addon, idx) => {
               const Icon = addon.icon;
               const isSelected = selectedAddOns.includes(addon.name);
@@ -422,7 +477,9 @@ export default function PricingPage() {
               return (
                 <motion.div
                   key={idx}
-                  variants={fadeUp}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
                   whileHover={{ y: -4 }}
                   onClick={() => {
                     if (isSelected) {
@@ -431,7 +488,7 @@ export default function PricingPage() {
                       setSelectedAddOns(prev => [...prev, addon.name]);
                     }
                   }}
-                  className={`cursor-pointer rounded-2xl border p-5 transition-all ${
+                  className={`cursor-pointer rounded-2xl border p-4 transition-all ${
                     isSelected
                       ? "border-gold bg-gold/5 shadow-md"
                       : "border-gray-200 bg-white/80 hover:border-gold/50"
@@ -444,35 +501,27 @@ export default function PricingPage() {
                     {isSelected && <CheckCircle className="w-5 h-5 text-gold" />}
                   </div>
                   
-                  <h3 className="font-semibold text-gray-900">{addon.name}</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm">{addon.name}</h3>
                   <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
                   
-                  <div className="mt-3">
-                    <span className="text-xl font-bold text-gray-900">${addon.price}</span>
+                  <div className="mt-2">
+                    <span className="text-lg font-bold text-gray-900">${addon.price}</span>
                     {addon.recurring && <span className="text-xs text-gray-500">/month</span>}
                   </div>
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         )}
 
         {/* CUSTOM BUILDER TAB */}
         {activeTab === "calculator" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl bg-white/90 backdrop-blur-sm border border-gray-200 p-8 shadow-xl"
-          >
+          <div className="rounded-3xl bg-white/90 backdrop-blur-sm border border-gray-200 p-8 shadow-xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left - Package Selection */}
+              {/* Left - Selection */}
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-gold" />
-                  1. Choose Your Package
-                </h3>
-                
-                <div className="space-y-3">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">1. Choose Package</h3>
+                <div className="space-y-3 mb-6">
                   {Object.keys(pricingPackages).map((key) => {
                     const pkg = pricingPackages[key];
                     const Icon = pkg.icon;
@@ -507,18 +556,14 @@ export default function PricingPage() {
                 
                 {selectedPackage && (
                   <>
-                    <h3 className="text-xl font-bold text-gray-900 mt-6 mb-4 flex items-center gap-2">
-                      <Layers className="w-5 h-5 text-gold" />
-                      2. Configure Your Package
-                    </h3>
-                    
-                    <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">2. Configure</h3>
+                    <div className="space-y-4 mb-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Plan Tier</label>
                         <select
                           value={selectedTier[selectedPackage]}
                           onChange={(e) => setSelectedTier(prev => ({ ...prev, [selectedPackage]: e.target.value }))}
-                          className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-gold focus:ring-1 focus:ring-gold"
+                          className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-gold"
                         >
                           {pricingPackages[selectedPackage].options.map(opt => (
                             <option key={opt.name} value={opt.name}>{opt.name} (${opt.price})</option>
@@ -527,9 +572,7 @@ export default function PricingPage() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Number of Pages
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Pages</label>
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => setPageCount(prev => ({
@@ -559,12 +602,8 @@ export default function PricingPage() {
                       </div>
                     </div>
                     
-                    <h3 className="text-xl font-bold text-gray-900 mt-6 mb-4 flex items-center gap-2">
-                      <Gift className="w-5 h-5 text-gold" />
-                      3. Add Extras
-                    </h3>
-                    
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">3. Add Extras</h3>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
                       {addOns.map(addon => (
                         <label key={addon.name} className="flex items-center justify-between cursor-pointer p-2 rounded-lg hover:bg-gray-50">
                           <div className="flex items-center gap-2">
@@ -590,7 +629,7 @@ export default function PricingPage() {
                 )}
               </div>
               
-              {/* Right - Total & Action */}
+              {/* Right - Total */}
               <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Your Custom Quote</h3>
                 
@@ -599,9 +638,7 @@ export default function PricingPage() {
                     <div className="space-y-3 mb-6">
                       <div className="flex justify-between py-2 border-b border-gray-200">
                         <span className="text-gray-600">Base Package</span>
-                        <span className="font-semibold">
-                          ${getPackagePrice(selectedPackage)}
-                        </span>
+                        <span className="font-semibold">${getPackagePrice(selectedPackage)}</span>
                       </div>
                       
                       {selectedAddOns.length > 0 && (
@@ -623,14 +660,14 @@ export default function PricingPage() {
                     </div>
                     
                     <button
-                      onClick={handleStartProject}
+                      onClick={() => handleStartProject(selectedPackage)}
                       className="w-full rounded-xl bg-gold text-black py-3 font-semibold transition-all hover:bg-gold-dark hover:shadow-lg"
                     >
-                      Start Your Project →
+                      Request This Quote →
                     </button>
                     
                     <p className="text-xs text-gray-500 text-center mt-4">
-                      One-time payment. Domain included for 1 year.
+                      You'll be redirected to our quote request form
                     </p>
                   </>
                 ) : (
@@ -641,62 +678,8 @@ export default function PricingPage() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-
-        {/* Service Categories Quick Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-16 pt-8 border-t border-gray-200"
-        >
-          <h3 className="text-center text-lg font-semibold text-gray-700 mb-6">
-            Or browse by service category
-          </h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {serviceCategories.slice(0, 8).map((category) => (
-              <button
-                key={category.id}
-                onClick={() => router.push(`/services/${category.slug}`)}
-                className="px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 text-sm text-gray-700 hover:border-gold hover:text-gold transition-all"
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* FAQ / Trust Signals */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-16 text-center"
-        >
-          <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-gold" />
-              <span>Secure payment</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-gold" />
-              <span>Money-back guarantee</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-gold" />
-              <span>Free consultation</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gold" />
-              <span>7-day delivery</span>
-            </div>
-          </div>
-          
-          <p className="text-xs text-gray-400 mt-8">
-            Need a custom enterprise solution? <button onClick={handleBookConsultation} className="text-gold hover:underline">Contact us for a tailored quote</button>
-          </p>
-        </motion.div>
       </div>
     </div>
   );

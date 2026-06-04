@@ -39,8 +39,8 @@ import {
 const teamMembers = [
   {
     name: "Josue Bizazu",
-    title: "CEO & Lead Network Engineer",
-    role: "Network Engineer, MC, Preacher",
+    title: "CEO & Network Engineer",
+    role: "Network Engineer, IT Specialyst, MC, Preacher",
     image: "/images/Me3.JPG",
     years: "5+",
     expertise: ["Network Engineering", "Public Speaking", "Event Hosting"],
@@ -55,13 +55,13 @@ const teamMembers = [
     image: "/images/Kerene.jpeg",
     years: "5+",
     expertise: ["Event Coordination", "Customer Service", "Multilingual Support"],
-    languages: ["Lingala", "French", "English", "Portuguese", "Spanish"],
+    languages: ["English", "French", "Portuguese", "Spanish", "Lingala"],
     icon: <Briefcase className="w-5 h-5" />,
     description: "Fluent in five languages, she creates welcoming and professional experiences for clients and guests with expertise in ushering and event planning.",
   },
   {
     name: "Jeremie Boko",
-    title: "Lead DJ & Entertainment Coordinator",
+    title: "DJ & Entertainment Coordinator",
     role: "DJ, Coordinator",
     image: "/images/jeremie.jpg",
     years: "2+",
@@ -333,7 +333,7 @@ export default function TeamSection() {
                   key={i}
                   src={member.image}
                   alt={member.name}
-                  className="w-8 h-8 rounded-full border-2 border-black object-cover"
+                  className="w-8 h-8 rounded-full border-2 border-black object-cover object-top"
                 />
               ))}
             </div>

@@ -103,6 +103,12 @@ export default function ClientPortal() {
   const sourceFromUrl = searchParams.get("source"); // "pricing", "contact", "general"
   const requestTypeFromUrl = searchParams.get("type"); // "quote", "general"
 
+  /* ==========================================
+   PRICING PAGE DATA
+  ========================================== */
+  const addonsFromUrl = searchParams.get("addons");
+  const detailsFromUrl = searchParams.get("details");
+
   const [selectedService, setSelectedService] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -169,22 +175,71 @@ export default function ClientPortal() {
      DETECT REQUEST TYPE FROM URL
   ========================================== */
 
-  useEffect(() => {
-    if (sourceFromUrl === "pricing" || requestTypeFromUrl === "quote" || packageFromUrl) {
-      setRequestType("quote");
-      // Pre-fill budget if coming from pricing page
-      if (budgetFromUrl) {
-        setFormData(prev => ({ ...prev, budget: budgetFromUrl }));
-      }
-      // Pre-fill package info
-      if (packageFromUrl) {
-        setFormData(prev => ({ ...prev, selectedPackage: packageFromUrl }));
-      }
-    } else {
-      setRequestType("general");
-    }
-  }, [sourceFromUrl, requestTypeFromUrl, packageFromUrl, budgetFromUrl]);
+    useEffect(() => {
+      if (
+        sourceFromUrl === "pricing" ||
+        requestTypeFromUrl === "quote" ||
+        packageFromUrl
+      ) {
+        setRequestType("quote");
 
+        setFormData(prev => ({
+          ...prev,
+
+          // Package selected on pricing page
+          selectedPackage: packageFromUrl || "",
+
+          // Budget from pricing page
+          budget: budgetFromUrl || "",
+
+          // Add-ons selected on pricing page
+          selectedAddOns: addonsFromUrl || "",
+        }));
+      }
+    }, [
+      sourceFromUrl,
+      requestTypeFromUrl,
+      packageFromUrl,
+      budgetFromUrl,
+      addonsFromUrl,
+    ]);
+
+     /* ==========================================
+        LOAD PACKAGE DETAILS FROM PRICING PAGE
+      ========================================== */
+
+      useEffect(() => {
+        if (!detailsFromUrl) return;
+
+        try {
+          const details = JSON.parse(detailsFromUrl);
+
+          console.log("Pricing Details:", details);
+
+          setFormData(prev => ({
+            ...prev,
+
+            // Package
+            selectedPackage:
+              `${details.title} - ${details.tier}`,
+
+            // Add-ons
+            selectedAddOns:
+              details.addons?.join(", ") || "",
+
+            // Final total
+            budget:
+              details.total?.toString() || "",
+
+            // Detailed quote description
+            description:
+              details.description || "",
+          }));
+
+        } catch (error) {
+          console.error("Error parsing pricing details:", error);
+        }
+      }, [detailsFromUrl]);
   /* ==========================================
      LOAD CATEGORIES
   ========================================== */
@@ -368,14 +423,29 @@ export default function ClientPortal() {
       };
 
       // Add pricing context if this is a quote request
-      if (requestType === "quote") {
-        submissionData.pricingContext = {
-          selectedPackage: formData.selectedPackage,
-          budget: formData.budget,
-          expectedTimeline: formData.expectedTimeline,
-          source: "pricing_page",
-        };
-      }
+     if (requestType === "quote") {
+
+          let pricingDetails = null;
+
+          try {
+            pricingDetails = detailsFromUrl
+              ? JSON.parse(detailsFromUrl)
+              : null;
+          } catch (error) {
+            console.error("Failed to parse pricing details", error);
+          }
+
+          submissionData.pricingContext = {
+            selectedPackage: formData.selectedPackage,
+            selectedAddOns: formData.selectedAddOns,
+            budget: formData.budget,
+            expectedTimeline: formData.expectedTimeline,
+            source: "pricing_page",
+
+            // Full quote object from pricing page
+            details: pricingDetails,
+          };
+        }
 
       await addDoc(collection(db, "serviceRequests"), submissionData);
 
@@ -717,11 +787,32 @@ export default function ClientPortal() {
                 />
               </div>
               {formData.selectedPackage && (
-                <div className="mt-3 p-3 rounded-lg bg-white/50 text-sm">
-                  <PackageIcon className="w-4 h-4 inline mr-2 text-gold" />
-                  Selected Package: <span className="font-semibold">{formData.selectedPackage}</span>
-                </div>
-              )}
+                  <div className="mt-3 p-4 rounded-lg bg-white/50 text-sm">
+
+                    <div>
+                      <PackageIcon className="w-4 h-4 inline mr-2 text-gold" />
+                      Selected Package:
+                      <span className="font-semibold ml-2">
+                        {formData.selectedPackage}
+                      </span>
+                    </div>
+
+                    {/* ==========================================
+                      SHOW SELECTED ADD-ONS
+                    ========================================== */}
+                    {formData.selectedAddOns && (
+                      <div className="mt-3">
+                        <p className="font-semibold text-gray-700">
+                          Selected Add-ons:
+                        </p>
+
+                        <p className="text-gray-600">
+                          {formData.selectedAddOns}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
           )}
 
@@ -780,13 +871,6 @@ export default function ClientPortal() {
             <ServiceSection icon={<Palette />} title="Flyer Design Details">
               <InputField label="Flyer Purpose *" name="flyerPurpose" value={formData.flyerPurpose} onChange={handleChange} placeholder="Event, Promotion..." />
               <InputField type="date" label="Deadline *" name="eventDate" value={formData.eventDate} onChange={handleChange} />
-            </ServiceSection>
-          )}
-
-          {selectedService === "Website Development" && (
-            <ServiceSection icon={<LayoutDashboard />} title="Website Details">
-              <InputField label="Website Type *" name="websiteType" value={formData.websiteType} onChange={handleChange} placeholder="Business, Ecommerce..." />
-              <InputField label="Project Goals *" name="websiteGoals" value={formData.websiteGoals} onChange={handleChange} placeholder="Sales, leads..." />
             </ServiceSection>
           )}
 

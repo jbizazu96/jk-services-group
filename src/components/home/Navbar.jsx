@@ -364,7 +364,7 @@ export default function Navbar() {
                       transition={{ delay: 0.2 }}
                     >
                       <p className="text-xs text-gray-500">
-                        <span className="text-yellow-400">♥</span> Join 500+ supporters
+                        <span className="text-yellow-400">♥</span> JOIN TO SUPPORT<span className="text-yellow-400"> ♥</span>
                       </p>
                     </motion.div>
                   </motion.div>
@@ -376,26 +376,58 @@ export default function Navbar() {
       </div>
 
       {/* ==========================================
-          MOBILE VERSION - ORIGINAL (No fixes, original spacing)
+          MOBILE VERSION - ORIGINAL 
       ========================================== */}
       <div className="lg:hidden">
         <div className="px-6 py-4 flex items-center justify-between">
           
           {/* LOGO - Mobile (Original - no flex-shrink, full size) */}
-          <motion.div
+              <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex items-center gap-3 cursor-pointer"
-          >
-            <img 
-              src="/images/logo1.png" 
-              alt="Logo" 
-              className="w-14 h-14 object-contain"
-            />
+            className="flex items-center gap-3 cursor-pointer group"
+           >
+            {/* Animated logo container */}
+            <div className="relative">
+              <motion.div
+                className="absolute inset-0 rounded-full bg-yellow-400/20 blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.6, 0.3],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              />
+              <img 
+                src="/images/logo1.png" 
+                alt="Logo" 
+                className="w-14 h-14 object-contain relative z-10 rounded-full"
+              />
+            </div>
+            
             <div>
-              <h1 className="text-xl font-bold text-white">J&K Services Group</h1>
-              <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
+              <motion.h1 
+                className="text-2xl font-black bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent whitespace-nowrap"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                style={{ backgroundSize: "200% auto" }}
+              >
+                J&K Services Group
+              </motion.h1>
+              <div className="flex items-center gap-1">
+                <Sparkles size={12} className="text-yellow-400" />
+                <p className="text-xs text-gray-300">Event • IT • Networking • Media</p>
+                <Sparkles size={12} className="text-yellow-400" />
+              </div>
             </div>
           </motion.div>
 
