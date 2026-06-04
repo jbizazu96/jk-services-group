@@ -142,6 +142,17 @@ export default function PricingPage() {
     setPageCount(initialPages);
   }, []);
 
+    const handleBookConsultation = () => {
+    const heroSection = document.getElementById("home");
+    if (heroSection) {
+      heroSection.scrollIntoView({ behavior: "smooth" });
+      const event = new CustomEvent("openConsultation");
+      window.dispatchEvent(event);
+    } else {
+      router.push("/#home");
+    }
+  };
+  
   const loadCategories = async () => {
     try {
       const q = query(collection(db, "serviceCategories"), where("active", "==", true));
@@ -680,6 +691,60 @@ export default function PricingPage() {
             </div>
           </div>
         )}
+
+        {/* Service Categories Quick Links */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-16 pt-8 border-t border-gray-200"
+        >
+          <h3 className="text-center text-lg font-semibold text-gray-700 mb-6">
+            Or browse by service category
+          </h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            {serviceCategories.slice(0, 8).map((category) => (
+              <button
+                key={category.id}
+                onClick={() => router.push(`/services/${category.slug}`)}
+                className="px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 text-sm text-gray-700 hover:border-gold hover:text-gold transition-all"
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* FAQ / Trust Signals */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-16 text-center"
+        >
+          <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-gold" />
+              <span>Secure payment</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-gold" />
+              <span>Money-back guarantee</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4 text-gold" />
+              <span>Free consultation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gold" />
+              <span>7-day delivery</span>
+            </div>
+          </div>
+          
+          <p className="text-xs text-gray-400 mt-8">
+            Need a custom enterprise solution? <button onClick={handleBookConsultation} className="text-gold hover:underline">Contact us for a tailored quote</button>
+          </p>
+        </motion.div>
       </div>
     </div>
   );
