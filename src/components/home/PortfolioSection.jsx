@@ -101,6 +101,7 @@ export default function PortfolioSection() {
 
   /* ==========================================
      DETECT WHICH CARD IS MOST VISIBLE
+     - Biased toward left on mobile
   ========================================== */
 
   const updateActiveIndexOnScroll = useCallback(() => {
@@ -115,15 +116,29 @@ export default function PortfolioSection() {
     
     let closestIndex = 0;
     let closestDistance = Infinity;
+    let leftBiasIndex = 0;
+    let leftBiasDistance = Infinity;
+    
+    const isMobile = window.innerWidth < 768;
     
     cards.forEach((card, idx) => {
       const cardRect = card.getBoundingClientRect();
       const cardCenter = cardRect.left + cardRect.width / 2;
       const distance = Math.abs(containerCenter - cardCenter);
       
-      // On mobile, cards are smaller so we need a stricter threshold
-      const isMobile = window.innerWidth < 768;
-      const threshold = isMobile ? cardRect.width * 0.3 : cardRect.width * 0.5;
+      // On mobile, bias toward left (earlier cards)
+      if (isMobile) {
+        // Calculate how far the card is from the left edge of the container
+        const leftDistance = Math.abs(cardRect.left - containerRect.left);
+        // We want cards that are closer to the left side (but not too far)
+        if (leftDistance < leftBiasDistance && leftDistance < cardRect.width * 0.5) {
+          leftBiasDistance = leftDistance;
+          leftBiasIndex = idx;
+        }
+      }
+      
+      // Standard distance check for all devices
+      const threshold = isMobile ? cardRect.width * 0.4 : cardRect.width * 0.5;
       
       if (distance < closestDistance && distance < threshold) {
         closestDistance = distance;
@@ -131,8 +146,10 @@ export default function PortfolioSection() {
       }
     });
     
-    // If no card is close enough, keep the current active index
-    if (closestDistance !== Infinity && closestIndex !== activeIndex) {
+    // On mobile, prefer the left-biased card if found
+    if (isMobile && leftBiasDistance !== Infinity && leftBiasIndex !== activeIndex) {
+      setActiveIndex(leftBiasIndex);
+    } else if (closestDistance !== Infinity && closestIndex !== activeIndex) {
       setActiveIndex(closestIndex);
     }
   }, [activeIndex, isScrollingProgrammatically, isHovering]);
