@@ -121,13 +121,18 @@ export default function PortfolioSection() {
       const cardCenter = cardRect.left + cardRect.width / 2;
       const distance = Math.abs(containerCenter - cardCenter);
       
-      if (distance < closestDistance) {
+      // On mobile, cards are smaller so we need a stricter threshold
+      const isMobile = window.innerWidth < 768;
+      const threshold = isMobile ? cardRect.width * 0.3 : cardRect.width * 0.5;
+      
+      if (distance < closestDistance && distance < threshold) {
         closestDistance = distance;
         closestIndex = idx;
       }
     });
     
-    if (closestIndex !== activeIndex) {
+    // If no card is close enough, keep the current active index
+    if (closestDistance !== Infinity && closestIndex !== activeIndex) {
       setActiveIndex(closestIndex);
     }
   }, [activeIndex, isScrollingProgrammatically, isHovering]);
@@ -346,21 +351,21 @@ export default function PortfolioSection() {
       <div className="absolute left-0 top-0 w-24 sm:w-32 h-full bg-gradient-to-r from-[#050505] via-[#050505]/80 to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 w-24 sm:w-32 h-full bg-gradient-to-l from-[#111827] via-[#111827]/80 to-transparent z-10 pointer-events-none" />
 
-      {/* CAROUSEL */}
+      {/* CAROUSEL - Added mobile snap alignment */}
       <div
         ref={galleryRef}
         className="overflow-x-auto scrollbar-hide snap-x snap-mandatory relative z-20 scroll-smooth"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        <div className="flex gap-6 px-12 sm:px-20 py-8">
+        <div className="flex gap-6 px-4 sm:px-12 md:px-20 py-8">
           
-          {/* Website Templates Card - Now at the BEGINNING */}
+          {/* Website Templates Card - At the beginning */}
           <div
             onClick={() => router.push("/website-templates")}
             onMouseEnter={() => handleCardHover(portfolioCategories.length)}
             onMouseLeave={handleCardLeave}
             className={`
-              template-card relative w-[280px] sm:w-[320px] md:w-[360px] lg:w-[380px]
+              template-card relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[380px]
               flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
               transition-all duration-500 group border border-white/10
               ${activeIndex === portfolioCategories.length || hoveredIndex === portfolioCategories.length
@@ -380,31 +385,31 @@ export default function PortfolioSection() {
 
             {/* Center Content */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center p-6">
-                <div className="inline-block p-4 rounded-2xl bg-blue-500/20 backdrop-blur-sm mb-4">
-                  <LayoutTemplate className="w-16 h-16 text-blue-400" />
+              <div className="text-center p-4 sm:p-6">
+                <div className="inline-block p-3 sm:p-4 rounded-2xl bg-blue-500/20 backdrop-blur-sm mb-3 sm:mb-4">
+                  <LayoutTemplate className="w-12 h-12 sm:w-16 sm:h-16 text-blue-400" />
                 </div>
-                <h3 className="text-3xl font-black text-white mb-2">Website</h3>
-                <h3 className="text-3xl font-black text-blue-400 mb-3">Templates</h3>
-                <p className="text-gray-300 text-sm max-w-[200px] mx-auto">
+                <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">Website</h3>
+                <h3 className="text-2xl sm:text-3xl font-black text-blue-400 mb-3">Templates</h3>
+                <p className="text-gray-300 text-xs sm:text-sm max-w-[200px] mx-auto">
                   Browse our collection of ready-to-use website templates
                 </p>
               </div>
             </div>
 
             {/* Bottom overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black via-black/50 to-transparent">
-              <div className="inline-flex items-center gap-2 text-blue-400 font-semibold text-sm group-hover:gap-3 transition-all">
-                View Templates <ArrowRight className="w-3.5 h-3.5" />
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 md:p-6 bg-gradient-to-t from-black via-black/50 to-transparent">
+              <div className="inline-flex items-center gap-2 text-blue-400 font-semibold text-xs sm:text-sm group-hover:gap-3 transition-all">
+                View Templates <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </div>
             </div>
 
             {/* Active/Hover Badge */}
             {(activeIndex === portfolioCategories.length || hoveredIndex === portfolioCategories.length) && (
-              <div className="absolute top-4 right-4 z-20">
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
                 <div className="flex items-center gap-1 rounded-full bg-blue-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
                   <Star className="w-2.5 h-2.5 fill-black" />
-                  {hoveredIndex === portfolioCategories.length ? "Current" : "Current"}
+                  Current
                 </div>
               </div>
             )}
@@ -422,7 +427,7 @@ export default function PortfolioSection() {
                 onMouseEnter={() => handleCardHover(index)}
                 onMouseLeave={handleCardLeave}
                 className={`
-                  portfolio-card relative w-[280px] sm:w-[320px] md:w-[360px] lg:w-[380px]
+                  portfolio-card relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[380px]
                   flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
                   transition-all duration-500 group
                   ${isActive || isHovered
@@ -443,23 +448,23 @@ export default function PortfolioSection() {
 
                 {/* Current/Hovering Badge */}
                 {(isActive || isHovered) && (
-                  <div className="absolute top-4 right-4 z-20">
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
                     <div className="flex items-center gap-1 rounded-full bg-yellow-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
                       <Star className="w-2.5 h-2.5 fill-black" />
-                      {isHovered ? "Current" : "Current"}
+                      Current
                     </div>
                   </div>
                 )}
 
-                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 z-10 transition-transform duration-500 group-hover:-translate-y-2">
-                  <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 line-clamp-2">
+                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 md:p-6 z-10 transition-transform duration-500 group-hover:-translate-y-2">
+                  <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 line-clamp-2">
                     {category.name}
                   </h3>
-                  <p className="text-gray-300 text-xs md:text-sm mb-3 line-clamp-2">
+                  <p className="text-gray-300 text-[10px] sm:text-xs md:text-sm mb-3 line-clamp-2">
                     {category.description || "Explore our collection of work in this category."}
                   </p>
-                  <div className="inline-flex items-center gap-2 text-yellow-400 font-semibold text-sm group-hover:gap-3 transition-all">
-                    View Portfolio <ArrowRight className="w-3.5 h-3.5" />
+                  <div className="inline-flex items-center gap-2 text-yellow-400 font-semibold text-xs sm:text-sm group-hover:gap-3 transition-all">
+                    View Portfolio <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
                 </div>
               </div>
