@@ -104,55 +104,65 @@ export default function PortfolioSection() {
      - Biased toward left on mobile
   ========================================== */
 
-  const updateActiveIndexOnScroll = useCallback(() => {
-    if (isScrollingProgrammatically) return;
-    if (isHovering) return;
+const updateActiveIndexOnScroll = useCallback(() => {
+  if (isScrollingProgrammatically) return;
+  if (isHovering) return;
+  
+  if (!galleryRef.current) return;
+  
+  const cards = galleryRef.current.querySelectorAll('.portfolio-card, .template-card');
+  const containerRect = galleryRef.current.getBoundingClientRect();
+  
+  let bestIndex = 0;
+  let bestVisibleAmount = 0;
+  let bestLeftPosition = Infinity;
+  
+  const isMobile = window.innerWidth < 768;
+  
+  cards.forEach((card, idx) => {
+    const cardRect = card.getBoundingClientRect();
     
-    if (!galleryRef.current) return;
+    // Calculate how much of the card is visible
+    const visibleLeft = Math.max(cardRect.left, containerRect.left);
+    const visibleRight = Math.min(cardRect.right, containerRect.right);
+    const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+    const visiblePercentage = visibleWidth / cardRect.width;
     
-    const cards = galleryRef.current.querySelectorAll('.portfolio-card, .template-card');
-    const containerRect = galleryRef.current.getBoundingClientRect();
-    const containerCenter = containerRect.left + containerRect.width / 2;
-    
-    let closestIndex = 0;
-    let closestDistance = Infinity;
-    let leftBiasIndex = 0;
-    let leftBiasDistance = Infinity;
-    
-    const isMobile = window.innerWidth < 768;
-    
-    cards.forEach((card, idx) => {
-      const cardRect = card.getBoundingClientRect();
+    if (isMobile) {
+      // On mobile: prefer cards that are more left AND more visible
+      const leftDistance = Math.abs(cardRect.left - containerRect.left);
+      // Give priority to cards that are closer to the left edge
+      // But also require at least 30% visibility
+      if (visiblePercentage > 0.3) {
+        // Lower leftDistance is better
+        if (leftDistance < bestLeftPosition) {
+          bestLeftPosition = leftDistance;
+          bestIndex = idx;
+          bestVisibleAmount = visiblePercentage;
+        }
+      }
+    } else {
+      // On desktop: prefer cards closer to center
+      const containerCenter = containerRect.left + containerRect.width / 2;
       const cardCenter = cardRect.left + cardRect.width / 2;
       const distance = Math.abs(containerCenter - cardCenter);
       
-      // On mobile, bias toward left (earlier cards)
-      if (isMobile) {
-        // Calculate how far the card is from the left edge of the container
-        const leftDistance = Math.abs(cardRect.left - containerRect.left);
-        // We want cards that are closer to the left side (but not too far)
-        if (leftDistance < leftBiasDistance && leftDistance < cardRect.width * 0.5) {
-          leftBiasDistance = leftDistance;
-          leftBiasIndex = idx;
-        }
+      if (visiblePercentage > 0.5 && distance < bestLeftPosition) {
+        bestLeftPosition = distance;
+        bestIndex = idx;
       }
-      
-      // Standard distance check for all devices
-      const threshold = isMobile ? cardRect.width * 0.4 : cardRect.width * 0.5;
-      
-      if (distance < closestDistance && distance < threshold) {
-        closestDistance = distance;
-        closestIndex = idx;
-      }
-    });
-    
-    // On mobile, prefer the left-biased card if found
-    if (isMobile && leftBiasDistance !== Infinity && leftBiasIndex !== activeIndex) {
-      setActiveIndex(leftBiasIndex);
-    } else if (closestDistance !== Infinity && closestIndex !== activeIndex) {
-      setActiveIndex(closestIndex);
     }
-  }, [activeIndex, isScrollingProgrammatically, isHovering]);
+  });
+  
+  // If no card found with good visibility, use the first card
+  if (bestLeftPosition === Infinity && cards.length > 0) {
+    bestIndex = 0;
+  }
+  
+  if (bestIndex !== activeIndex) {
+    setActiveIndex(bestIndex);
+  }
+}, [activeIndex, isScrollingProgrammatically, isHovering]);
 
   /* ==========================================
      HOVER HANDLER
