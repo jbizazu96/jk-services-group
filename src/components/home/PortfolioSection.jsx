@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
    NEXT.JS
 ========================================== */
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 /* ==========================================
    FIREBASE
@@ -24,7 +24,15 @@ import { db } from "@/lib/firebase";
    ICONS
 ========================================== */
 
-import { ArrowRight, Sparkles, ChevronLeft, ChevronRight, Star, ExternalLink } from "lucide-react";
+import { 
+  ArrowRight, 
+  Sparkles, 
+  ChevronLeft, 
+  ChevronRight, 
+  Star, 
+  ExternalLink,
+  LayoutTemplate 
+} from "lucide-react";
 
 /* ==========================================
    COMPONENT
@@ -32,7 +40,6 @@ import { ArrowRight, Sparkles, ChevronLeft, ChevronRight, Star, ExternalLink } f
 
 export default function PortfolioSection() {
   const router = useRouter();
-  const pathname = usePathname();
   const galleryRef = useRef(null);
   const [portfolioCategories, setPortfolioCategories] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -43,7 +50,6 @@ export default function PortfolioSection() {
 
   /* ==========================================
      LOAD PORTFOLIO CATEGORIES
-     - NO AUTO-SCROLL ON LOAD
   ========================================== */
 
   useEffect(() => {
@@ -64,11 +70,10 @@ export default function PortfolioSection() {
       }));
       setPortfolioCategories(items);
       
-      // Set middle card as active (visual only) - NO SCROLLING
+      // Set middle card as active (visual only)
       if (items.length > 0) {
         const middleIndex = Math.floor(items.length / 2);
         setActiveIndex(middleIndex);
-        // REMOVED: The auto-scroll setTimeout that was here
       }
     } catch (error) {
       console.error("Portfolio Error:", error);
@@ -78,13 +83,13 @@ export default function PortfolioSection() {
   };
 
   /* ==========================================
-     SCROLL TO CARD - ONLY FOR ARROWS/DOTS
+     SCROLL TO CARD
   ========================================== */
 
   const scrollToCard = (index) => {
     if (!galleryRef.current) return;
     
-    const cards = galleryRef.current.querySelectorAll('.portfolio-card');
+    const cards = galleryRef.current.querySelectorAll('.portfolio-card, .template-card');
     if (cards[index] && cards[index].scrollIntoView) {
       cards[index].scrollIntoView({
         behavior: "smooth",
@@ -104,7 +109,7 @@ export default function PortfolioSection() {
     
     if (!galleryRef.current) return;
     
-    const cards = galleryRef.current.querySelectorAll('.portfolio-card');
+    const cards = galleryRef.current.querySelectorAll('.portfolio-card, .template-card');
     const containerRect = galleryRef.current.getBoundingClientRect();
     const containerCenter = containerRect.left + containerRect.width / 2;
     
@@ -189,11 +194,12 @@ export default function PortfolioSection() {
   }, [updateActiveIndexOnScroll]);
 
   /* ==========================================
-     NAVIGATION - Only these trigger scrolling
+     NAVIGATION
   ========================================== */
 
   const handlePrev = () => {
-    const newIndex = activeIndex === 0 ? portfolioCategories.length - 1 : activeIndex - 1;
+    const totalCards = portfolioCategories.length + 1; // +1 for template card
+    const newIndex = activeIndex === 0 ? totalCards - 1 : activeIndex - 1;
     setActiveIndex(newIndex);
     setHoveredIndex(null);
     setIsHovering(false);
@@ -203,7 +209,8 @@ export default function PortfolioSection() {
   };
 
   const handleNext = () => {
-    const newIndex = activeIndex + 1 >= portfolioCategories.length ? 0 : activeIndex + 1;
+    const totalCards = portfolioCategories.length + 1; // +1 for template card
+    const newIndex = activeIndex + 1 >= totalCards ? 0 : activeIndex + 1;
     setActiveIndex(newIndex);
     setHoveredIndex(null);
     setIsHovering(false);
@@ -346,6 +353,64 @@ export default function PortfolioSection() {
         style={{ scrollSnapType: "x mandatory" }}
       >
         <div className="flex gap-6 px-12 sm:px-20 py-8">
+          
+          {/* Website Templates Card - Now at the BEGINNING */}
+          <div
+            onClick={() => router.push("/website-templates")}
+            onMouseEnter={() => handleCardHover(portfolioCategories.length)}
+            onMouseLeave={handleCardLeave}
+            className={`
+              template-card relative w-[280px] sm:w-[320px] md:w-[360px] lg:w-[380px]
+              flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
+              transition-all duration-500 group border border-white/10
+              ${activeIndex === portfolioCategories.length || hoveredIndex === portfolioCategories.length
+                ? "ring-2 ring-blue-500 shadow-2xl shadow-blue-500/25 scale-105 z-20"
+                : "border border-white/10 scale-95 opacity-70 hover:opacity-100"
+              }
+            `}
+            style={{ aspectRatio: "3/4" }}
+          >
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-indigo-900/40" />
+            
+            {/* Subtle pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="h-full w-full bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:30px_30px]" />
+            </div>
+
+            {/* Center Content */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center p-6">
+                <div className="inline-block p-4 rounded-2xl bg-blue-500/20 backdrop-blur-sm mb-4">
+                  <LayoutTemplate className="w-16 h-16 text-blue-400" />
+                </div>
+                <h3 className="text-3xl font-black text-white mb-2">Website</h3>
+                <h3 className="text-3xl font-black text-blue-400 mb-3">Templates</h3>
+                <p className="text-gray-300 text-sm max-w-[200px] mx-auto">
+                  Browse our collection of ready-to-use website templates
+                </p>
+              </div>
+            </div>
+
+            {/* Bottom overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black via-black/50 to-transparent">
+              <div className="inline-flex items-center gap-2 text-blue-400 font-semibold text-sm group-hover:gap-3 transition-all">
+                View Templates <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+
+            {/* Active/Hover Badge */}
+            {(activeIndex === portfolioCategories.length || hoveredIndex === portfolioCategories.length) && (
+              <div className="absolute top-4 right-4 z-20">
+                <div className="flex items-center gap-1 rounded-full bg-blue-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
+                  <Star className="w-2.5 h-2.5 fill-black" />
+                  {hoveredIndex === portfolioCategories.length ? "Current" : "Current"}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Portfolio Category Cards */}
           {portfolioCategories.map((category, index) => {
             const isActive = activeIndex === index;
             const isHovered = hoveredIndex === index;
@@ -400,12 +465,13 @@ export default function PortfolioSection() {
               </div>
             );
           })}
+
         </div>
       </div>
 
       {/* DOT INDICATORS */}
       <div className="flex justify-center items-center gap-2 mt-6 relative z-30">
-        {portfolioCategories.map((_, index) => (
+        {[...Array(portfolioCategories.length + 1)].map((_, index) => (
           <button
             key={index}
             onClick={() => handleDotClick(index)}
@@ -425,7 +491,7 @@ export default function PortfolioSection() {
         <div className="inline-flex items-center gap-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 px-5 py-2">
           <Sparkles className="w-4 h-4 text-yellow-400" />
           <span className="text-gray-300 text-sm">
-            {portfolioCategories.length} Portfolio Categories
+            {portfolioCategories.length} Portfolio Categories + Templates
           </span>
           <Sparkles className="w-4 h-4 text-yellow-400" />
         </div>

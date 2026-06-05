@@ -254,7 +254,7 @@ export default function EcommercePage() {
                             {cart.map((item) => (
                                 <div key={item.id} className="flex gap-4 p-4 rounded-2xl bg-gray-50">
                                 <div className="relative w-20 h-24 rounded-xl overflow-hidden shrink-0">
-                                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                    <Image src={item.image} alt={item.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="font-semibold text-gray-900">{item.name}</h4>
@@ -297,7 +297,7 @@ export default function EcommercePage() {
           {/* HERO */}
           <section className="relative w-full">
             <div className="relative h-[90vh] min-h-[650px] w-full overflow-hidden">
-              <Image src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1400&h=900&fit=crop" alt="Ketany Style Fashion" fill className="object-cover scale-105" priority />
+              <Image src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1400&h=900&fit=crop" alt="Ketany Style Fashion"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover scale-105" priority />
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
               <div className="absolute inset-0 flex items-center px-6 md:px-16">
                 <motion.div initial={{ opacity: 0, x: -60 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="max-w-xl">
@@ -442,7 +442,7 @@ export default function EcommercePage() {
             </motion.p>
             <motion.div variants={fadeInUp} className="rounded-3xl overflow-hidden shadow-2xl">
               <div className="relative h-[400px] w-full">
-                <Image src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=600&fit=crop" alt="Ketany Style Store" fill className="object-cover" />
+                <Image src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=600&fit=crop" alt="Ketany Style Store" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
               </div>
             </motion.div>
             <motion.div variants={fadeInUp} className="mt-8 flex items-center justify-center gap-3 text-gray-700">
@@ -569,6 +569,7 @@ function ProductCard({ product, index, onAddToCart }) {
           src={product.image}
           alt={product.name}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className={`object-cover transition-transform duration-700 ${isHovered ? "scale-110" : "scale-100"}`}
         />
         {product.badge && (

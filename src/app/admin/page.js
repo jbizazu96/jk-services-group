@@ -54,6 +54,7 @@ import ServiceCategories from "@/components/admin/ServiceCategories"
 
 import ServiceRequests from "@/components/admin/ServiceRequests";
 
+import WebsiteTemplatesManagement from "@/components/admin/WebsiteTemplatesManagement";
 /* ==========================================
    AUTH FUNCTIONS
 ========================================== */
@@ -119,6 +120,11 @@ export default function AdminPage() {
       icon: ImagePlus,
     },
 
+    {
+      id: "websiteTemplates",
+      label: "Website Templates",
+      icon: Images,
+    },
     {
       id: "portfolio",
       label: "Portfolio Categories",
@@ -685,6 +691,7 @@ export default function AdminPage() {
                   <ServiceCategories />
 
                 )}
+                
 
                 {/* ==========================================
                     PORTFOLIO CATEGORIES
@@ -706,6 +713,14 @@ export default function AdminPage() {
 
                   <PortfolioItemsManagement />
 
+                )}
+
+                  {/* ==========================================
+                    SERVICES CATEGORIES
+                ========================================== */}
+
+                {activeTab === "websiteTemplates" && (
+                  <WebsiteTemplatesManagement />
                 )}
 
               </motion.div>
