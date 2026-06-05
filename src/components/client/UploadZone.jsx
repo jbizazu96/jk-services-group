@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { Upload, X, FileText, Image as ImageIcon, Video, CheckCircle2, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Upload, X, FileText, Image as ImageIcon, Video, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
-export default function UploadZone({ files, setFiles }) {
+export default function UploadZone({ files, setFiles, isMobile = false }) {
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
 
-  // Cleanup preview URLs on unmount
   useEffect(() => {
     return () => {
       files.forEach((item) => {
@@ -23,35 +23,78 @@ export default function UploadZone({ files, setFiles }) {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  const handleFiles = (selectedFiles) => {
+  const validateFile = (file) => {
+    const maxSize = isMobile ? 20 * 1024 * 1024 : 50 * 1024 * 1024; // 20MB on mobile, 50MB on desktop
+    
+    if (file.size > maxSize) {
+      alert(`${file.name} exceeds ${maxSize / 1024 / 1024}MB. Please choose a smaller file.`);
+      return false;
+    }
+    
+    if (file.size === 0) {
+      alert(`${file.name} appears to be empty.`);
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleFiles = async (selectedFiles) => {
+    if (!selectedFiles || selectedFiles.length === 0) return;
+    
     const fileArray = Array.from(selectedFiles);
-    const validFiles = fileArray.filter((file) => {
-      const maxSize = 100 * 1024 * 1024;
-      if (file.size > maxSize) {
-        alert(`${file.name} exceeds 100MB`);
-        return false;
+    const validFiles = [];
+    
+    for (const file of fileArray) {
+      if (validateFile(file)) {
+        let processedFile = file;
+        
+        // Create a stable copy of the file for mobile
+        if (isMobile) {
+          try {
+            const buffer = await file.arrayBuffer();
+            processedFile = new File([buffer], file.name, {
+              type: file.type,
+              lastModified: Date.now()
+            });
+          } catch (copyError) {
+            console.warn('Could not clone file on mobile:', copyError);
+          }
+        }
+        
+        let preview = null;
+        if (processedFile.type?.startsWith("image/") && processedFile.size < 2 * 1024 * 1024) {
+          try {
+            preview = URL.createObjectURL(processedFile);
+          } catch (previewError) {
+            console.warn('Could not create preview:', previewError);
+          }
+        }
+        
+        validFiles.push({
+          file: processedFile,
+          preview,
+          id: generateId(),
+          progress: 0,
+          status: "ready",
+          name: processedFile.name,
+          size: processedFile.size,
+          type: processedFile.type,
+        });
       }
-      return true;
-    });
+    }
 
-    const mappedFiles = validFiles.map((file) => ({
-      file,
-      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
-      id: generateId(),
-      progress: 0,
-      status: "ready",
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    }));
-
-    setFiles((prev) => [...prev, ...mappedFiles]);
+    if (validFiles.length > 0) {
+      setFiles((prev) => [...prev, ...validFiles]);
+    }
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    handleFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files) {
+      handleFiles(e.dataTransfer.files);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -80,6 +123,7 @@ export default function UploadZone({ files, setFiles }) {
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "0 MB";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
     return (bytes / 1024 / 1024).toFixed(2) + " MB";
   };
 
@@ -87,75 +131,134 @@ export default function UploadZone({ files, setFiles }) {
     <div className="mt-8">
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Upload Files</h3>
-        <p className="text-gray-500 text-sm mt-1">Upload inspiration images, logos, videos, PDFs, or references (Max 100MB)</p>
+        <p className="text-gray-500 text-sm mt-1">
+          {isMobile 
+            ? "Tap to select images or files (Max 20MB per file)"
+            : "Upload inspiration images, logos, videos, PDFs, or references (Max 50MB)"}
+        </p>
       </div>
 
-      {/* Dropzone */}
       <motion.div
-        whileHover={{ scale: 1.01 }}
+        whileHover={!isMobile ? { scale: 1.01 } : {}}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`relative rounded-xl border-2 border-dashed transition-all duration-300 p-10 text-center cursor-pointer ${
+        onClick={() => fileInputRef.current?.click()}
+        className={`relative rounded-xl border-2 border-dashed transition-all duration-300 p-6 md:p-10 text-center cursor-pointer ${
           isDragging ? "border-gold bg-gold/5" : "border-gray-300 bg-gray-50 hover:border-gold/50"
         }`}
       >
         <div className="flex flex-col items-center">
-          <div className={`rounded-full p-4 mb-4 ${isDragging ? "bg-gold/20" : "bg-gray-100"}`}>
-            <Upload className={`h-8 w-8 ${isDragging ? "text-gold" : "text-gray-400"}`} />
+          <div className={`rounded-full p-3 md:p-4 mb-3 md:mb-4 ${isDragging ? "bg-gold/20" : "bg-gray-100"}`}>
+            <Upload className={`h-6 w-6 md:h-8 md:w-8 ${isDragging ? "text-gold" : "text-gray-400"}`} />
           </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Drag & Drop Files</h4>
-          <p className="text-gray-500 text-sm mb-4">or click to browse</p>
-          <label className="inline-flex cursor-pointer rounded-xl bg-gold px-6 py-2.5 font-semibold text-black transition-all hover:bg-gold-dark">
-            Choose Files
-            <input type="file" multiple hidden accept="image/*,video/*,application/pdf" onChange={(e) => handleFiles(e.target.files)} />
-          </label>
-          <p className="text-xs text-gray-400 mt-4">Supported: Images, Videos, PDFs (up to 100MB)</p>
+          <h4 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
+            {isMobile ? "Tap to Select Files" : "Drag & Drop Files"}
+          </h4>
+          <p className="text-gray-500 text-sm mb-3 md:mb-4">
+            {isMobile ? "or tap to browse" : "or click to browse"}
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            hidden
+            accept="image/*,video/*,application/pdf"
+            onChange={(e) => handleFiles(e.target.files)}
+          />
+          <p className="text-xs text-gray-400 mt-3 md:mt-4">
+            Supported: Images, Videos, PDFs {isMobile && "(20MB max per file)"}
+          </p>
+          {isMobile && (
+            <p className="text-xs text-gold mt-2">
+              💡 Tip: Compress large images before uploading for faster uploads
+            </p>
+          )}
         </div>
       </motion.div>
 
-      {/* File List */}
       {files.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
           {files.map((item) => (
-            <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <button type="button" onClick={() => removeFile(item.id)} className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 hover:bg-red-100 hover:text-red-500 transition">
-                <X className="h-3.5 w-3.5" />
+            <motion.div 
+              key={item.id} 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="relative rounded-xl border border-gray-200 bg-white p-3 md:p-4 shadow-sm"
+            >
+              <button 
+                type="button" 
+                onClick={() => removeFile(item.id)} 
+                className="absolute right-2 top-2 rounded-full bg-gray-100 p-1.5 text-gray-500 hover:bg-red-100 hover:text-red-500 transition z-10"
+              >
+                <X className="h-3 w-3" />
               </button>
 
-              {/* Preview */}
-              <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
-                {item.preview ? (
-                  <img src={item.preview} alt={item.name} className="h-32 w-full object-cover" />
-                ) : (
-                  <div className="flex h-32 items-center justify-center">
-                    <div className="rounded-xl bg-gray-200 p-4">{getFileIcon(item.type)}</div>
-                  </div>
-                )}
-              </div>
+              {item.preview && (
+                <div className="mb-3 overflow-hidden rounded-lg bg-gray-100 h-24 md:h-32">
+                  <img src={item.preview} alt={item.name} className="h-full w-full object-cover" />
+                </div>
+              )}
 
-              {/* File Info */}
+              {!item.preview && (
+                <div className="mb-3 overflow-hidden rounded-lg bg-gray-100 h-24 md:h-32 flex items-center justify-center">
+                  <div className="rounded-xl bg-gray-200 p-3 md:p-4">
+                    {getFileIcon(item.type)}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-between mb-2">
                 <div className="flex-1 min-w-0">
-                  <p className="truncate font-medium text-gray-900 text-sm">{item.name}</p>
+                  <p className="truncate font-medium text-gray-900 text-xs md:text-sm">{item.name}</p>
                   <p className="text-xs text-gray-400">{formatFileSize(item.size)}</p>
                 </div>
-                <div>
+                <div className="ml-2">
                   {item.status === "uploading" && <Loader2 className="h-4 w-4 animate-spin text-gold" />}
                   {item.status === "completed" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                  {item.status === "error" && <AlertCircle className="h-4 w-4 text-red-500" />}
                   {item.status === "ready" && <CheckCircle2 className="h-4 w-4 text-gray-300" />}
                 </div>
               </div>
 
-              {/* Progress Bar */}
-              <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
-                <motion.div animate={{ width: `${item.progress || 0}%` }} className="h-full rounded-full bg-gold" />
-              </div>
-              <p className="text-xs text-gray-400 mt-1">
-                {item.status === "ready" && "Ready to upload"}
-                {item.status === "uploading" && `Uploading... ${item.progress}%`}
-                {item.status === "completed" && "Uploaded successfully"}
-              </p>
+              {item.status === "uploading" && (
+                <>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <motion.div 
+                      animate={{ width: `${item.progress || 0}%` }} 
+                      className="h-full rounded-full bg-gold" 
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Uploading... {item.progress || 0}%
+                  </p>
+                </>
+              )}
+              
+              {item.status === "ready" && (
+                <p className="text-xs text-gray-400 mt-1">Ready to upload</p>
+              )}
+              
+              {item.status === "completed" && (
+                <p className="text-xs text-green-600 mt-1">Uploaded successfully</p>
+              )}
+              
+              {item.status === "error" && (
+                <div className="mt-1">
+                  <p className="text-xs text-red-500">Upload failed</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFiles(prev => prev.map(f => 
+                        f.id === item.id ? { ...f, status: "ready", progress: 0, error: null } : f
+                      ));
+                    }}
+                    className="text-xs text-gold mt-1 hover:underline"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

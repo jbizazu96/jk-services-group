@@ -35,10 +35,11 @@ import {
   Package as PackageIcon,
   Clock,
   TrendingUp,
+  WifiOff,
 } from "lucide-react";
 
 /* ==========================================
-   HELPER COMPONENTS (Moved BEFORE main component)
+   HELPER COMPONENTS
 ========================================== */
 
 function InputField({ label, name, value, onChange, placeholder, type = "text", error, required }) {
@@ -100,12 +101,8 @@ export default function ClientPortal() {
   const serviceFromUrl = searchParams.get("service");
   const packageFromUrl = searchParams.get("package");
   const budgetFromUrl = searchParams.get("budget");
-  const sourceFromUrl = searchParams.get("source"); // "pricing", "contact", "general"
-  const requestTypeFromUrl = searchParams.get("type"); // "quote", "general"
-
-  /* ==========================================
-   PRICING PAGE DATA
-  ========================================== */
+  const sourceFromUrl = searchParams.get("source");
+  const requestTypeFromUrl = searchParams.get("type");
   const addonsFromUrl = searchParams.get("addons");
   const detailsFromUrl = searchParams.get("details");
 
@@ -118,9 +115,9 @@ export default function ClientPortal() {
   const [services, setServices] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [formErrors, setFormErrors] = useState({});
-  
-  // Request type detection
-  const [requestType, setRequestType] = useState("general"); // "general" or "quote"
+  const [requestType, setRequestType] = useState("general");
+  const [isMobile, setIsMobile] = useState(false);
+  const [onlineStatus, setOnlineStatus] = useState(true);
 
   /* ==========================================
      FORM DATA
@@ -164,7 +161,6 @@ export default function ClientPortal() {
     eventPlanningType: "",
     guestCount: "",
     domainName: "",
-    // New fields for quote/pricing
     selectedPackage: "",
     selectedAddOns: "",
     expectedTimeline: "",
@@ -172,74 +168,61 @@ export default function ClientPortal() {
   });
 
   /* ==========================================
+     DETECT MOBILE AND ONLINE STATUS
+  ========================================== */
+
+  useEffect(() => {
+    const checkMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    setIsMobile(checkMobile);
+    
+    const handleOnline = () => setOnlineStatus(true);
+    const handleOffline = () => setOnlineStatus(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  /* ==========================================
      DETECT REQUEST TYPE FROM URL
   ========================================== */
 
-    useEffect(() => {
-      if (
-        sourceFromUrl === "pricing" ||
-        requestTypeFromUrl === "quote" ||
-        packageFromUrl
-      ) {
-        setRequestType("quote");
+  useEffect(() => {
+    if (sourceFromUrl === "pricing" || requestTypeFromUrl === "quote" || packageFromUrl) {
+      setRequestType("quote");
+      setFormData(prev => ({
+        ...prev,
+        selectedPackage: packageFromUrl || "",
+        budget: budgetFromUrl || "",
+        selectedAddOns: addonsFromUrl || "",
+      }));
+    }
+  }, [sourceFromUrl, requestTypeFromUrl, packageFromUrl, budgetFromUrl, addonsFromUrl]);
 
-        setFormData(prev => ({
-          ...prev,
+  /* ==========================================
+     LOAD PACKAGE DETAILS FROM PRICING PAGE
+  ========================================== */
 
-          // Package selected on pricing page
-          selectedPackage: packageFromUrl || "",
+  useEffect(() => {
+    if (!detailsFromUrl) return;
+    try {
+      const details = JSON.parse(detailsFromUrl);
+      setFormData(prev => ({
+        ...prev,
+        selectedPackage: `${details.title} - ${details.tier}`,
+        selectedAddOns: details.addons?.join(", ") || "",
+        budget: details.total?.toString() || "",
+        description: details.description || "",
+      }));
+    } catch (error) {
+      console.error("Error parsing pricing details:", error);
+    }
+  }, [detailsFromUrl]);
 
-          // Budget from pricing page
-          budget: budgetFromUrl || "",
-
-          // Add-ons selected on pricing page
-          selectedAddOns: addonsFromUrl || "",
-        }));
-      }
-    }, [
-      sourceFromUrl,
-      requestTypeFromUrl,
-      packageFromUrl,
-      budgetFromUrl,
-      addonsFromUrl,
-    ]);
-
-     /* ==========================================
-        LOAD PACKAGE DETAILS FROM PRICING PAGE
-      ========================================== */
-
-      useEffect(() => {
-        if (!detailsFromUrl) return;
-
-        try {
-          const details = JSON.parse(detailsFromUrl);
-
-          console.log("Pricing Details:", details);
-
-          setFormData(prev => ({
-            ...prev,
-
-            // Package
-            selectedPackage:
-              `${details.title} - ${details.tier}`,
-
-            // Add-ons
-            selectedAddOns:
-              details.addons?.join(", ") || "",
-
-            // Final total
-            budget:
-              details.total?.toString() || "",
-
-            // Detailed quote description
-            description:
-              details.description || "",
-          }));
-
-        } catch (error) {
-          console.error("Error parsing pricing details:", error);
-        }
-      }, [detailsFromUrl]);
   /* ==========================================
      LOAD CATEGORIES
   ========================================== */
@@ -262,7 +245,6 @@ export default function ClientPortal() {
         const foundService = serviceSnapshot.docs
           .map((doc) => ({ id: doc.id, ...doc.data() }))
           .find((service) => service.name === serviceFromUrl);
-
         if (foundService) {
           setSelectedCategory(foundService.category);
         }
@@ -355,7 +337,6 @@ export default function ClientPortal() {
     if (!formData.state.trim()) errors.state = "State is required";
     if (!formData.description.trim()) errors.description = "Project description is required";
     
-    // For quote requests, budget is required
     if (requestType === "quote" && !formData.budget) {
       errors.budget = "Budget is required for quote requests";
     }
@@ -365,11 +346,112 @@ export default function ClientPortal() {
   };
 
   /* ==========================================
+     UPLOAD FILES WITH MOBILE SUPPORT
+  ========================================== */
+
+  const uploadFilesWithMobileSupport = async (filesToUpload, requestId) => {
+    const uploadedFiles = [];
+    
+    // Process files one by one on mobile, parallel on desktop
+    if (isMobile) {
+      // Sequential upload for mobile
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const item = filesToUpload[i];
+        try {
+          setFiles((prev) =>
+            prev.map((f) => (f.id === item.id ? { ...f, status: "uploading", progress: 0 } : f))
+          );
+
+          // Progress simulation for better UX on mobile
+          let progressInterval;
+          if (isMobile) {
+            progressInterval = setInterval(() => {
+              setFiles((prev) =>
+                prev.map((f) => {
+                  if (f.id === item.id && f.progress < 90) {
+                    return { ...f, progress: f.progress + 10 };
+                  }
+                  return f;
+                })
+              );
+            }, 300);
+          }
+
+          const result = await uploadFile({
+            file: item.file,
+            requestId: requestId,
+            onProgress: (progress) => {
+              setFiles((prev) =>
+                prev.map((f) => (f.id === item.id ? { ...f, progress } : f))
+              );
+            },
+          });
+
+          if (progressInterval) clearInterval(progressInterval);
+
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === item.id ? { ...f, progress: 100, status: "completed" } : f
+            )
+          );
+
+          uploadedFiles.push(result);
+        } catch (fileError) {
+          console.error(`Error uploading file ${item.name}:`, fileError);
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === item.id ? { ...f, status: "error", error: fileError.message } : f
+            )
+          );
+          
+          if (isMobile) {
+            throw new Error(`Failed to upload ${item.name}. Please try with a smaller file.`);
+          }
+        }
+      }
+    } else {
+      // Parallel upload for desktop
+      uploadedFiles.push(...await Promise.all(
+        filesToUpload.map(async (item) => {
+          setFiles((prev) =>
+            prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" } : f))
+          );
+
+          const result = await uploadFile({
+            file: item.file,
+            requestId: requestId,
+            onProgress: (progress) => {
+              setFiles((prev) =>
+                prev.map((f) => (f.id === item.id ? { ...f, progress } : f))
+              );
+            },
+          });
+
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === item.id ? { ...f, progress: 100, status: "completed" } : f
+            )
+          );
+
+          return result;
+        })
+      ));
+    }
+    
+    return uploadedFiles;
+  };
+
+  /* ==========================================
      SUBMIT
   ========================================== */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!onlineStatus) {
+      alert("You appear to be offline. Please check your internet connection and try again.");
+      return;
+    }
 
     if (!validateForm()) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -380,34 +462,22 @@ export default function ClientPortal() {
       setLoading(true);
       const generatedRequestId = `REQ-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
-      // Upload files
+      // Upload files with mobile support
       let uploadedFiles = [];
       if (files.length > 0) {
-        uploadedFiles = await Promise.all(
-          files.map(async (item) => {
-            setFiles((prev) =>
-              prev.map((f) => (f.id === item.id ? { ...f, status: "uploading" } : f))
-            );
-
-            const result = await uploadFile({
-              file: item.file,
-              requestId: generatedRequestId,
-              onProgress: (progress) => {
-                setFiles((prev) =>
-                  prev.map((f) => (f.id === item.id ? { ...f, progress } : f))
-                );
-              },
-            });
-
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === item.id ? { ...f, progress: 100, status: "completed" } : f
-              )
-            );
-
-            return result;
-          })
-        );
+        // Filter out any invalid files
+        const validFiles = files.filter(f => f.file && f.file.size > 0);
+        if (validFiles.length === 0 && files.length > 0) {
+          throw new Error("Selected files are no longer accessible. Please remove and re-add them.");
+        }
+        
+        uploadedFiles = await uploadFilesWithMobileSupport(validFiles, generatedRequestId);
+        
+        // Check if any files failed on mobile
+        const hasErrors = files.some(f => f.status === 'error');
+        if (hasErrors && isMobile) {
+          throw new Error("Some files failed to upload. Please remove failed files and try again.");
+        }
       }
 
       // Prepare data for Firestore
@@ -420,40 +490,49 @@ export default function ClientPortal() {
         requestType: requestType,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+        deviceInfo: {
+          isMobile: isMobile,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString()
+        }
       };
 
       // Add pricing context if this is a quote request
-     if (requestType === "quote") {
-
-          let pricingDetails = null;
-
-          try {
-            pricingDetails = detailsFromUrl
-              ? JSON.parse(detailsFromUrl)
-              : null;
-          } catch (error) {
-            console.error("Failed to parse pricing details", error);
-          }
-
-          submissionData.pricingContext = {
-            selectedPackage: formData.selectedPackage,
-            selectedAddOns: formData.selectedAddOns,
-            budget: formData.budget,
-            expectedTimeline: formData.expectedTimeline,
-            source: "pricing_page",
-
-            // Full quote object from pricing page
-            details: pricingDetails,
-          };
+      if (requestType === "quote") {
+        let pricingDetails = null;
+        try {
+          pricingDetails = detailsFromUrl ? JSON.parse(detailsFromUrl) : null;
+        } catch (error) {
+          console.error("Failed to parse pricing details", error);
         }
+
+        submissionData.pricingContext = {
+          selectedPackage: formData.selectedPackage,
+          selectedAddOns: formData.selectedAddOns,
+          budget: formData.budget,
+          expectedTimeline: formData.expectedTimeline,
+          source: "pricing_page",
+          details: pricingDetails,
+        };
+      }
 
       await addDoc(collection(db, "serviceRequests"), submissionData);
 
       setRequestId(generatedRequestId);
       setSuccess(true);
     } catch (error) {
-      console.error(error);
-      alert("Something went wrong. Please try again.");
+      console.error("Submission error:", error);
+      let errorMessage = "Something went wrong. Please try again.";
+      
+      if (isMobile && error.message.includes("upload")) {
+        errorMessage = error.message;
+      } else if (!onlineStatus) {
+        errorMessage = "No internet connection. Please check your network and try again.";
+      } else if (error.message.includes("Failed to upload")) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -578,6 +657,21 @@ export default function ClientPortal() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Offline Warning */}
+      {!onlineStatus && (
+        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 z-50 flex items-center justify-center gap-2">
+          <WifiOff className="w-4 h-4" />
+          <span className="text-sm">You are offline. Please check your internet connection.</span>
+        </div>
+      )}
+
+      {/* Mobile Tip */}
+      {isMobile && files.length === 0 && (
+        <div className="fixed bottom-4 right-4 z-40 bg-gold/90 text-black text-xs px-3 py-2 rounded-full shadow-lg animate-bounce">
+          💡 For best results, compress images before uploading
+        </div>
+      )}
+
       {/* Gold Glow */}
       <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full bg-gold/10 blur-[120px]" />
 
@@ -592,6 +686,7 @@ export default function ClientPortal() {
             <div className="h-2 w-2 rounded-full bg-gold animate-pulse" />
             <span className="text-sm font-semibold uppercase tracking-wider text-gold">
               {requestType === "quote" ? "Quote Request" : "Client Portal"}
+              {isMobile && " • Mobile Optimized"}
             </span>
           </div>
 
@@ -606,7 +701,6 @@ export default function ClientPortal() {
               : "Tell us about your project and we'll get back to you with a custom solution."}
           </p>
           
-          {/* Quote badge if applicable */}
           {requestType === "quote" && formData.budget && (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold/20 px-4 py-2">
               <DollarSign className="w-4 h-4 text-gold" />
@@ -683,12 +777,11 @@ export default function ClientPortal() {
                 required
               />
               
-              {/* Preferred Contact Method - New for quotes */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Preferred Contact Method
                 </label>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   {["email", "phone", "text"].map((method) => (
                     <label key={method} className="flex items-center gap-2">
                       <input
@@ -787,36 +880,26 @@ export default function ClientPortal() {
                 />
               </div>
               {formData.selectedPackage && (
-                  <div className="mt-3 p-4 rounded-lg bg-white/50 text-sm">
-
-                    <div>
-                      <PackageIcon className="w-4 h-4 inline mr-2 text-gold" />
-                      Selected Package:
-                      <span className="font-semibold ml-2">
-                        {formData.selectedPackage}
-                      </span>
-                    </div>
-
-                    {/* ==========================================
-                      SHOW SELECTED ADD-ONS
-                    ========================================== */}
-                    {formData.selectedAddOns && (
-                      <div className="mt-3">
-                        <p className="font-semibold text-gray-700">
-                          Selected Add-ons:
-                        </p>
-
-                        <p className="text-gray-600">
-                          {formData.selectedAddOns}
-                        </p>
-                      </div>
-                    )}
+                <div className="mt-3 p-4 rounded-lg bg-white/50 text-sm">
+                  <div>
+                    <PackageIcon className="w-4 h-4 inline mr-2 text-gold" />
+                    Selected Package:
+                    <span className="font-semibold ml-2">
+                      {formData.selectedPackage}
+                    </span>
                   </div>
-                )}
+                  {formData.selectedAddOns && (
+                    <div className="mt-3">
+                      <p className="font-semibold text-gray-700">Selected Add-ons:</p>
+                      <p className="text-gray-600">{formData.selectedAddOns}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
-          {/* Budget field for general requests (optional) */}
+          {/* Budget field for general requests */}
           {requestType !== "quote" && (
             <div className="mb-8">
               <InputField
@@ -923,7 +1006,7 @@ export default function ClientPortal() {
           </div>
 
           {/* File Upload */}
-          <UploadZone files={files} setFiles={setFiles} />
+          <UploadZone files={files} setFiles={setFiles} isMobile={isMobile} />
 
           {/* Submit Button */}
           <div className="mt-10 flex justify-center">
@@ -931,13 +1014,13 @@ export default function ClientPortal() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              disabled={loading || !selectedService}
+              disabled={loading || !selectedService || !onlineStatus}
               className="inline-flex items-center gap-3 rounded-xl bg-gold px-10 py-4 text-lg font-semibold text-black transition-all hover:bg-gold-dark hover:shadow-lg disabled:opacity-50"
             >
               {loading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Submitting...
+                  {isMobile ? "Processing..." : "Submitting..."}
                 </>
               ) : (
                 <>
