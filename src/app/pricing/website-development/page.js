@@ -48,41 +48,30 @@ const pricingPackages = {
     icon: Globe,
     title: "Basic Website",
     description: "Perfect for small businesses & startups",
-    basePrice: 600,
-    pagesIncluded: 5,
+    basePrice: 500,
+    pagesIncluded: 3,
     extraPagePrice: 80,
     options: [
-      { name: "Starter", price: 600, features: ["5 pages", "Domain registration (1 year)", "Mobile responsive", "SEO meta tags", "Contact form", "Basic hosting setup"] },
-      { name: "Professional", price: 1200, features: ["Everything in Starter", "10 pages", "Custom logo design", "Advanced contact form", "Social media integration", "Google Maps embed", "Analytics setup"] },
-      { name: "Business", price: 2000, features: ["Everything in Professional", "15 pages", "E-commerce ready", "Payment integration", "Calendly/Zoom integration", "Live chat", "Priority support"] },
+      { name: "Starter", price: 500, features: ["3 pages", "Domain registration (1 year)", "Mobile responsive", "SEO meta tags", "Contact form", "Basic hosting setup"] },
+      { name: "Professional", price: 700, features: ["Everything in Starter", "4-5 pages", "Custom logo design", "Contact form", "Social media integration", "Google Maps embed"] },
+      { name: "Business", price: 1500, features: ["Everything in Professional", "5-6 pages", "E-commerce ready", "Payment integration", "Calendly/Zoom integration", "Priority support"] },
     ],
   },
+
   advanced: {
     icon: Zap,
     title: "Advanced Website",
     description: "Dynamic, interactive, modern web experiences",
-    basePrice: 1500,
-    pagesIncluded: 5,
-    extraPagePrice: 130,
+    basePrice: 700,
+    pagesIncluded: 3,
+    extraPagePrice: 100,
     options: [
-      { name: "Dynamic", price: 1500, features: ["5 dynamic pages", "Smooth animations", "Micro-interactions", "Custom transitions", "Domain registration", "CMS integration"] },
-      { name: "Premium", price: 2500, features: ["Everything in Dynamic", "10 pages", "Custom animations", "Database integration", "User authentication", "Admin dashboard", "API integrations"] },
-      { name: "Enterprise", price: 4000, features: ["Everything in Premium", "Unlimited pages", "Advanced database", "Custom backend", "Multi-user roles", "Advanced security", "Dedicated support"] },
+      { name: "Dynamic", price: 700, features: ["3 dynamic pages", "Smooth animations", "Micro-interactions", "Custom transitions", "Domain registration", "CMS integration"] },
+      { name: "Premium", price: 1200, features: ["Everything in Dynamic", "4-5 pages", "Custom animations", "Database integration", "User authentication", "Admin dashboard", "API integrations"] },
+      { name: "Enterprise", price: 2000, features: ["Everything in Premium", "5-6 pages", "Advanced database", "Custom backend", "Multi-user roles", "Advanced security", "Dedicated support"] },
     ],
   },
-  ecommerce: {
-    icon: ShoppingCart,
-    title: "E-commerce Website",
-    description: "Online stores with payment integration",
-    basePrice: 2000,
-    pagesIncluded: 5,
-    extraPagePrice: 150,
-    options: [
-      { name: "Basic Store", price: 2000, features: ["5 product pages", "Shopping cart", "Payment gateway", "Order management", "Basic inventory", "Domain registration"] },
-      { name: "Pro Store", price: 3500, features: ["Everything in Basic", "50 products", "Advanced inventory", "Discount codes", "Email notifications", "Customer accounts", "Analytics dashboard"] },
-      { name: "Enterprise Store", price: 5500, features: ["Everything in Pro", "Unlimited products", "Subscription system", "Multi-vendor support", "Advanced reporting", "API access", "Priority support"] },
-    ],
-  },
+
   dashboard: {
     icon: LayoutDashboard,
     title: "Admin Dashboard",
@@ -91,24 +80,38 @@ const pricingPackages = {
     pagesIncluded: 3,
     extraPagePrice: 200,
     options: [
-      { name: "Basic Dashboard", price: 1800, features: ["3 dashboard pages", "User management", "Basic analytics", "Data tables", "Authentication system", "Database setup"] },
-      { name: "Advanced Dashboard", price: 3200, features: ["Everything in Basic", "Advanced charts", "Real-time data", "Role-based access", "Activity logs", "Export reports", "Custom widgets"] },
-      { name: "Enterprise Dashboard", price: 5000, features: ["Everything in Advanced", "White-label ready", "Multi-tenant support", "Advanced security", "Audit trails", "API documentation", "24/7 support"] },
+      { name: "Basic Dashboard", price: 1000, features: ["3 dashboard pages", "User management", "Basic analytics", "Data tables", "Authentication system", "Database setup"] },
+      { name: "Advanced Dashboard", price: 2000, features: ["Everything in Basic", "Advanced charts", "Real-time data", "Role-based access", "Activity logs", "Export reports", "Custom widgets"] },
+      
     ],
   },
+
+  ecommerce: {
+    icon: ShoppingCart,
+    title: "E-commerce Website",
+    description: "Online stores with payment integration",
+    basePrice: 2000,
+    pagesIncluded: 5,
+    extraPagePrice: 150,
+    options: [
+      { name: "Basic Store", price: 1500, features: ["5 product pages", "Shopping cart", "Payment gateway", "Order management", "Basic inventory", "Domain registration"] },
+      { name: "Pro Store", price: 2500, features: ["Everything in Basic", "50 products", "Advanced inventory", "Discount codes", "Email notifications", "Customer accounts", "Admin dashboard"] },
+      { name: "Enterprise Store", price: 3500, features: ["Everything in Pro", "Unlimited products", "Subscription system", "Advanced reporting", "API Integration", "Priority support"] },
+    ],
+  },
+  
 };
 
 const addOns = [
-  { name: "Payment Integration", price: 300, description: "Stripe/PayPal checkout", icon: CreditCard },
-  { name: "Payment + Subscriptions", price: 700, description: "Recurring billing & memberships", icon: ShoppingCart },
-  { name: "E-commerce Full Store", price: 1500, description: "Complete online store (up to 50 products)", icon: ShoppingCart },
+  { name: "Payment Integration", price: 200, description: "Stripe/PayPal checkout", icon: CreditCard },
+  { name: "Payment + Subscriptions", price: 500, description: "Recurring billing & memberships", icon: ShoppingCart },
   { name: "SEO Advanced Package", price: 500, description: "Keyword research, backlinks, optimization", icon: TrendingUp },
   { name: "Monthly Maintenance", price: 50, description: "Updates, backups, 1hr support", icon: Shield, recurring: true },
-  { name: "Premium Hosting", price: 20, description: "Fast, secure hosting with daily backups", icon: Server, recurring: true },
+  { name: "Premium Hosting", price: 50, description: "Fast, secure hosting with daily backups", icon: Server, recurring: true },
   { name: "Custom Logo Design", price: 150, description: "Professional logo with 3 concepts", icon: Palette },
   { name: "Content Writing (5 pages)", price: 400, description: "SEO-optimized content creation", icon: FileText },
   { name: "Database Setup", price: 500, description: "Custom database configuration", icon: Database },
-  { name: "API Integration", price: 600, description: "Connect to external services", icon: Cloud },
+  { name: "API Integration", price: 500, description: "Connect to external services", icon: Cloud },
 ];
 
 /* ==========================================
