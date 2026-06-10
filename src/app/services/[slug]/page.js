@@ -352,6 +352,8 @@ export default function CategoryPage() {
                               ? "/pricing/dj"
                               : service.name === "Ushers"
                               ? "/pricing/usher"
+                              : service.name === "Photography"
+                              ? "/pricing/photography"
                               : `/client?service=${encodeURIComponent(service.name)}`
                         } 
                         className="flex-1"
@@ -414,7 +416,7 @@ export default function CategoryPage() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-center md:text-left">
                 <p className="text-xs uppercase tracking-[0.2em] text-gold mb-1">Free Consultation</p>
-                <h3 className="text-base font-semibold text-white">Not sure which service fits your needs?</h3>
+                <h3 className="text-base font-semibold text-white">Not sure which service fits your needs or looking for a bundle?</h3>
               </div>
               <button
                 onClick={() => {

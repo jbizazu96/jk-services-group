@@ -155,7 +155,7 @@ export default function BookingModal({
 
               <PopupButton
 
-                url={`https://calendly.com/josuebizazu60/new-meeting-1?a1=${encodeURIComponent(selectedService)}`}
+                url={`https://calendly.com/myjkservices/new-meeting-1?a1=${encodeURIComponent(selectedService)}`}
 
                 rootElement={
                   typeof window !== "undefined"
@@ -182,7 +182,7 @@ export default function BookingModal({
 
               <PopupButton
 
-                url={`https://calendly.com/josuebizazu60/30min?a1=${encodeURIComponent(selectedService)}`}
+                url={`https://calendly.com/myjkservices/30min?a1=${encodeURIComponent(selectedService)}`}
 
                 rootElement={
                   typeof window !== "undefined"
@@ -209,7 +209,7 @@ export default function BookingModal({
 
               <PopupButton
 
-                url={`https://calendly.com/josuebizazu60/new-meeting?a1=${encodeURIComponent(selectedService)}`}
+                url={`https://calendly.com/myjkservices/new-meeting?a1=${encodeURIComponent(selectedService)}`}
 
                 rootElement={
                   typeof window !== "undefined"
