@@ -350,6 +350,8 @@ export default function CategoryPage() {
                               ? "/pricing/mc-service"
                               : service.name === "DJ Music"
                               ? "/pricing/dj"
+                              : service.name === "Ushers"
+                              ? "/pricing/usher"
                               : `/client?service=${encodeURIComponent(service.name)}`
                         } 
                         className="flex-1"
