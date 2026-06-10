@@ -39,7 +39,7 @@ import {
 const teamMembers = [
   {
     name: "Josue Bizazu",
-    title: "CEO & Network Engineer",
+    title: "CEO & Engineer",
     role: "Network Engineer, IT Specialyst, MC, Preacher",
     image: "/images/Me3.JPG",
     years: "5+",

@@ -346,6 +346,10 @@ export default function CategoryPage() {
                             ? "/pricing/business-card" 
                             : category.slug === "website-development"
                               ? "/pricing/website-development"
+                              : service.name === "MC Services"
+                              ? "/pricing/mc-service"
+                              : service.name === "DJ Music"
+                              ? "/pricing/dj"
                               : `/client?service=${encodeURIComponent(service.name)}`
                         } 
                         className="flex-1"
