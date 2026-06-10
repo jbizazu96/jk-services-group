@@ -340,7 +340,16 @@ export default function CategoryPage() {
                         Book
                       </button>
 
-                      <Link href={`/client?service=${encodeURIComponent(service.name)}`} className="flex-1">
+                      <Link 
+                        href={
+                          service.name === "Custom Business Card" 
+                            ? "/pricing/business-card" 
+                            : category.slug === "website-development"
+                              ? "/pricing/website-development"
+                              : `/client?service=${encodeURIComponent(service.name)}`
+                        } 
+                        className="flex-1"
+                      >
                         <button
                           className="w-full rounded-xl border border-white/40 bg-white/5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-gold/50 group-hover:scale-[1.02] flex items-center justify-center gap-1.5"
                         >

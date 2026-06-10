@@ -37,6 +37,7 @@ import {
   Package,
   FileText,
   Cloud,
+  MessageCircle,
 } from "lucide-react";
 
 /* ==========================================
@@ -105,6 +106,7 @@ const pricingPackages = {
 const addOns = [
   { name: "Payment Integration", price: 200, description: "Stripe/PayPal checkout", icon: CreditCard },
   { name: "Payment + Subscriptions", price: 500, description: "Recurring billing & memberships", icon: ShoppingCart },
+  { name: "Automatic Email Integration", price: 300, description: "Automatically sending emails to your customers", icon: MessageCircle },
   { name: "SEO Advanced Package", price: 500, description: "Keyword research, backlinks, optimization", icon: TrendingUp },
   { name: "Monthly Maintenance", price: 50, description: "Updates, backups, 1hr support", icon: Shield, recurring: true },
   { name: "Premium Hosting", price: 50, description: "Fast, secure hosting with daily backups", icon: Server, recurring: true },

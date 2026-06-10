@@ -31,7 +31,6 @@ import {
   ChevronRight, 
   Star, 
   ExternalLink,
-  LayoutTemplate 
 } from "lucide-react";
 
 /* ==========================================
@@ -83,13 +82,25 @@ export default function PortfolioSection() {
   };
 
   /* ==========================================
+     HANDLE CARD CLICK WITH CONDITIONAL ROUTE
+  ========================================== */
+
+  const handleCardClick = (category) => {
+    if (category.slug === "website-templates") {
+      router.push("/website-templates");
+    } else {
+      router.push(`/portfolio/${category.slug}`);
+    }
+  };
+
+  /* ==========================================
      SCROLL TO CARD
   ========================================== */
 
   const scrollToCard = (index) => {
     if (!galleryRef.current) return;
     
-    const cards = galleryRef.current.querySelectorAll('.portfolio-card, .template-card');
+    const cards = galleryRef.current.querySelectorAll('.portfolio-card');
     if (cards[index] && cards[index].scrollIntoView) {
       cards[index].scrollIntoView({
         behavior: "smooth",
@@ -104,65 +115,62 @@ export default function PortfolioSection() {
      - Biased toward left on mobile
   ========================================== */
 
-const updateActiveIndexOnScroll = useCallback(() => {
-  if (isScrollingProgrammatically) return;
-  if (isHovering) return;
-  
-  if (!galleryRef.current) return;
-  
-  const cards = galleryRef.current.querySelectorAll('.portfolio-card, .template-card');
-  const containerRect = galleryRef.current.getBoundingClientRect();
-  
-  let bestIndex = 0;
-  let bestVisibleAmount = 0;
-  let bestLeftPosition = Infinity;
-  
-  const isMobile = window.innerWidth < 768;
-  
-  cards.forEach((card, idx) => {
-    const cardRect = card.getBoundingClientRect();
+  const updateActiveIndexOnScroll = useCallback(() => {
+    if (isScrollingProgrammatically) return;
+    if (isHovering) return;
     
-    // Calculate how much of the card is visible
-    const visibleLeft = Math.max(cardRect.left, containerRect.left);
-    const visibleRight = Math.min(cardRect.right, containerRect.right);
-    const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-    const visiblePercentage = visibleWidth / cardRect.width;
+    if (!galleryRef.current) return;
     
-    if (isMobile) {
-      // On mobile: prefer cards that are more left AND more visible
-      const leftDistance = Math.abs(cardRect.left - containerRect.left);
-      // Give priority to cards that are closer to the left edge
-      // But also require at least 30% visibility
-      if (visiblePercentage > 0.3) {
-        // Lower leftDistance is better
-        if (leftDistance < bestLeftPosition) {
-          bestLeftPosition = leftDistance;
+    const cards = galleryRef.current.querySelectorAll('.portfolio-card');
+    const containerRect = galleryRef.current.getBoundingClientRect();
+    
+    let bestIndex = 0;
+    let bestVisibleAmount = 0;
+    let bestLeftPosition = Infinity;
+    
+    const isMobile = window.innerWidth < 768;
+    
+    cards.forEach((card, idx) => {
+      const cardRect = card.getBoundingClientRect();
+      
+      // Calculate how much of the card is visible
+      const visibleLeft = Math.max(cardRect.left, containerRect.left);
+      const visibleRight = Math.min(cardRect.right, containerRect.right);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      const visiblePercentage = visibleWidth / cardRect.width;
+      
+      if (isMobile) {
+        // On mobile: prefer cards that are more left AND more visible
+        const leftDistance = Math.abs(cardRect.left - containerRect.left);
+        if (visiblePercentage > 0.3) {
+          if (leftDistance < bestLeftPosition) {
+            bestLeftPosition = leftDistance;
+            bestIndex = idx;
+            bestVisibleAmount = visiblePercentage;
+          }
+        }
+      } else {
+        // On desktop: prefer cards closer to center
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const distance = Math.abs(containerCenter - cardCenter);
+        
+        if (visiblePercentage > 0.5 && distance < bestLeftPosition) {
+          bestLeftPosition = distance;
           bestIndex = idx;
-          bestVisibleAmount = visiblePercentage;
         }
       }
-    } else {
-      // On desktop: prefer cards closer to center
-      const containerCenter = containerRect.left + containerRect.width / 2;
-      const cardCenter = cardRect.left + cardRect.width / 2;
-      const distance = Math.abs(containerCenter - cardCenter);
-      
-      if (visiblePercentage > 0.5 && distance < bestLeftPosition) {
-        bestLeftPosition = distance;
-        bestIndex = idx;
-      }
+    });
+    
+    // If no card found with good visibility, use the first card
+    if (bestLeftPosition === Infinity && cards.length > 0) {
+      bestIndex = 0;
     }
-  });
-  
-  // If no card found with good visibility, use the first card
-  if (bestLeftPosition === Infinity && cards.length > 0) {
-    bestIndex = 0;
-  }
-  
-  if (bestIndex !== activeIndex) {
-    setActiveIndex(bestIndex);
-  }
-}, [activeIndex, isScrollingProgrammatically, isHovering]);
+    
+    if (bestIndex !== activeIndex) {
+      setActiveIndex(bestIndex);
+    }
+  }, [activeIndex, isScrollingProgrammatically, isHovering]);
 
   /* ==========================================
      HOVER HANDLER
@@ -230,7 +238,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
   ========================================== */
 
   const handlePrev = () => {
-    const totalCards = portfolioCategories.length + 1; // +1 for template card
+    const totalCards = portfolioCategories.length;
     const newIndex = activeIndex === 0 ? totalCards - 1 : activeIndex - 1;
     setActiveIndex(newIndex);
     setHoveredIndex(null);
@@ -241,7 +249,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
   };
 
   const handleNext = () => {
-    const totalCards = portfolioCategories.length + 1; // +1 for template card
+    const totalCards = portfolioCategories.length;
     const newIndex = activeIndex + 1 >= totalCards ? 0 : activeIndex + 1;
     setActiveIndex(newIndex);
     setHoveredIndex(null);
@@ -378,7 +386,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
       <div className="absolute left-0 top-0 w-24 sm:w-32 h-full bg-gradient-to-r from-[#050505] via-[#050505]/80 to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 w-24 sm:w-32 h-full bg-gradient-to-l from-[#111827] via-[#111827]/80 to-transparent z-10 pointer-events-none" />
 
-      {/* CAROUSEL - Added mobile snap alignment */}
+      {/* CAROUSEL */}
       <div
         ref={galleryRef}
         className="overflow-x-auto scrollbar-hide snap-x snap-mandatory relative z-20 scroll-smooth"
@@ -386,62 +394,6 @@ const updateActiveIndexOnScroll = useCallback(() => {
       >
         <div className="flex gap-6 px-4 sm:px-12 md:px-20 py-8">
           
-          {/* Website Templates Card - At the beginning */}
-          <div
-            onClick={() => router.push("/website-templates")}
-            onMouseEnter={() => handleCardHover(portfolioCategories.length)}
-            onMouseLeave={handleCardLeave}
-            className={`
-              template-card relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[380px]
-              flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
-              transition-all duration-500 group border border-white/10
-              ${activeIndex === portfolioCategories.length || hoveredIndex === portfolioCategories.length
-                ? "ring-2 ring-blue-500 shadow-2xl shadow-blue-500/25 scale-105 z-20"
-                : "border border-white/10 scale-95 opacity-70 hover:opacity-100"
-              }
-            `}
-            style={{ aspectRatio: "3/4" }}
-          >
-            {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/40 to-indigo-900/40" />
-            
-            {/* Subtle pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="h-full w-full bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:30px_30px]" />
-            </div>
-
-            {/* Center Content */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center p-4 sm:p-6">
-                <div className="inline-block p-3 sm:p-4 rounded-2xl bg-blue-500/20 backdrop-blur-sm mb-3 sm:mb-4">
-                  <LayoutTemplate className="w-12 h-12 sm:w-16 sm:h-16 text-blue-400" />
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">Website</h3>
-                <h3 className="text-2xl sm:text-3xl font-black text-blue-400 mb-3">Templates</h3>
-                <p className="text-gray-300 text-xs sm:text-sm max-w-[200px] mx-auto">
-                  Browse our collection of ready-to-use website templates
-                </p>
-              </div>
-            </div>
-
-            {/* Bottom overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 md:p-6 bg-gradient-to-t from-black via-black/50 to-transparent">
-              <div className="inline-flex items-center gap-2 text-blue-400 font-semibold text-xs sm:text-sm group-hover:gap-3 transition-all">
-                View Templates <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              </div>
-            </div>
-
-            {/* Active/Hover Badge */}
-            {(activeIndex === portfolioCategories.length || hoveredIndex === portfolioCategories.length) && (
-              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
-                <div className="flex items-center gap-1 rounded-full bg-blue-500 px-2 py-1 text-[10px] font-bold text-black shadow-lg">
-                  <Star className="w-2.5 h-2.5 fill-black" />
-                  Current
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Portfolio Category Cards */}
           {portfolioCategories.map((category, index) => {
             const isActive = activeIndex === index;
@@ -450,7 +402,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
             return (
               <div
                 key={category.id}
-                onClick={() => router.push(`/portfolio/${category.slug}`)}
+                onClick={() => handleCardClick(category)}
                 onMouseEnter={() => handleCardHover(index)}
                 onMouseLeave={handleCardLeave}
                 className={`
@@ -483,6 +435,16 @@ const updateActiveIndexOnScroll = useCallback(() => {
                   </div>
                 )}
 
+                {/* Website Templates Badge */}
+                {category.slug === "website-templates" && (
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
+                    <div className="flex items-center gap-1 rounded-full bg-blue-500 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Templates
+                    </div>
+                  </div>
+                )}
+
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 md:p-6 z-10 transition-transform duration-500 group-hover:-translate-y-2">
                   <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-white mb-1 line-clamp-2">
                     {category.name}
@@ -491,7 +453,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
                     {category.description || "Explore our collection of work in this category."}
                   </p>
                   <div className="inline-flex items-center gap-2 text-yellow-400 font-semibold text-xs sm:text-sm group-hover:gap-3 transition-all">
-                    View Portfolio <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    {category.slug === "website-templates" ? "View Templates" : "View Portfolio"} <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
                 </div>
               </div>
@@ -503,7 +465,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
 
       {/* DOT INDICATORS */}
       <div className="flex justify-center items-center gap-2 mt-6 relative z-30">
-        {[...Array(portfolioCategories.length + 1)].map((_, index) => (
+        {portfolioCategories.map((_, index) => (
           <button
             key={index}
             onClick={() => handleDotClick(index)}
@@ -523,7 +485,7 @@ const updateActiveIndexOnScroll = useCallback(() => {
         <div className="inline-flex items-center gap-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 px-5 py-2">
           <Sparkles className="w-4 h-4 text-yellow-400" />
           <span className="text-gray-300 text-sm">
-            {portfolioCategories.length} Portfolio Categories + Templates
+            {portfolioCategories.length} Portfolio Categories
           </span>
           <Sparkles className="w-4 h-4 text-yellow-400" />
         </div>
