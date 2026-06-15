@@ -35,6 +35,7 @@ import {
   Smartphone,
   Users,
   Zap,
+  Lightbulb,
 } from "lucide-react";
 
 /* ==========================================
@@ -47,20 +48,20 @@ const djPackages = {
     title: "Silver DJ",
     subtitle: "Essential Sound Experience",
     description: "Professional DJ services for intimate gatherings and small parties",
-    basePrice: 400,
+    basePrice: 600,
     hoursIncluded: 4,
     popular: false,
     features: [
       "Up to 4 Hours DJ Performance",
       "Professional DJ with Laptop & Controller",
-      "2 Speakers (500W Each)",
+      "1 Speakers (500W Each)",
       "1 Wireless Microphone",
       "Basic Sound Mixer (4 Channels)",
       "Standard Playlist Curation",
       "Guest Song Requests Welcome",
       "Pre-Event Consultation (1 Call)",
       "Setup & Breakdown Included",
-      "Local Transportation (within 100 miles)",
+      "Local Transportation (within 60 miles)",
     ],
     bestFor: ["Birthday Parties", "Small Weddings", "Baby Showers", "Family Reunions", "Cocktail Hours"],
   },
@@ -69,22 +70,20 @@ const djPackages = {
     title: "Gold DJ",
     subtitle: "Premium Party Experience",
     description: "Enhanced DJ package with superior sound for medium to large events",
-    basePrice: 750,
+    basePrice: 1000,
     hoursIncluded: 6,
     popular: true,
     features: [
       "Up to 6 Hours DJ Performance",
       "Professional DJ with Premium Controller",
-      "4 Speakers (1000W Each) + Subwoofer",
+      "2-4 Speakers (1000W Each) + Subwoofer",
       "2 Wireless Microphones (Handheld + Headset)",
-      "Professional Sound Mixer (8 Channels)",
       "Custom Playlist Curation & Consultation",
       "Guest Song Requests via QR Code or App",
-      "Basic Dance Floor Lighting (2 Lights)",
       "DJ Facade/Table Setup",
       "Pre-Event Consultation (2 Meetings)",
       "Setup & Breakdown Included",
-      "Transportation Included (within 100 miles)",
+      "Transportation Included (within 60 miles)",
       "Backup Equipment Available",
       "Music Genre: Any (Afrobeats, Hip-Hop, Country, etc.)",
     ],
@@ -102,22 +101,17 @@ const djPackages = {
     features: [
       "Up to 8 Hours DJ Performance (Flexible)",
       "Professional DJ + Assistant/Hype Man",
-      "6 Speakers (1500W Each) + 2 Subwoofers",
-      "4 Wireless Microphones (Handheld, Headset, Lavalier)",
-      "Professional Sound Mixer (16 Channels)",
-      "Full Dance Floor Lighting Package (6+ Lights)",
-      "Uplighting (Up to 10 Units)",
-      "Fog Machine + Bubble Machine Available",
-      "Custom Monogram/Logo Projection",
+      "4-6 Speakers (1500W Each) + 2 Subwoofers",
+      "2-4 Wireless Microphones (Handheld, Headset, Lavalier)",
       "DJ Facade with LED Display",
       "Custom Playlist & Timeline Curation",
       "Guest Requests via App, QR, or Text",
-      "Live Mixing & Mashups Capable",
       "Multiple Pre-Event Consultations",
       "Rehearsal Attendance",
+      "Ceremony sound setup",
       "Early Setup & Sound Check",
       "Setup & Breakdown Included",
-      "Transportation Included (within 150 miles)",
+      "Transportation Included (within 60 miles)",
       "Backup Equipment Guaranteed",
       "Multi-Genre: Afrobeats, Hip-Hop, EDM, Country, Latin, etc.",
       "Post-Event Playlist Sharing",
@@ -135,7 +129,7 @@ const eventTypes = [
     icon: Heart,
     title: "Wedding",
     description: "Romantic and energetic music for your special day",
-    startingPrice: "$500",
+    startingPrice: "$600",
     packageRecommendation: "Gold or Platinum",
     features: ["Ceremony Music", "Cocktail Hour", "Reception Dance Floor", "First Dance Coordination"],
   },
@@ -143,7 +137,7 @@ const eventTypes = [
     icon: Briefcase,
     title: "Corporate Event",
     description: "Professional sound for business gatherings",
-    startingPrice: "$600",
+    startingPrice: "$1000",
     packageRecommendation: "Gold",
     features: ["Background Music", "Presentation Audio", "Award Ceremony Sound", "Networking Mixer"],
   },
@@ -151,7 +145,7 @@ const eventTypes = [
     icon: PartyPopper,
     title: "Birthday Party",
     description: "High-energy music to celebrate",
-    startingPrice: "$350",
+    startingPrice: "$600",
     packageRecommendation: "Silver or Gold",
     features: ["Dance Floor Hits", "Birthday Shout-Outs", "Guest Requests", "Party Games Music"],
   },
@@ -159,7 +153,7 @@ const eventTypes = [
     icon: GraduationCap,
     title: "Graduation Party",
     description: "Celebrate academic milestones in style",
-    startingPrice: "$400",
+    startingPrice: "$600",
     packageRecommendation: "Silver or Gold",
     features: ["Walk-Up Music", "Celebration Mix", "Photo Montage Audio", "Guest Announcements"],
   },
@@ -167,7 +161,7 @@ const eventTypes = [
     icon: Church,
     title: "Religious Celebration",
     description: "Appropriate music for faith-based events",
-    startingPrice: "$350",
+    startingPrice: "$600",
     packageRecommendation: "Silver or Gold",
     features: ["Gospel Selection", "Ceremony Audio", "Fellowship Music", "Respectful Volume Levels"],
   },
@@ -187,14 +181,7 @@ const eventTypes = [
     packageRecommendation: "Gold or Platinum",
     features: ["Dinner Music", "Dance Set", "Auction Audio Support", "VIP Announcements"],
   },
-  {
-    icon: Music,
-    title: "Club / Lounge Night",
-    description: "Professional DJ for nightlife venues",
-    startingPrice: "$500",
-    packageRecommendation: "Gold or Platinum",
-    features: ["Live Mixing", "Beat Matching", "Crowd Reading", "Extended Sets Available"],
-  },
+  
 ];
 
 /* ==========================================
@@ -217,9 +204,10 @@ const addOns = [
   { name: "Extra Hour", price: "$100/hour", icon: Clock, description: "Additional DJ performance beyond package hours" },
   { name: "Extra Speaker Set", price: "$150/pair", icon: Speaker, description: "Additional speakers for larger venues" },
   { name: "Wireless Microphone", price: "$50/mic", icon: Mic, description: "Additional wireless mic for speeches or performances" },
-  { name: "Fog Machine", price: "$100", icon: Sparkles, description: "Atmospheric fog for dance floor effects" },
+  { name: "Fog Machine", price: "$200", icon: Sparkles, description: "Atmospheric fog for dance floor effects" },
   { name: "Extended Travel", price: "$1.50/mile", icon: Car, description: "For events beyond package mileage limit" },
-  { name: "Ceremony Sound Setup", price: "$150", icon: Church, description: "Separate sound system for ceremony area" },
+  { name: "Dance Floor Lighting", price: "$250", icon: Lightbulb, description: "add more lights on the dance floor"},
+  { name: "Ceremony Sound Setup", price: "$200", icon: Church, description: "Separate sound system for ceremony area" },
 ];
 
 /* ==========================================
@@ -543,6 +531,30 @@ export default function DJPricingPage() {
           ))}
         </div>
 
+       {/* Add-Ons */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
+          <p className="text-gray-500 text-center mb-8">Enhance your DJ experience with these options</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            {addOns.map((addon, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
+                <div className="rounded-lg bg-blue-100 p-2 text-blue-600 shrink-0"><addon.icon className="w-6 h-6" /></div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
+                    <span className="text-xs font-bold text-blue-600">{addon.price}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Event Types */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
@@ -628,30 +640,6 @@ export default function DJPricingPage() {
               >
                 {genre}
               </motion.span>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Add-Ons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
-        >
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
-          <p className="text-gray-500 text-center mb-8">Enhance your DJ experience with these options</p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {addOns.map((addon, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
-                <div className="rounded-lg bg-blue-100 p-2 text-blue-600 shrink-0"><addon.icon className="w-6 h-6" /></div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
-                    <span className="text-xs font-bold text-blue-600">{addon.price}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
-                </div>
-              </div>
             ))}
           </div>
         </motion.div>

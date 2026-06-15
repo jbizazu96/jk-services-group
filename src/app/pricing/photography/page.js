@@ -47,12 +47,12 @@ const photoPackages = {
     title: "Essential Shoot",
     subtitle: "Perfect for Intimate Moments",
     description: "Professional photography for smaller events and portrait sessions",
-    basePrice: 350,
+    basePrice: 500,
     hoursIncluded: 2,
     photosIncluded: 50,
     popular: false,
     features: [
-      "Up to 2 Hours Photography Coverage",
+      "Up to 3 Hours Photography Coverage",
       "Professional Photographer with DSLR",
       "50 Professionally Edited Digital Photos",
       "Online Private Gallery for Viewing",
@@ -60,8 +60,8 @@ const photoPackages = {
       "1 Location Within City Limits",
       "Standard Retouching (Color, Exposure)",
       "Pre-Shoot Consultation (1 Call)",
-      "Photo Delivery Within 7-10 Days",
-      "Local Transportation Included (within 25 miles)",
+      "Photo Delivery Within 7-14 Days",
+      "Local Transportation Included (within 60 miles)",
     ],
     bestFor: ["Headshots", "Small Birthdays", "Maternity", "Engagement", "Baby Showers"],
   },
@@ -70,23 +70,22 @@ const photoPackages = {
     title: "Professional Shoot",
     subtitle: "Full Event Coverage",
     description: "Comprehensive photography for medium to large events and sessions",
-    basePrice: 800,
+    basePrice: 1000,
     hoursIncluded: 4,
     photosIncluded: 150,
     popular: true,
     features: [
-      "Up to 4 Hours Photography Coverage",
+      "Up to 6 Hours Photography Coverage",
       "Professional Photographer + Assistant",
       "150 Professionally Edited Digital Photos",
       "Online Private Gallery with Slideshow",
-      "Digital Download + USB Drive Delivery",
+      "Digital Download and/or USB Drive Delivery",
       "Up to 2 Locations",
       "Advanced Retouching (Skin, Blemish, Detail)",
-      "30 Premium Prints (4x6 or 5x7)",
       "Pre-Shoot Consultation (2 Meetings)",
       "Sneak Peek Within 48 Hours",
-      "Full Gallery Delivery Within 7 Days",
-      "Transportation Included (within 50 miles)",
+      "Full Gallery Delivery Within 10 Days",
+      "Transportation Included (within 60 miles)",
       "Backup Equipment Available",
     ],
     bestFor: ["Weddings", "Corporate Events", "Anniversaries", "Graduations", "Family Reunions"],
@@ -104,21 +103,19 @@ const photoPackages = {
     features: [
       "Up to 8 Hours Photography Coverage (Flexible)",
       "Lead Photographer + Second Shooter + Assistant",
-      "400+ Professionally Edited Digital Photos",
+      "200+ Professionally Edited Digital Photos",
       "Online Private Gallery with Slideshow & Proofing",
       "Digital Download + Custom USB + Cloud Backup",
       "Unlimited Locations",
       "Premium Retouching (Advanced Skin, Detail, Artistic)",
-      "100 Premium Prints (Various Sizes)",
-      "1 Custom Leather-Bound Photo Album (20 Pages)",
       "Engagement/Pre-Event Photoshoot Included",
       "Multiple Pre-Shoot Consultations",
       "Rehearsal/Dry-Run Attendance",
       "Sneak Peek Within 24 Hours",
-      "Full Gallery Delivery Within 5 Days",
+      "Full Gallery Delivery Within 7 Days",
       "Drone Photography Add-On Available",
       "Same-Day Slideshow Available",
-      "Transportation Included (within 100 miles)",
+      "Transportation Included (within 60 miles)",
       "Backup Equipment Guaranteed",
       "Copyright Release for Personal Use",
     ],
@@ -135,7 +132,7 @@ const eventTypes = [
     icon: Heart,
     title: "Wedding",
     description: "Capturing every precious moment of your special day",
-    startingPrice: "$800",
+    startingPrice: "$1000",
     packageRecommendation: "Professional or Premium",
     features: ["Getting Ready", "Ceremony", "Reception", "First Dance", "Candid Moments"],
   },
@@ -143,7 +140,7 @@ const eventTypes = [
     icon: Briefcase,
     title: "Corporate Event",
     description: "Professional imagery for business functions",
-    startingPrice: "$600",
+    startingPrice: "$1000",
     packageRecommendation: "Professional",
     features: ["Conference Coverage", "Award Ceremonies", "Team Photos", "Branding Shots"],
   },
@@ -151,7 +148,7 @@ const eventTypes = [
     icon: PartyPopper,
     title: "Birthday / Anniversary",
     description: "Memorable photos of milestone celebrations",
-    startingPrice: "$350",
+    startingPrice: "$500",
     packageRecommendation: "Essential or Professional",
     features: ["Cake Cutting", "Guest Interactions", "Decor Details", "Group Photos"],
   },
@@ -159,7 +156,7 @@ const eventTypes = [
     icon: GraduationCap,
     title: "Graduation",
     description: "Celebrate academic achievements in style",
-    startingPrice: "$350",
+    startingPrice: "$500",
     packageRecommendation: "Essential or Professional",
     features: ["Ceremony Walk", "Portrait Session", "Family Photos", "Cap & Gown Shots"],
   },
@@ -175,7 +172,7 @@ const eventTypes = [
     icon: Camera,
     title: "Headshot / Personal Branding",
     description: "Professional images for your personal brand",
-    startingPrice: "$250",
+    startingPrice: "$500",
     packageRecommendation: "Essential",
     features: ["Studio or Outdoor", "Multiple Outfits", "Different Backgrounds", "Professional Retouching"],
   },
@@ -221,13 +218,12 @@ const addOns = [
   { name: "Second Shooter", price: "$300", icon: Users, description: "Additional photographer for more angles and coverage" },
   { name: "Drone Photography", price: "$250", icon: Camera, description: "Aerial photos and video clips of your event" },
   { name: "Premium Photo Album", price: "$200", icon: Album, description: "Custom leather-bound album with 20 pages" },
-  { name: "Extra Prints (50)", price: "$100", icon: Printer, description: "Additional 50 premium prints (4x6 or 5x7)" },
+  { name: "Photo Prints (30)", price: "$100", icon: Printer, description: "Additional 50 premium prints (4x6 or 5x7)" },
   { name: "Large Canvas Print", price: "$150", icon: Image, description: "24x36 gallery-wrapped canvas print" },
   { name: "Same-Day Slideshow", price: "$200", icon: Monitor, description: "Photos displayed during your event in real-time" },
-  { name: "Rush Delivery (48hr)", price: "$150", icon: Clock, description: "Expedited editing and delivery of your gallery" },
+  { name: "Rush Delivery (48hr)", price: "$200", icon: Clock, description: "Expedited editing and delivery of your gallery" },
   { name: "Engagement Shoot", price: "$250", icon: Heart, description: "Separate pre-event photoshoot session" },
   { name: "Extended Travel", price: "$1.50/mile", icon: Car, description: "For events beyond package mileage limit" },
-  { name: "Copyright Release", price: "$100", icon: Share2, description: "Full commercial usage rights for your photos" },
   { name: "Additional Location", price: "$75/location", icon: MapPin, description: "Extra photo location beyond package limit" },
 ];
 
@@ -517,6 +513,26 @@ export default function PhotographyPricingPage() {
           ))}
         </div>
 
+        {/* Add-Ons */}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
+          <p className="text-gray-500 text-center mb-8">Enhance your photography package with these options</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            {addOns.map((addon, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
+                <div className="rounded-lg bg-purple-100 p-2 text-purple-600 shrink-0"><addon.icon className="w-6 h-6" /></div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
+                    <span className="text-xs font-bold text-purple-600">{addon.price}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Event Types */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
@@ -554,26 +570,6 @@ export default function PhotographyPricingPage() {
                 <h3 className="font-bold text-gray-900 mb-1">{style.name}</h3>
                 <p className="text-xs text-gray-500">{style.description}</p>
               </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Add-Ons */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
-          <p className="text-gray-500 text-center mb-8">Enhance your photography package with these options</p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {addOns.map((addon, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
-                <div className="rounded-lg bg-purple-100 p-2 text-purple-600 shrink-0"><addon.icon className="w-6 h-6" /></div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
-                    <span className="text-xs font-bold text-purple-600">{addon.price}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
-                </div>
-              </div>
             ))}
           </div>
         </motion.div>

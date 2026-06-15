@@ -44,12 +44,12 @@ const usherPackages = {
     title: "Essential Ushers",
     subtitle: "Basic Event Support",
     description: "Professional usher services for smaller, intimate gatherings",
-    basePrice: 200,
-    usherCount: "2 Ushers",
+    basePrice: 350,
+    usherCount: "2+ Ushers",
     hoursIncluded: 4,
     popular: false,
     features: [
-      "2 Professional Ushers",
+      "2-3 Professional Ushers",
       "Up to 4 Hours Coverage",
       "Guest Welcome & Greeting",
       "Seating Assistance",
@@ -66,12 +66,12 @@ const usherPackages = {
     title: "Professional Ushers",
     subtitle: "Full Event Coverage",
     description: "Comprehensive usher team for medium to large events",
-    basePrice: 450,
-    usherCount: "4 Ushers",
+    basePrice: 500,
+    usherCount: "4+ Ushers",
     hoursIncluded: 6,
     popular: true,
     features: [
-      "4 Professional Ushers",
+      "3-5 Professional Ushers",
       "Up to 6 Hours Coverage",
       "Guest Welcome & Registration",
       "Seating Management & Escort",
@@ -91,7 +91,7 @@ const usherPackages = {
     title: "Premium Ushers",
     subtitle: "Luxury Event Experience",
     description: "Elite usher team for grand celebrations and high-profile events",
-    basePrice: 900,
+    basePrice: 1000,
     usherCount: "6-8 Ushers",
     hoursIncluded: 10,
     popular: false,
@@ -110,7 +110,7 @@ const usherPackages = {
       "Dedicated On-Site Team Lead",
       "Rehearsal Attendance",
       "Post-Event Guest Departure Assistance",
-      "Transportation Included (within 100 miles)",
+      "Transportation Included (within 60 miles)",
       "Guaranteed Backup Ushers",
       "Multilingual Ushers Available",
     ],
@@ -127,7 +127,7 @@ const eventTypes = [
     icon: Heart,
     title: "Wedding",
     description: "Elegant usher service for your special day",
-    startingPrice: "$350",
+    startingPrice: "$50",
     packageRecommendation: "Professional or Premium",
     features: ["Ceremony Seating", "Reception Guest Management", "Bridal Party Assistance", "Gift Table Management"],
   },
@@ -135,7 +135,7 @@ const eventTypes = [
     icon: Briefcase,
     title: "Corporate Event",
     description: "Professional presence for business functions",
-    startingPrice: "$400",
+    startingPrice: "$500",
     packageRecommendation: "Professional or Premium",
     features: ["Registration Desk Support", "Attendee Direction", "Materials Distribution", "VIP Guest Handling"],
   },
@@ -143,7 +143,7 @@ const eventTypes = [
     icon: Church,
     title: "Religious Service",
     description: "Respectful ushering for worship gatherings",
-    startingPrice: "$200",
+    startingPrice: "$300",
     packageRecommendation: "Essential or Professional",
     features: ["Congregation Seating", "Offering Collection", "Program Distribution", "Exit Flow Management"],
   },
@@ -151,7 +151,7 @@ const eventTypes = [
     icon: PartyPopper,
     title: "Anniversary / Birthday",
     description: "Warm and welcoming atmosphere",
-    startingPrice: "$250",
+    startingPrice: "$300",
     packageRecommendation: "Professional",
     features: ["Guest Welcome", "Gift Collection", "Seating Arrangement", "Cake Ceremony Coordination"],
   },
@@ -159,7 +159,7 @@ const eventTypes = [
     icon: GraduationCap,
     title: "Graduation Ceremony",
     description: "Organized ushering for academic events",
-    startingPrice: "$350",
+    startingPrice: "$300",
     packageRecommendation: "Professional",
     features: ["Graduate Line-Up", "Stage Flow Management", "Guest Seating", "Diploma Distribution Support"],
   },
@@ -175,7 +175,7 @@ const eventTypes = [
     icon: Hand,
     title: "Funeral / Memorial",
     description: "Compassionate and dignified service",
-    startingPrice: "$200",
+    startingPrice: "$300",
     packageRecommendation: "Essential or Professional",
     features: ["Attendee Greeting", "Seating Assistance", "Program Distribution", "Flower Arrangement Support"],
   },
@@ -516,6 +516,30 @@ export default function UsherPricingPage() {
           ))}
         </div>
 
+        {/* Add-Ons */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
+          <p className="text-gray-500 text-center mb-8">Customize your usher package with these additional options</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            {addOns.map((addon, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
+                <div className="rounded-lg bg-blue-100 p-2 text-blue-600 shrink-0"><addon.icon className="w-6 h-6" /></div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
+                    <span className="text-xs font-bold text-blue-600">{addon.price}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Event Types */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
@@ -580,30 +604,6 @@ export default function UsherPricingPage() {
                 </div>
                 <p className="text-xs text-gray-500">{uniform.description}</p>
               </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Add-Ons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
-        >
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
-          <p className="text-gray-500 text-center mb-8">Customize your usher package with these additional options</p>
-          <div className="grid md:grid-cols-2 gap-4">
-            {addOns.map((addon, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
-                <div className="rounded-lg bg-blue-100 p-2 text-blue-600 shrink-0"><addon.icon className="w-6 h-6" /></div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
-                    <span className="text-xs font-bold text-blue-600">{addon.price}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
-                </div>
-              </div>
             ))}
           </div>
         </motion.div>
