@@ -37,6 +37,7 @@ import {
   Eye,
   CheckCircle2,
   ImageIcon,
+  EyeOff,
 } from "lucide-react";
 
 /* =========================================
@@ -560,9 +561,9 @@ const toggleFeatured =
             />
 
             <StatCard
-              icon={<Eye size={22} />}
-              title="Showcase"
-              value="Live"
+              icon={<EyeOff size={22} />}
+              title="Inactive"
+              value={portfolioCategories.length - activeCount}
             />
 
           </div>

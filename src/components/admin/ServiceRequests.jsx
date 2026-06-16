@@ -59,6 +59,7 @@ import {
   Package as PackageIcon,
   Layers,
   Gift,
+  CheckCheckIcon,
 } from "lucide-react";
 
 /* =========================================================
@@ -146,9 +147,9 @@ export default function ServiceRequests() {
 
   const totalRequests = requests.length;
   const pendingRequests = requests.filter((r) => !r.status || r.status === "pending").length;
-  const reviewingRequests = requests.filter((r) => r.status === "reviewing").length;
+  const approvedRequests = requests.filter((r) => r.status === "approved").length;
   const completedRequests = requests.filter((r) => r.status === "completed").length;
-  const quotedRequests = requests.filter((r) => r.status === "quoted").length;
+  const cancelledRequests = requests.filter((r) => r.status === "cancelled").length;
 
   /* =====================================================
      STATUS STYLES
@@ -185,6 +186,7 @@ export default function ServiceRequests() {
         phone: selectedRequest.phone || "",
         serviceType: selectedRequest.serviceType || "",
         description: selectedRequest.description || "",
+        budget: selectedRequest.budget || "",
         status: selectedRequest.status || "pending",
         updatedAt: serverTimestamp(),
       });
@@ -351,8 +353,8 @@ export default function ServiceRequests() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-12">
           <StatCard title="Total Requests" value={totalRequests} icon={<FolderOpen className="h-6 w-6" />} />
           <StatCard title="Pending" value={pendingRequests} icon={<Clock3 className="h-6 w-6" />} />
-          <StatCard title="Reviewing" value={reviewingRequests} icon={<Eye className="h-6 w-6" />} />
-          <StatCard title="Quoted" value={quotedRequests} icon={<DollarSign className="h-6 w-6" />} />
+          <StatCard title="Approved" value={approvedRequests} icon={<CheckCircle2 className="h-6 w-6" />} />
+          <StatCard title="Cancelled" value={cancelledRequests} icon={<DollarSign className="h-6 w-6" />} />
           <StatCard title="Completed" value={completedRequests} icon={<CheckCircle2 className="h-6 w-6" />} />
         </div>
 

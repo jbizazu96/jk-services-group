@@ -38,6 +38,7 @@ import {
   DollarSign,
   Search,
   X,
+  EyeOff,
 } from "lucide-react";
 
 /* =========================================
@@ -597,9 +598,9 @@ const toggleFeatured =
             />
 
             <StatCard
-              icon={<DollarSign size={22} />}
-              title="Premium"
-              value="Luxury"
+              icon={<EyeOff size={22} />}
+              title="Inactive"
+              value={services.length - activeServices}
             />
 
           </div>

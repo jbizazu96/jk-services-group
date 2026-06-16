@@ -246,25 +246,26 @@ export default function WeddingCoordinationPricingPage() {
     }
   };
 
-  const openBookingModal = (pkg) => {
-    setSelectedPackage(pkg);
-    setSelectedAddOns([]);
-    setTotalPrice(weddingPackages[pkg]?.basePrice || 0);
-    setBookingForm({
-      fullName: "",
-      email: "",
-      phone: "",
-      partnerName: "",
-      weddingDate: "",
-      weddingLocation: "",
-      venueName: "",
-      guestCount: "",
-      package: weddingPackages[pkg]?.title || "",
-      message: "",
-    });
-    setFormErrors({});
-    setShowBookingModal(true);
-  };
+    const openBookingModal = (pkg) => {
+      setSelectedPackage(pkg);
+      setSelectedAddOns([]);
+      const selectedPkg = weddingPackages[pkg];
+      setTotalPrice(selectedPkg?.basePrice || 0);
+      setBookingForm({
+        fullName: "",
+        email: "",
+        phone: "",
+        partnerName: "",
+        weddingDate: "",
+        weddingLocation: "",
+        venueName: "",
+        guestCount: "",
+        package: selectedPkg?.title || "",
+        message: "",
+      });
+      setFormErrors({});
+      setShowBookingModal(true);
+    };
 
   const handleAddOnToggle = (addOnName, addOnPrice) => {
     setSelectedAddOns(prev => {
@@ -296,49 +297,54 @@ export default function WeddingCoordinationPricingPage() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleBookNow = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+      const handleBookNow = async (e) => {
+      e.preventDefault();
+      if (!validateForm()) return;
 
-    try {
-      setLoading(true);
-      const generatedId = `WED-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+      try {
+        setLoading(true);
+        const generatedId = `WED-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
-      await addDoc(collection(db, "serviceRequests"), {
-        requestId: generatedId,
-        customerName: bookingForm.fullName,
-        email: bookingForm.email,
-        phone: bookingForm.phone,
-        partnerName: bookingForm.partnerName,
-        serviceType: "Wedding Coordination",
-        category: "Wedding Coordination",
-        status: "pending",
-        source: "pricing",
-        requestType: "booking",
-        package: bookingForm.package,
-        teamSize: weddingPackages[selectedPackage]?.teamSize,
-        hoursIncluded: weddingPackages[selectedPackage]?.hoursIncluded,
-        weddingDate: bookingForm.weddingDate,
-        weddingLocation: bookingForm.weddingLocation,
-        venueName: bookingForm.venueName,
-        guestCount: bookingForm.guestCount,
-        addOns: selectedAddOns,
-        budget: totalPrice,
-        basePrice: weddingPackages[selectedPackage]?.basePrice || 0,
-        message: bookingForm.message,
-        description: `WEDDING COORDINATION BOOKING: ${bookingForm.package}\nTeam: ${weddingPackages[selectedPackage]?.teamSize}\nHours: ${weddingPackages[selectedPackage]?.hoursIncluded}\nWedding Date: ${bookingForm.weddingDate}\nLocation: ${bookingForm.weddingLocation}\nVenue: ${bookingForm.venueName}\nGuests: ${bookingForm.guestCount}\nPartner: ${bookingForm.partnerName}\nAdd-Ons: ${selectedAddOns.map(a => a.name).join(", ") || "None"}\nTotal Price: $${totalPrice}\n\nMessage: ${bookingForm.message}`,
-        createdAt: serverTimestamp(),
-      });
+        const selectedPkg = weddingPackages[selectedPackage];
+        const teamSize = selectedPkg?.teamSize || "";
+        const hoursIncluded = selectedPkg?.hoursIncluded || 0;
+        const basePrice = selectedPkg?.basePrice || 0;
 
-      setRequestId(generatedId);
-      setSuccess(true);
-    } catch (error) {
-      console.error("Booking failed:", error);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+        await addDoc(collection(db, "serviceRequests"), {
+          requestId: generatedId,
+          customerName: bookingForm.fullName || "",
+          email: bookingForm.email || "",
+          phone: bookingForm.phone || "",
+          partnerName: bookingForm.partnerName || "",
+          serviceType: "Wedding Coordination",
+          category: "Wedding Coordination",
+          status: "pending",
+          source: "pricing",
+          requestType: "booking",
+          package: bookingForm.package || "",
+          teamSize: teamSize,
+          hoursIncluded: hoursIncluded,
+          weddingDate: bookingForm.weddingDate || "",
+          weddingLocation: bookingForm.weddingLocation || "",
+          venueName: bookingForm.venueName || "",
+          guestCount: bookingForm.guestCount || "",
+          addOns: selectedAddOns || [],
+          budget: totalPrice || 0,
+          basePrice: basePrice,
+          message: bookingForm.message || "",
+          description: `WEDDING COORDINATION BOOKING: ${bookingForm.package}\nTeam: ${teamSize}\nHours: ${hoursIncluded}\nWedding Date: ${bookingForm.weddingDate}\nLocation: ${bookingForm.weddingLocation}\nVenue: ${bookingForm.venueName}\nGuests: ${bookingForm.guestCount}\nPartner: ${bookingForm.partnerName}\nAdd-Ons: ${selectedAddOns.map(a => a.name).join(", ") || "None"}\nTotal Price: $${totalPrice}\n\nMessage: ${bookingForm.message}`,
+          createdAt: serverTimestamp(),
+        });
+
+        setRequestId(generatedId);
+        setSuccess(true);
+      } catch (error) {
+        console.error("Booking failed:", error);
+        alert("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
