@@ -25,6 +25,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL("https://myjkservices.com"),
 
+  
   /* =======================================
      TITLE
   ======================================= */
@@ -140,9 +141,16 @@ export const metadata = {
     description: "J&K Services Group provides website development, IT and networking services, church technology solutions, media and creative services, weddings and event services, training programs, conferences, photography, videography, DJ entertainment, and business consulting throughout Iowa and beyond.",
     images: ["/images/logo1.webp"],
   },
-
   /* =======================================
-     FAVICONS - REMOVED SVG REFERENCE
+    APPLE PWA SUPPORT
+  ======================================= */
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "J&K Services",
+  },
+  /* =======================================
+    FAVICONS + PWA ICONS
   ======================================= */
   icons: {
     icon: [
@@ -150,8 +158,17 @@ export const metadata = {
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
     ],
+
     shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+
+    /* iPhone Home Screen Icon */
+    apple: [
+      {
+        url: "/icons/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
   },
 
   /* =======================================
@@ -167,6 +184,12 @@ export const metadata = {
   manifest: "/site.webmanifest",
 };
 
+/* =========================================
+   PWA VIEWPORT SETTINGS
+========================================= */
+export const viewport = {
+  themeColor: "#eab308",
+};
 /* =========================================
    ROOT LAYOUT
 ========================================= */
