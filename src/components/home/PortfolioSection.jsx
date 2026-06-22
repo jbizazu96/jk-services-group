@@ -69,9 +69,10 @@ export default function PortfolioSection() {
       }));
       setPortfolioCategories(items);
       
-      // Set the first card (index 0) as the active card on load
+      // Set middle card as active (visual only)
       if (items.length > 0) {
-        setActiveIndex(0);
+        const middleIndex = Math.floor(items.length / 2);
+        setActiveIndex(middleIndex);
       }
     } catch (error) {
       console.error("Portfolio Error:", error);
@@ -111,7 +112,7 @@ export default function PortfolioSection() {
 
   /* ==========================================
      DETECT WHICH CARD IS MOST VISIBLE
-     - Accurately detects the centered card on BOTH Finger swipe AND Arrows
+     - Biased toward left on mobile
   ========================================== */
 
   const updateActiveIndexOnScroll = useCallback(() => {
@@ -122,26 +123,49 @@ export default function PortfolioSection() {
     
     const cards = galleryRef.current.querySelectorAll('.portfolio-card');
     const containerRect = galleryRef.current.getBoundingClientRect();
-    const containerCenter = containerRect.left + containerRect.width / 2;
     
     let bestIndex = 0;
-    let bestDistance = Infinity;
+    let bestVisibleAmount = 0;
+    let bestLeftPosition = Infinity;
+    
+    const isMobile = window.innerWidth < 768;
     
     cards.forEach((card, idx) => {
       const cardRect = card.getBoundingClientRect();
-      const cardCenter = cardRect.left + cardRect.width / 2;
       
-      // Calculate how close this card's center is to the container's center
-      const distance = Math.abs(containerCenter - cardCenter);
+      // Calculate how much of the card is visible
+      const visibleLeft = Math.max(cardRect.left, containerRect.left);
+      const visibleRight = Math.min(cardRect.right, containerRect.right);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      const visiblePercentage = visibleWidth / cardRect.width;
       
-      // Only consider cards that are at least partially visible
-      const isVisible = cardRect.left < containerRect.right && cardRect.right > containerRect.left;
-      
-      if (isVisible && distance < bestDistance) {
-        bestDistance = distance;
-        bestIndex = idx;
+      if (isMobile) {
+        // On mobile: prefer cards that are more left AND more visible
+        const leftDistance = Math.abs(cardRect.left - containerRect.left);
+        if (visiblePercentage > 0.3) {
+          if (leftDistance < bestLeftPosition) {
+            bestLeftPosition = leftDistance;
+            bestIndex = idx;
+            bestVisibleAmount = visiblePercentage;
+          }
+        }
+      } else {
+        // On desktop: prefer cards closer to center
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const distance = Math.abs(containerCenter - cardCenter);
+        
+        if (visiblePercentage > 0.5 && distance < bestLeftPosition) {
+          bestLeftPosition = distance;
+          bestIndex = idx;
+        }
       }
     });
+    
+    // If no card found with good visibility, use the first card
+    if (bestLeftPosition === Infinity && cards.length > 0) {
+      bestIndex = 0;
+    }
     
     if (bestIndex !== activeIndex) {
       setActiveIndex(bestIndex);
@@ -167,25 +191,23 @@ export default function PortfolioSection() {
   };
 
   /* ==========================================
-     SCROLL EVENT LISTENER (Optimized for Finger Swipe)
+     SCROLL EVENT LISTENER
   ========================================== */
 
   useEffect(() => {
     const scrollContainer = galleryRef.current;
     if (!scrollContainer) return;
     
-    // Use requestAnimationFrame for extremely fast finger swipe updates
-    let rafId = null;
-    const handleScroll = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        updateActiveIndexOnScroll();
-      });
+    const handleScrollEnd = () => {
+      updateActiveIndexOnScroll();
     };
     
-    const handleScrollEnd = () => {
-      // Final check when finger stops moving
-      updateActiveIndexOnScroll();
+    let scrollTimeout;
+    const handleScroll = () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        updateActiveIndexOnScroll();
+      }, 100);
     };
     
     scrollContainer.addEventListener('scroll', handleScroll);
@@ -194,7 +216,7 @@ export default function PortfolioSection() {
     return () => {
       scrollContainer.removeEventListener('scroll', handleScroll);
       scrollContainer.removeEventListener('scrollend', handleScrollEnd);
-      if (rafId) cancelAnimationFrame(rafId);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, [updateActiveIndexOnScroll]);
 
