@@ -49,7 +49,6 @@ export default function PortfolioSection() {
 
   /* ==========================================
      LOAD PORTFOLIO CATEGORIES
-     - FIXED: Always start at the first card (Index 0) for both mobile & desktop
   ========================================== */
 
   useEffect(() => {
@@ -112,7 +111,7 @@ export default function PortfolioSection() {
 
   /* ==========================================
      DETECT WHICH CARD IS MOST VISIBLE
-     - Biased toward left on mobile
+     - FIXED: Accurately detects the centered card on both Mobile & Desktop while scrolling
   ========================================== */
 
   const updateActiveIndexOnScroll = useCallback(() => {
@@ -123,49 +122,26 @@ export default function PortfolioSection() {
     
     const cards = galleryRef.current.querySelectorAll('.portfolio-card');
     const containerRect = galleryRef.current.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
     
     let bestIndex = 0;
-    let bestVisibleAmount = 0;
-    let bestLeftPosition = Infinity;
-    
-    const isMobile = window.innerWidth < 768;
+    let bestDistance = Infinity;
     
     cards.forEach((card, idx) => {
       const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
       
-      // Calculate how much of the card is visible
-      const visibleLeft = Math.max(cardRect.left, containerRect.left);
-      const visibleRight = Math.min(cardRect.right, containerRect.right);
-      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-      const visiblePercentage = visibleWidth / cardRect.width;
+      // Calculate how close this card's center is to the container's center
+      const distance = Math.abs(containerCenter - cardCenter);
       
-      if (isMobile) {
-        // On mobile: prefer cards that are more left AND more visible
-        const leftDistance = Math.abs(cardRect.left - containerRect.left);
-        if (visiblePercentage > 0.3) {
-          if (leftDistance < bestLeftPosition) {
-            bestLeftPosition = leftDistance;
-            bestIndex = idx;
-            bestVisibleAmount = visiblePercentage;
-          }
-        }
-      } else {
-        // On desktop: prefer cards closer to center
-        const containerCenter = containerRect.left + containerRect.width / 2;
-        const cardCenter = cardRect.left + cardRect.width / 2;
-        const distance = Math.abs(containerCenter - cardCenter);
-        
-        if (visiblePercentage > 0.5 && distance < bestLeftPosition) {
-          bestLeftPosition = distance;
-          bestIndex = idx;
-        }
+      // Only consider cards that are at least partially visible
+      const isVisible = cardRect.left < containerRect.right && cardRect.right > containerRect.left;
+      
+      if (isVisible && distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = idx;
       }
     });
-    
-    // If no card found with good visibility, use the first card
-    if (bestLeftPosition === Infinity && cards.length > 0) {
-      bestIndex = 0;
-    }
     
     if (bestIndex !== activeIndex) {
       setActiveIndex(bestIndex);
