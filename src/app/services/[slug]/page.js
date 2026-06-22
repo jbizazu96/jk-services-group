@@ -87,11 +87,17 @@ export default function CategoryPage() {
   const [bookingModal, setBookingModal] = useState(false);
 
   /* ==========================================
-     LOAD DATA
+     LOAD DATA & SCROLL TO TOP FIX
   ========================================== */
 
   useEffect(() => {
     if (!slug) return;
+    
+    // FIX: Prevent browser from restoring previous scroll position
+    if (typeof window !== "undefined") {
+      window.history.scrollRestoration = "manual";
+    }
+
     loadPage();
   }, [slug]);
 
@@ -135,6 +141,17 @@ export default function CategoryPage() {
       }));
 
       setServices(serviceItems);
+
+      // FIX: Force window to scroll to top right after data loads
+      // Use setTimeout to ensure DOM is fully rendered first
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "instant" // Use "smooth" if you want a nice scroll-up animation
+        });
+      }, 50);
+
     } catch (error) {
       console.error(error);
     } finally {

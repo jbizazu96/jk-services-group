@@ -49,6 +49,7 @@ export default function PortfolioSection() {
 
   /* ==========================================
      LOAD PORTFOLIO CATEGORIES
+     - FIXED: Always start at the first card (Index 0) for both mobile & desktop
   ========================================== */
 
   useEffect(() => {
@@ -69,10 +70,9 @@ export default function PortfolioSection() {
       }));
       setPortfolioCategories(items);
       
-      // Set middle card as active (visual only)
+      // FIX: Set the first card (index 0) as the active card on load
       if (items.length > 0) {
-        const middleIndex = Math.floor(items.length / 2);
-        setActiveIndex(middleIndex);
+        setActiveIndex(0);
       }
     } catch (error) {
       console.error("Portfolio Error:", error);
