@@ -69,7 +69,7 @@ export default function PortfolioSection() {
       }));
       setPortfolioCategories(items);
       
-      // FIX: Set the first card (index 0) as the active card on load
+      // Set the first card (index 0) as the active card on load
       if (items.length > 0) {
         setActiveIndex(0);
       }
@@ -111,7 +111,7 @@ export default function PortfolioSection() {
 
   /* ==========================================
      DETECT WHICH CARD IS MOST VISIBLE
-     - FIXED: Accurately detects the centered card on both Mobile & Desktop while scrolling
+     - Accurately detects the centered card on BOTH Finger swipe AND Arrows
   ========================================== */
 
   const updateActiveIndexOnScroll = useCallback(() => {
@@ -167,23 +167,25 @@ export default function PortfolioSection() {
   };
 
   /* ==========================================
-     SCROLL EVENT LISTENER
+     SCROLL EVENT LISTENER (Optimized for Finger Swipe)
   ========================================== */
 
   useEffect(() => {
     const scrollContainer = galleryRef.current;
     if (!scrollContainer) return;
     
-    const handleScrollEnd = () => {
-      updateActiveIndexOnScroll();
+    // Use requestAnimationFrame for extremely fast finger swipe updates
+    let rafId = null;
+    const handleScroll = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        updateActiveIndexOnScroll();
+      });
     };
     
-    let scrollTimeout;
-    const handleScroll = () => {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        updateActiveIndexOnScroll();
-      }, 100);
+    const handleScrollEnd = () => {
+      // Final check when finger stops moving
+      updateActiveIndexOnScroll();
     };
     
     scrollContainer.addEventListener('scroll', handleScroll);
@@ -192,7 +194,7 @@ export default function PortfolioSection() {
     return () => {
       scrollContainer.removeEventListener('scroll', handleScroll);
       scrollContainer.removeEventListener('scrollend', handleScrollEnd);
-      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [updateActiveIndexOnScroll]);
 
