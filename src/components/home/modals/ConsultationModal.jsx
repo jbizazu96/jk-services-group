@@ -158,7 +158,7 @@ export default function ConsultationModal({
                 <div key={option.duration}>
                   {calendlyReady ? (
                     <PopupButton
-                      url={`https://calendly.com/josuebizazu60/${option.calendlyPath}?a1=${urlParam}`}
+                      url={`https://calendly.com/myjkservices/${option.calendlyPath}?a1=${urlParam}`}
                       rootElement={
                         typeof window !== "undefined" ? document.body : undefined
                       }

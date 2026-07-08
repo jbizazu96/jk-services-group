@@ -83,13 +83,8 @@ export default function PortfolioSection() {
     if (!isLoading && portfolioCategories.length > 0 && galleryRef.current) {
       // Wait 200ms for the browser to finish the initial snap render.
       // Then, run the detection logic to forcibly match the badge to whatever is on screen.
-      const timer = setTimeout(() => {
-        setActiveIndex(0);
-
-        if (galleryRef.current) {
-          const firstCard =
-            galleryRef.current.querySelectorAll(".portfolio-card")[0];
-        }
+     const timer = setTimeout(() => {
+        updateActiveIndexOnScroll();
       }, 200);
       
       return () => clearTimeout(timer);
@@ -421,7 +416,7 @@ export default function PortfolioSection() {
                 onMouseLeave={handleCardLeave}
                 className={`
                   portfolio-card relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[380px]
-                  flex-shrink-0 snap-start rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
+                  flex-shrink-0 snap-center rounded-2xl lg:rounded-3xl overflow-hidden cursor-pointer
                   transition-all duration-500 group
                   ${isActive || isHovered
                     ? "ring-2 ring-yellow-500 shadow-2xl shadow-yellow-500/25 scale-105 z-20"

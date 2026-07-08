@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, where, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+
+// Import your existing Booking Modal
+import BookingModal from "@/components/home/modals/BookingModal";
+
 import { useRouter } from "next/navigation";
 
 import {
@@ -12,6 +16,7 @@ import {
   Star,
   Clock,
   Shield,
+  HelpCircle,
   X,
   Send,
   Loader2,
@@ -19,6 +24,9 @@ import {
   Users,
   Calendar,
   Car,
+  Mail,
+  Hearts,
+  Cloud,
   Heart,
   GraduationCap,
   Briefcase,
@@ -232,6 +240,10 @@ export default function UsherPricingPage() {
   const [requestId, setRequestId] = useState("");
   const [expandedPackages, setExpandedPackages] = useState({});
   const [selectedAddOns, setSelectedAddOns] = useState([]);
+  
+    // State for your external BookingModal (Ask a Question / Contact Us)
+  const [bookingModal, setBookingModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
 
   const [bookingForm, setBookingForm] = useState({
@@ -495,23 +507,35 @@ export default function UsherPricingPage() {
                 )}
               </ul>
 
-              <div className="mb-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Best For:</p>
+              {/* Best For */}
+              <div className="mb-6 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Perfect For:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {pkg.bestFor.map((item, i) => (
-                    <span key={i} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full">
-                      {item}
-                    </span>
+                    <span key={i} className="text-[10px] bg-white text-gray-700 px-2.5 py-1 rounded-full border border-gray-200 shadow-sm">{item}</span>
                   ))}
                 </div>
               </div>
 
-              <button
-                onClick={() => openBookingModal(key)}
-                className="w-full rounded-xl bg-blue-600 text-white py-3 font-semibold hover:bg-blue-700 transition-all shadow-md"
-              >
-                Book This Package
-              </button>
+               {/* Buttons */}
+              <div className="space-y-3 mt-auto">
+                <button onClick={() => openBookingModal(key)} className="w-full rounded-xl bg-[#1a1a2e] text-white py-3.5 font-semibold hover:bg-yellow-500 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4" />
+                  Book This Package
+                </button>
+                
+                {/* ASK A QUESTION - Opens your External Modal */}
+                <button 
+                  onClick={() => {
+                    setSelectedService(pkg.title);
+                    setBookingModal(true);
+                  }} 
+                  className="w-full rounded-xl border border-gray-300 bg-transparent text-gray-700 py-3 font-medium hover:bg-yellow-500 transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Ask a Question
+                </button>
+                </div>
             </motion.div>
           ))}
         </div>
@@ -574,56 +598,36 @@ export default function UsherPricingPage() {
           </div>
         </motion.div>
 
-        {/* Uniform Options */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
-            Uniform <span className="text-blue-600">Options</span>
-          </h2>
-          <p className="text-gray-500 text-center mb-10">Choose the perfect look for your usher team</p>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {uniformOptions.map((uniform, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -5 }}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all"
+        
+        {/* Value Proposition & CTA */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="relative rounded-3xl bg-[#1a1a2e] p-12 md:p-16 text-center overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
+          
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <div className="bg-rose-500/20 backdrop-blur-sm inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 border border-rose-500/30">
+              <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
+              <span className="text-xs font-bold text-white uppercase tracking-wide">5-Star Rated</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-serif">Let's Create Your Perfect Day</h2>
+            <p className="text-gray-300 text-base mb-8 leading-relaxed">Browse our other planning services or contact us directly to start your journey today.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              
+              {/* Contact Us - Opens External Modal */}
+              <button 
+                onClick={() => {
+                  setSelectedService("General Event Planning Inquiry");
+                  setBookingModal(true);
+                }} 
+                className="px-8 py-3 rounded-full bg-rose-400 text-white font-semibold hover:bg-rose-500 transition-all shadow-lg flex items-center gap-2"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="rounded-xl bg-blue-50 p-2.5 text-blue-600"><uniform.icon className="w-6 h-6" /></div>
-                  <h3 className="font-bold text-gray-900">{uniform.name}</h3>
-                </div>
-                <div className="flex gap-1.5 mb-2">
-                  {uniform.colors.map((color, j) => (
-                    <span key={j} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
-                      {color}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500">{uniform.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+                <Mail className="w-4 h-4" /> Contact Us
+              </button>
 
-        {/* What's Included */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Every Package Includes</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { icon: <Car className="w-6 h-6" />, title: "Transportation", desc: "Within package mileage" },
-              { icon: <Shirt className="w-6 h-6" />, title: "Uniforms", desc: "Professional attire provided" },
-              { icon: <Calendar className="w-6 h-6" />, title: "Coordination", desc: "Pre-event planning" },
-              { icon: <Shield className="w-6 h-6" />, title: "Backup Ushers", desc: "Emergency coverage" },
-            ].map((item, i) => (
-              <div key={i} className="p-4">
-                <div className="rounded-xl bg-blue-50 p-3 inline-flex mb-3 text-blue-600">{item.icon}</div>
-                <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                <p className="text-sm text-gray-500">{item.desc}</p>
-              </div>
-            ))}
+              <button onClick={() => router.push("/portfolio")} className="px-8 py-3 rounded-full border border-white/20 text-white font-medium hover:bg-white/10 transition-all">
+                View Our Portfolio
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -650,30 +654,12 @@ export default function UsherPricingPage() {
           </div>
         </motion.div>
 
-        {/* Trust Signals */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 text-center"
-        >
+         {/* Trust Signals */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-12 text-center">
           <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-blue-600" />
-              <span>5-Star Rated</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-blue-600" />
-              <span>Professional & Insured</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600" />
-              <span>Always On Time</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-600" />
-              <span>100+ Events Served</span>
-            </div>
+            <div className="flex items-center gap-2"><Star className="w-4 h-4 text-rose-400" /><span>5-Star Rated</span></div>
+            <div className="flex items-center gap-2"><Heart className="w-4 h-4 text-rose-400" /><span>100+ Events</span></div>
+            <div className="flex items-center gap-2"><Users className="w-4 h-4 text-rose-400" /><span>Dedicated Team</span></div>
           </div>
         </motion.div>
       </div>
@@ -943,6 +929,16 @@ export default function UsherPricingPage() {
           </>
         )}
       </AnimatePresence>
+
+       {/* ==========================================
+          EXTERNAL BOOKING MODAL (For "Ask a Question" & "Contact Us")
+      ========================================== */}
+      <BookingModal
+        bookingModal={bookingModal}
+        setBookingModal={setBookingModal}
+        selectedService={selectedService}
+      />
+
     </div>
   );
 }

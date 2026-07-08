@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, where, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+
+// Import your existing Booking Modal
+import BookingModal from "@/components/home/modals/BookingModal";
+
 import { useRouter } from "next/navigation";
 
 import {
@@ -11,13 +15,17 @@ import {
   CheckCircle,
   Star,
   Clock,
+  Stars,
+  Cloud,
   Shield,
   X,
+  Mail,
   Send,
   Loader2,
   CheckCircle2,
   Camera,
   Calendar,
+  HelpCircle,
   Car,
   Heart,
   GraduationCap,
@@ -44,82 +52,89 @@ import {
 const photoPackages = {
   essential: {
     icon: Camera,
-    title: "Essential Shoot",
+    title: "Essential Collection",
     subtitle: "Perfect for Intimate Moments",
     description: "Professional photography for smaller events and portrait sessions",
-    basePrice: 500,
-    hoursIncluded: 2,
-    photosIncluded: 50,
+    basePrice: 1199,
+    hoursIncluded: 8,
+    photosIncluded: 150,
     popular: false,
     features: [
-      "Up to 3 Hours Photography Coverage",
-      "Professional Photographer with DSLR",
-      "50 Professionally Edited Digital Photos",
+      "Up to 8 Hours Photography Coverage",
+      "150 Professionally Edited Images",
+      "15 Premium Retouched Portraits",
       "Online Private Gallery for Viewing",
       "Digital Download Access",
+      "Online Gallery for Family & Friends",
       "1 Location Within City Limits",
-      "Standard Retouching (Color, Exposure)",
-      "Pre-Shoot Consultation (1 Call)",
-      "Photo Delivery Within 7-14 Days",
+      "USB Drive Delivery of All Photos",
+      "Pre-Shoot Consultation (2 Calls)",
+      "Photo Delivery Within 10 Days",
       "Local Transportation Included (within 60 miles)",
     ],
     bestFor: ["Headshots", "Small Birthdays", "Maternity", "Engagement", "Baby Showers"],
   },
   professional: {
     icon: Image,
-    title: "Professional Shoot",
+    title: "Signature Collection",
     subtitle: "Full Event Coverage",
     description: "Comprehensive photography for medium to large events and sessions",
-    basePrice: 1000,
-    hoursIncluded: 4,
-    photosIncluded: 150,
+    basePrice: 1499,
+    hoursIncluded: 10,
+    photosIncluded: 300,
     popular: true,
     features: [
-      "Up to 6 Hours Photography Coverage",
-      "Professional Photographer + Assistant",
-      "150 Professionally Edited Digital Photos",
+      "Up to 10 Hours Photography Coverage",
+      "200 Professionally Edited Images",
+      "25 Premium Retouched Portraits",
       "Online Private Gallery with Slideshow",
-      "Digital Download and/or USB Drive Delivery",
+      "Digital Download Delivery",
+      "USB Drive Delivery (optional)",
       "Up to 2 Locations",
-      "Advanced Retouching (Skin, Blemish, Detail)",
+      "Online Gallery for Family & Friends",
+      " 1 Frame or Canvas Print Included",
       "Pre-Shoot Consultation (2 Meetings)",
       "Sneak Peek Within 48 Hours",
-      "Full Gallery Delivery Within 10 Days",
-      "Transportation Included (within 60 miles)",
+      "Priority Editing",
+      "Photography Timeline Planning",
+      "Vendor Collaboration",
+      "Unlimited Email Support",
+      "Weather Backup Planning",
+      "Full Gallery Delivery Within 14 Days",
       "Backup Equipment Available",
+      "Printed Phot Book up 10 Pages",
+      "Transportation Included (within 60 miles)",
     ],
     bestFor: ["Weddings", "Corporate Events", "Anniversaries", "Graduations", "Family Reunions"],
   },
   premium: {
     icon: Gem,
-    title: "Premium Shoot",
+    title: "Luxury Collection",
     subtitle: "Luxury Photography Experience",
     description: "All-inclusive premium photography for grand celebrations and luxury events",
-    basePrice: 1800,
-    hoursIncluded: 8,
+    basePrice: 2499,
+    hoursIncluded: 12,
     photosIncluded: 400,
     popular: false,
     bestValue: true,
     features: [
-      "Up to 8 Hours Photography Coverage (Flexible)",
-      "Lead Photographer + Second Shooter + Assistant",
-      "200+ Professionally Edited Digital Photos",
-      "Online Private Gallery with Slideshow & Proofing",
-      "Digital Download + Custom USB + Cloud Backup",
+      "Up to 12 Hours Photography Coverage (Flexible)",
+      "300 Professionally Edited Images",
+      "35 Premium Retouched Portraits",
+      "Digital Download + Custom USB Drive Delivery",
       "Unlimited Locations",
-      "Premium Retouching (Advanced Skin, Detail, Artistic)",
+      "Online Gallery for Family & Friends",
       "Engagement/Pre-Event Photoshoot Included",
       "Multiple Pre-Shoot Consultations",
-      "Rehearsal/Dry-Run Attendance",
-      "Sneak Peek Within 24 Hours",
-      "Full Gallery Delivery Within 7 Days",
+      "Full Gallery Delivery Within 20 Days",
       "Drone Photography Add-On Available",
       "Same-Day Slideshow Available",
-      "Transportation Included (within 60 miles)",
+      "2 Frames or Canvas Prints Included",
       "Backup Equipment Guaranteed",
-      "Copyright Release for Personal Use",
+      "Printed Photo Book up to 20 Pages",
+      "Transportation Included (within 60 miles)",
     ],
-    bestFor: ["Grand Weddings", "Luxury Galas", "Destination Events", "Multi-Day Events", "Celebrity Events"],
+    bestFor: ["Weddings", "Luxury Galas", "Destination Events", "Multi-Day Events", "Celebrity Events"],
   },
 };
 
@@ -194,20 +209,7 @@ const eventTypes = [
   },
 ];
 
-/* ==========================================
-   PHOTOGRAPHY STYLES
-========================================== */
 
-const photoStyles = [
-  { name: "Classic / Traditional", icon: Camera, description: "Timeless posed portraits and group shots" },
-  { name: "Photojournalistic", icon: Image, description: "Candid, documentary-style storytelling" },
-  { name: "Fine Art", icon: Gem, description: "Artistic, creative compositions with dramatic lighting" },
-  { name: "Editorial", icon: Monitor, description: "Magazine-style, fashion-forward imagery" },
-  { name: "Natural Light", icon: Sparkles, description: "Soft, romantic photos using natural light" },
-  { name: "Dramatic / Moody", icon: Flashlight, description: "Bold shadows and dramatic contrast" },
-  { name: "Drone / Aerial", icon: Camera, description: "Stunning aerial perspectives" },
-  { name: "Black & White", icon: Image, description: "Timeless monochrome artistry" },
-];
 
 /* ==========================================
    ADD-ON SERVICES
@@ -222,9 +224,10 @@ const addOns = [
   { name: "Large Canvas Print", price: "$150", icon: Image, description: "24x36 gallery-wrapped canvas print" },
   { name: "Same-Day Slideshow", price: "$200", icon: Monitor, description: "Photos displayed during your event in real-time" },
   { name: "Rush Delivery (48hr)", price: "$200", icon: Clock, description: "Expedited editing and delivery of your gallery" },
-  { name: "Engagement Shoot", price: "$250", icon: Heart, description: "Separate pre-event photoshoot session" },
+  { name: "Engagement Shoot", price: "$350", icon: Heart, description: "Separate pre-event photoshoot session" },
   { name: "Extended Travel", price: "$1.50/mile", icon: Car, description: "For events beyond package mileage limit" },
   { name: "Additional Location", price: "$75/location", icon: MapPin, description: "Extra photo location beyond package limit" },
+  { name: "Parent Albums", price: "$150/each", icon: Stars, description: "Custom albums for parents" },
 ];
 
 /* ==========================================
@@ -241,6 +244,11 @@ export default function PhotographyPricingPage() {
   const [success, setSuccess] = useState(false);
   const [requestId, setRequestId] = useState("");
   const [expandedPackages, setExpandedPackages] = useState({});
+
+    // State for your external BookingModal (Ask a Question / Contact Us)
+  const [bookingModal, setBookingModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   const [selectedAddOns, setSelectedAddOns] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [selectedStyles, setSelectedStyles] = useState([]);
@@ -506,9 +514,26 @@ export default function PhotographyPricingPage() {
                 </div>
               </div>
 
-              <button onClick={() => openBookingModal(key)} className="w-full rounded-xl bg-purple-500 text-white py-3 font-semibold hover:bg-purple-600 transition-all shadow-md">
-                Book This Package
-              </button>
+                {/* Buttons */}
+              <div className="space-y-3 mt-auto">
+                <button onClick={() => openBookingModal(key)} className="w-full rounded-xl bg-purple-500 text-white py-3.5 font-semibold hover:bg-yellow-500 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4" />
+                  Book This Package
+                </button>
+                
+                {/* ASK A QUESTION - Opens your External Modal */}
+                <button 
+                  onClick={() => {
+                    setSelectedService(pkg.title);
+                    setBookingModal(true);
+                  }} 
+                  className="w-full rounded-xl border border-gray-300 bg-white text-black py-3 font-medium hover:bg-yellow-500 transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Ask a Question
+                </button>
+              </div>
+
             </motion.div>
           ))}
         </div>
@@ -557,39 +582,36 @@ export default function PhotographyPricingPage() {
           </div>
         </motion.div>
 
-        {/* Photography Styles */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
-            Photography <span className="text-purple-600">Styles</span>
-          </h2>
-          <p className="text-gray-500 text-center mb-10">Choose the aesthetic that matches your vision</p>
-          <div className="grid md:grid-cols-4 gap-4">
-            {photoStyles.map((style, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} whileHover={{ y: -5 }} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all text-center">
-                <div className="rounded-xl bg-purple-50 p-3 inline-flex mb-3 text-purple-600"><style.icon className="w-6 h-6" /></div>
-                <h3 className="font-bold text-gray-900 mb-1">{style.name}</h3>
-                <p className="text-xs text-gray-500">{style.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
 
-        {/* What's Included */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Every Package Includes</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { icon: <Car className="w-6 h-6" />, title: "Transportation", desc: "Within package mileage" },
-              { icon: <Image className="w-6 h-6" />, title: "Edited Photos", desc: "Professionally retouched" },
-              { icon: <Download className="w-6 h-6" />, title: "Digital Delivery", desc: "Online gallery access" },
-              { icon: <Shield className="w-6 h-6" />, title: "Backup Gear", desc: "Emergency equipment" },
-            ].map((item, i) => (
-              <div key={i} className="p-4">
-                <div className="rounded-xl bg-purple-50 p-3 inline-flex mb-3 text-purple-600">{item.icon}</div>
-                <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                <p className="text-sm text-gray-500">{item.desc}</p>
-              </div>
-            ))}
+      {/* Value Proposition & CTA */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="relative rounded-3xl bg-[#1a1a2e] p-12 md:p-16 text-center overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
+          
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <div className="bg-rose-500/20 backdrop-blur-sm inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 border border-rose-500/30">
+              <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
+              <span className="text-xs font-bold text-white uppercase tracking-wide">5-Star Rated</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-serif">Let's Create Your Perfect Day</h2>
+            <p className="text-gray-300 text-base mb-8 leading-relaxed">Browse our other planning services or contact us directly to start your journey today.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              
+              {/* Contact Us - Opens External Modal */}
+              <button 
+                onClick={() => {
+                  setSelectedService("General Event Planning Inquiry");
+                  setBookingModal(true);
+                }} 
+                className="px-8 py-3 rounded-full bg-rose-400 text-white font-semibold hover:bg-rose-500 transition-all shadow-lg flex items-center gap-2"
+              >
+                <Mail className="w-4 h-4" /> Contact Us
+              </button>
+
+              <button onClick={() => router.push("/portfolio")} className="px-8 py-3 rounded-full border border-white/20 text-white font-medium hover:bg-white/10 transition-all">
+                View Our Portfolio
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -631,17 +653,6 @@ export default function PhotographyPricingPage() {
                     <p className="text-sm text-gray-500">{photoPackages[selectedPackage].title} - {photoPackages[selectedPackage].hoursIncluded} Hours | {photoPackages[selectedPackage].photosIncluded}+ Photos</p>
                   </div>
                   <button onClick={() => setShowBookingModal(false)} className="p-2 hover:bg-gray-100 rounded-xl"><X className="w-5 h-5 text-gray-500" /></button>
-                </div>
-
-                {/* Price Summary */}
-                <div className="rounded-2xl bg-purple-50 p-4 mb-6">
-                  <div className="flex justify-between items-center mb-2"><span className="text-sm text-gray-600">Base Package:</span><span className="font-semibold">${photoPackages[selectedPackage].basePrice}</span></div>
-                  {selectedAddOns.length > 0 && (
-                    <div className="border-t border-purple-200 pt-2 mb-2">
-                      {selectedAddOns.map((addon, i) => (<div key={i} className="flex justify-between items-center text-sm"><span className="text-gray-600">+ {addon.name}</span><span className="text-purple-600">{addon.price}</span></div>))}
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center pt-2 border-t border-purple-200"><span className="font-semibold text-gray-900">Total:</span><span className="text-xl font-bold text-purple-600">${totalPrice}</span></div>
                 </div>
 
                 <form onSubmit={handleBookNow} className="space-y-4">
@@ -692,18 +703,7 @@ export default function PhotographyPricingPage() {
                     {formErrors.eventLocation && <p className="text-red-500 text-xs mt-1">{formErrors.eventLocation}</p>}
                   </div>
 
-                  {/* Photography Styles Selection */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-3">Preferred Photography Style</label>
-                    <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                      {photoStyles.map((style) => (
-                        <button key={style.name} type="button" onClick={() => handleStyleToggle(style.name)} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedStyles.includes(style.name) ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
-                          {style.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
+            
                   {/* Add-On Services */}
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-3">Add-On Services (Optional)</label>
@@ -723,10 +723,20 @@ export default function PhotographyPricingPage() {
                     </div>
                   </div>
 
-                  <div>
+                <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Additional Message</label>
                     <textarea rows={3} value={bookingForm.message} onChange={(e) => setBookingForm({ ...bookingForm, message: e.target.value })} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-purple-500 outline-none resize-none" placeholder="Specific shots you want, special requests..." />
                   </div>
+                      {/* Price Summary */}
+                <div className="rounded-2xl bg-purple-50 p-4 mb-6">
+                  <div className="flex justify-between items-center mb-2"><span className="text-sm text-gray-600">Base Package:</span><span className="font-semibold">${photoPackages[selectedPackage].basePrice}</span></div>
+                  {selectedAddOns.length > 0 && (
+                    <div className="border-t border-purple-200 pt-2 mb-2">
+                      {selectedAddOns.map((addon, i) => (<div key={i} className="flex justify-between items-center text-sm"><span className="text-gray-600">+ {addon.name}</span><span className="text-purple-600">{addon.price}</span></div>))}
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t border-purple-200"><span className="font-semibold text-gray-900">Total:</span><span className="text-xl font-bold text-purple-600">${totalPrice}</span></div>
+                </div>
 
                   <button type="submit" disabled={loading} className="w-full rounded-xl bg-purple-500 text-white py-4 font-semibold hover:bg-purple-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
                     {loading ? (<><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>) : (<><Send className="w-5 h-5" /> Confirm Booking - ${totalPrice}</>)}
@@ -758,6 +768,17 @@ export default function PhotographyPricingPage() {
           </>
         )}
       </AnimatePresence>
+
+
+       {/* ==========================================
+          EXTERNAL BOOKING MODAL (For "Ask a Question" & "Contact Us")
+      ========================================== */}
+      <BookingModal
+        bookingModal={bookingModal}
+        setBookingModal={setBookingModal}
+        selectedService={selectedService}
+      />
+
     </div>
   );
 }

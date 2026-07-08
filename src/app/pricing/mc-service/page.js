@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, where, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+
+// Import your existing Booking Modal
+import BookingModal from "@/components/home/modals/BookingModal";
+
 import { useRouter } from "next/navigation";
 
 import {
@@ -18,7 +22,11 @@ import {
   Loader2,
   CheckCircle2,
   Mic,
+  HelpCircle,
   Users,
+  Cloud,
+  Lightbulb,
+  Stars,
   Music,
   Calendar,
   Car,
@@ -53,6 +61,11 @@ const mcPackages = {
       "Professional MC Hosting",
       "Event Script Preparation",
       "Coordination with Vendors",
+      "Grand Entrance Announcements",
+      "Speaker Introductions",
+      "Schedule & Timeline Management",
+      "Audience Engagement",
+      "Professional Attire",
       "Pre-Event Consultation (1 Meeting)",
       "Local Transportation Included (within 60 miles)",
     ],
@@ -69,12 +82,18 @@ const mcPackages = {
       "Up to 6 Hours Event Coverage",
       "Premium MC Hosting with Co-Host Option",
       "Custom Event Script & Timeline",
-      "Full Vendor Coordination",
       "Pre-Event Consultation (2 Meetings)",
       "Audience Engagement Activities",
-      "Background Music Playlist Curation",
+      "Grand Entrance Coordination",
+      "Wedding Party Introductions",
+      "Toast & Speech Coordination",
+      "Cake Cutting Announcement",
+      "First Dance Introduction",
+      "Special Moment Announcements",
+      "Vendor Communication Throughout Event",
+      "Event Flow Management",
+      "Backup MC Available if Needed",
       "Transportation Included (within 60 miles)",
-      "Emergency Backup MC Available",
     ],
     bestFor: ["Weddings", "Corporate Events", "Large Anniversaries", "Award Ceremonies"],
   },
@@ -90,16 +109,22 @@ const mcPackages = {
       "Full Day Event Coverage (Up to 12 Hours)",
       "Lead MC + Co-Host/Assistant MC",
       "Custom Event Script, Timeline & Run of Show",
-      "Complete Vendor & Talent Coordination",
       "Pre-Event Consultation (Unlimited Meetings)",
       "Audience Engagement & Interactive Games",
-      "Custom Music Playlist & DJ Coordination",
-      "Event Photography Coordination",
       "Rehearsal Attendance",
-      "Transportation Included (within 100 miles)",
+      "VIP Guest Coordination",
+      "Live Program Management",
+      "Award Ceremony Hosting",
+      "Sponsor Recognition (for corporate events)",
+      "Stage Management",
+      "Audience Q&A Moderation",
+      "Event Closing Remarks",
+      "Personalized Event Run Sheet",
+      "Coordination with Entertainment & Performers",
       "Emergency Backup MC Guaranteed",
       "Post-Event Thank You Announcement",
-      "Bilingual MC Available (English/French/Swahili)",
+      "Bilingual MC Available (English/French)",
+      "Transportation Included (within 60 miles)",
     ],
     bestFor: ["Grand Weddings", "Galas", "Concerts", "Multi-Day Conferences", "Festivals"],
   },
@@ -185,6 +210,46 @@ const addOns = [
   { name: "Bilingual MC", price: "$100", icon: MessageCircle, description: "MC services in English + French" },
   { name: "Rehearsal Attendance", price: "$100", icon: Calendar, description: "MC attends your event rehearsal" },
   { name: "Extended Travel", price: "$1.50/mile", icon: Car, description: "For events beyond package mileage limit" },
+  { name: "Custom Script Writing", price: "$150", icon: Send, description: "Personalized event script tailored to your needs" },
+];
+
+const addOns2 = [
+  {
+    name: "Dancing on the Clouds",
+    price: "$300",
+    icon: Cloud,
+    description: "Low-lying fog effect for first dances, grand entrances, and special moments.",
+  },
+  {
+    name: "Cold Spark Effects (2 Machines)",
+    price: "$400",
+    icon: Sparkles,
+    description: "Indoor-safe cold spark fountains for unforgettable entrances and celebrations.",
+  },
+  {
+    name: "Cold Spark Effects (4 Machines)",
+    price: "$650",
+    icon: Sparkles,
+    description: "Premium cold spark display surrounding the dance floor or stage.",
+  },
+  {
+    name: "Dance Floor Lighting",
+    price: "$250",
+    icon: Lightbulb,
+    description: "Dynamic lighting effects to energize your dance floor.",
+  },
+  {
+    name: "Venue Uplighting",
+    price: "$350",
+    icon: Lightbulb,
+    description: "Elegant uplighting to transform the atmosphere of your venue.",
+  },
+  {
+    name: "Premium First Dance Package",
+    price: "$850",
+    icon: Stars,
+    description: "Includes Dancing on the Clouds, 2 cold spark machines, and synchronized dance floor lighting.",
+  },
 ];
 
 /* ==========================================
@@ -192,6 +257,12 @@ const addOns = [
 ========================================== */
 
 export default function MCPricingPage() {
+    // State for your external BookingModal (Ask a Question / Contact Us)
+  const [bookingModal, setBookingModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  const [selectedAddOns, setSelectedAddOns] = useState([]);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [serviceCategories, setServiceCategories] = useState([]);
@@ -232,6 +303,8 @@ export default function MCPricingPage() {
 
   const openBookingModal = (pkg) => {
     setSelectedPackage(pkg);
+    setSelectedAddOns([]);
+    setTotalPrice(mcPackages[pkg]?.basePrice || 0);
     setBookingForm({
       fullName: "",
       email: "",
@@ -246,6 +319,27 @@ export default function MCPricingPage() {
     setFormErrors({});
     setShowBookingModal(true);
   };
+ const handleAddOnToggle = (addOnName, addOnPrice) => {
+    setSelectedAddOns(prev => {
+      const isSelected = prev.find(a => a.name === addOnName);
+      if (isSelected) {
+        return prev.filter(a => a.name !== addOnName);
+      } else {
+        return [...prev, { name: addOnName, price: addOnPrice }];
+      }
+    });
+  };
+
+    useEffect(() => {
+    if (selectedPackage) {
+      const basePrice = mcPackages[selectedPackage]?.basePrice || 0;
+      const addOnTotal = selectedAddOns.reduce((sum, addon) => {
+        const price = parseFloat(addon.price.replace(/[^0-9.]/g, ''));
+        return sum + (isNaN(price) ? 0 : price);
+      }, 0);
+      setTotalPrice(basePrice + addOnTotal);
+    }
+  }, [selectedAddOns, selectedPackage]);
 
   const validateForm = () => {
     const errors = {};
@@ -435,15 +529,100 @@ export default function MCPricingPage() {
                         </div>
                     </div>
 
-                    <button
-                        onClick={() => openBookingModal(key)}
-                        className="w-full rounded-xl bg-purple-600 text-white py-3 font-semibold hover:bg-purple-700 transition-all shadow-md"
-                    >
-                        Book This Package
-                    </button>
+                     {/* Buttons */}
+                      <div className="space-y-3 mt-auto">
+                        <button onClick={() => openBookingModal(key)} className="w-full rounded-xl bg-purple-600 text-white py-3.5 font-semibold hover:bg-yellow-500 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm">
+                          <Calendar className="w-4 h-4" />
+                          Book This Package
+                        </button>
+                        
+                        {/* ASK A QUESTION - Opens your External Modal */}
+                        <button 
+                          onClick={() => {
+                            setSelectedService(pkg.title);
+                            setBookingModal(true);
+                          }} 
+                          className="w-full rounded-xl border border-gray-300 bg-transparent text-gray-700 py-3 font-medium hover:bg-yellow-500 transition-all text-sm flex items-center justify-center gap-2"
+                        >
+                          <HelpCircle className="w-4 h-4" />
+                          Ask a Question
+                        </button>
+                      </div>
                     </motion.div>
                 ))}
                 </div>
+
+
+        {/* Add-Ons */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
+          <p className="text-gray-500 text-center mb-8">Customize your package with these additional options</p>
+          <div className="grid md:grid-cols-3 gap-4">
+            {addOns.map((addon, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
+                {/* Render Lucide icon component */}
+                <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
+                <addon.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
+                    <span className="text-xs font-bold text-purple-600">{addon.price}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+          {/* Fog Machine & Lighting */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
+                Fog Machine & Lighting
+              </h2>
+
+              <p className="text-gray-500 text-center mb-8">
+                Create unforgettable moments with premium lighting and special effects.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {addOns2.map((addon, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 rounded-xl bg-gray-50 p-4"
+                  >
+                    <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
+                      <addon.icon className="h-6 w-6" />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-sm font-semibold text-gray-900">
+                          {addon.name}
+                        </h4>
+
+                        <span className="text-xs font-bold text-purple-600">
+                          {addon.price}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-xs text-gray-500">
+                        {addon.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
         {/* Event Types */}
         <motion.div
@@ -486,53 +665,35 @@ export default function MCPricingPage() {
           </div>
         </motion.div>
 
-        {/* Add-Ons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
-        >
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Add-On Services</h2>
-          <p className="text-gray-500 text-center mb-8">Customize your package with these additional options</p>
-          <div className="grid md:grid-cols-3 gap-4">
-            {addOns.map((addon, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
-                {/* Render Lucide icon component */}
-                <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
-                <addon.icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-gray-900 text-sm">{addon.name}</h4>
-                    <span className="text-xs font-bold text-purple-600">{addon.price}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">{addon.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+          {/* Value Proposition & CTA */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="relative rounded-3xl bg-[#1a1a2e] p-12 md:p-16 text-center overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
+          
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <div className="bg-rose-500/20 backdrop-blur-sm inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 border border-rose-500/30">
+              <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
+              <span className="text-xs font-bold text-white uppercase tracking-wide">5-Star Rated</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-serif">Let's Create Your Perfect Day</h2>
+            <p className="text-gray-300 text-base mb-8 leading-relaxed">Browse our other planning services or contact us directly to start your journey today.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              
+              {/* Contact Us - Opens External Modal */}
+              <button 
+                onClick={() => {
+                  setSelectedService("General Event Planning Inquiry");
+                  setBookingModal(true);
+                }} 
+                className="px-8 py-3 rounded-full bg-rose-400 text-white font-semibold hover:bg-rose-500 transition-all shadow-lg flex items-center gap-2"
+              >
+                <Mail className="w-4 h-4" /> Contact Us
+              </button>
 
-        {/* What's Included */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-20 text-center"
-        >
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Every Package Includes</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { icon: <Car className="w-6 h-6" />, title: "Transportation", desc: "Within package mileage" },
-              { icon: <Mic className="w-6 h-6" />, title: "Sound System", desc: "Professional equipment" },
-              { icon: <Calendar className="w-6 h-6" />, title: "Consultation", desc: "Pre-event planning" },
-              { icon: <Shield className="w-6 h-6" />, title: "Backup MC", desc: "Emergency coverage" },
-            ].map((item, i) => (
-              <div key={i} className="p-4">
-                <div className="rounded-xl bg-purple-50 p-3 inline-flex mb-3 text-purple-600">{item.icon}</div>
-                <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                <p className="text-sm text-gray-500">{item.desc}</p>
-              </div>
-            ))}
+              <button onClick={() => router.push("/portfolio")} className="px-8 py-3 rounded-full border border-white/20 text-white font-medium hover:bg-white/10 transition-all">
+                View Our Portfolio
+              </button>
+            </div>
           </div>
         </motion.div>
 
@@ -559,32 +720,15 @@ export default function MCPricingPage() {
           </div>
         </motion.div>
 
-        {/* Trust Signals */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 text-center"
-        >
+         {/* Trust Signals */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-12 text-center">
           <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-purple-600" />
-              <span>5-Star Rated</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-purple-600" />
-              <span>100% Satisfaction</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-purple-600" />
-              <span>Punctual & Professional</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-purple-600" />
-              <span>20+ Events Hosted</span>
-            </div>
+            <div className="flex items-center gap-2"><Star className="w-4 h-4 text-rose-400" /><span>5-Star Rated</span></div>
+            <div className="flex items-center gap-2"><Heart className="w-4 h-4 text-rose-400" /><span>100+ Events</span></div>
+            <div className="flex items-center gap-2"><Users className="w-4 h-4 text-rose-400" /><span>Dedicated Team</span></div>
           </div>
         </motion.div>
+        
       </div>
 
       {/* ==========================================
@@ -706,6 +850,45 @@ export default function MCPricingPage() {
                     {formErrors.eventLocation && <p className="text-red-500 text-xs mt-1">{formErrors.eventLocation}</p>}
                   </div>
 
+                  {/* Add-On Services */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-3">Add-On Services (Optional)</label>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {addOns.map((addon) => {
+                        const isChecked = selectedAddOns.some(a => a.name === addon.name);
+                        return (
+                          <label key={addon.name} className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${isChecked ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}>
+                            <input type="checkbox" checked={isChecked} onChange={() => handleAddOnToggle(addon.name, addon.price)} className="mt-0.5 w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-900">{addon.name}</span>
+                                <span className="text-sm font-bold text-blue-600">{addon.price}</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-0.5">{addon.description}</p>
+                            </div>
+                          </label>
+                        );
+                      })}
+
+                    {addOns2.map((addon) => {
+                        const isChecked = selectedAddOns.some(a => a.name === addon.name);
+                        return (
+                          <label key={addon.name} className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${isChecked ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}>
+                            <input type="checkbox" checked={isChecked} onChange={() => handleAddOnToggle(addon.name, addon.price)} className="mt-0.5 w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-900">{addon.name}</span>
+                                <span className="text-sm font-bold text-blue-600">{addon.price}</span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-0.5">{addon.description}</p>
+                            </div>
+                          </label>
+                        );
+                      })}
+
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Additional Message</label>
                     <textarea
@@ -715,6 +898,30 @@ export default function MCPricingPage() {
                       className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-purple-500 outline-none resize-none"
                       placeholder="Tell us about your event..."
                     />
+                  </div>
+                  
+                   {/* Price Summary */}
+                  <div className="rounded-2xl bg-blue-50 p-4 mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-gray-600">Base Package:</span>
+                      <span className="font-semibold">${mcPackages[selectedPackage].basePrice}</span>
+                    </div>
+                    {selectedAddOns.length > 0 && (
+                      <>
+                        <div className="border-t border-blue-200 pt-2 mb-2">
+                          {selectedAddOns.map((addon, i) => (
+                            <div key={i} className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">+ {addon.name}</span>
+                              <span className="text-blue-600">{addon.price}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                      <span className="font-semibold text-gray-900">Total:</span>
+                      <span className="text-xl font-bold text-blue-600">${totalPrice}</span>
+                    </div>
                   </div>
 
                   <button
@@ -728,7 +935,7 @@ export default function MCPricingPage() {
                       </>
                     ) : (
                       <>
-                        <Send className="w-5 h-5" /> Confirm Booking - ${mcPackages[selectedPackage].basePrice}
+                        <Send className="w-5 h-5" /> Confirm Booking - ${totalPrice}
                       </>
                     )}
                   </button>
@@ -778,6 +985,16 @@ export default function MCPricingPage() {
           </>
         )}
       </AnimatePresence>
+
+       {/* ==========================================
+          EXTERNAL BOOKING MODAL (For "Ask a Question" & "Contact Us")
+      ========================================== */}
+      <BookingModal
+        bookingModal={bookingModal}
+        setBookingModal={setBookingModal}
+        selectedService={selectedService}
+      />
+
     </div>
   );
 }
