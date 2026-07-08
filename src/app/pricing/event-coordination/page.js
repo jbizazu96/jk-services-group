@@ -562,17 +562,6 @@ export default function EventCoordinationPricingPage() {
                   <button onClick={() => setShowBookingModal(false)} className="p-2 hover:bg-gray-100 rounded-xl"><X className="w-5 h-5 text-gray-500" /></button>
                 </div>
 
-                {/* Price Summary */}
-                <div className="rounded-2xl bg-rose-50 p-4 mb-6">
-                  <div className="flex justify-between items-center mb-2"><span className="text-sm text-gray-600">Base Package:</span><span className="font-semibold">${coordinationPackages[selectedPackage].basePrice}</span></div>
-                  {selectedAddOns.length > 0 && (
-                    <div className="border-t border-rose-200 pt-2 mb-2">
-                      {selectedAddOns.map((addon, i) => (<div key={i} className="flex justify-between items-center text-sm"><span className="text-gray-600">+ {addon.name}</span><span className="text-rose-500">{addon.price}</span></div>))}
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center pt-2 border-t border-rose-200"><span className="font-semibold text-gray-900">Total:</span><span className="text-xl font-bold text-rose-500">${totalPrice}</span></div>
-                </div>
-
                 <form onSubmit={handleBookNow} className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Your Full Name *</label>
@@ -640,6 +629,17 @@ export default function EventCoordinationPricingPage() {
                     <textarea rows={3} value={bookingForm.message} onChange={(e) => setBookingForm({ ...bookingForm, message: e.target.value })} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-rose-400 outline-none resize-none" placeholder="Your vision, colors, theme, special requests..." />
                   </div>
 
+                {/* Price Summary */}
+                <div className="rounded-2xl bg-rose-50 p-4 mb-6">
+                  <div className="flex justify-between items-center mb-2"><span className="text-sm text-gray-600">Base Package:</span><span className="font-semibold">${coordinationPackages[selectedPackage].basePrice}</span></div>
+                  {selectedAddOns.length > 0 && (
+                    <div className="border-t border-rose-200 pt-2 mb-2">
+                      {selectedAddOns.map((addon, i) => (<div key={i} className="flex justify-between items-center text-sm"><span className="text-gray-600">+ {addon.name}</span><span className="text-rose-500">{addon.price}</span></div>))}
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t border-rose-200"><span className="font-semibold text-gray-900">Total:</span><span className="text-xl font-bold text-rose-500">${totalPrice}</span></div>
+                </div>
+                
                   <button type="submit" disabled={loading} className="w-full rounded-xl bg-rose-400 text-white py-4 font-semibold hover:bg-rose-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
                     {loading ? (<><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>) : (<><Send className="w-5 h-5" /> Confirm Booking - ${totalPrice}</>)}
                   </button>

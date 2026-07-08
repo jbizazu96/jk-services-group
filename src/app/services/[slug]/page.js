@@ -371,8 +371,10 @@ export default function CategoryPage() {
                               ? "/pricing/usher"
                               : service.name === "Photography"
                               ? "/pricing/photography"
-                              : service.name === "Wedding Coordination"
-                              ? "/pricing/wedding-coordination"
+                              : service.name === "Event Coordination"
+                              ? "/pricing/event-coordination"
+                              : service.name === "Event Planning"
+                              ? "/pricing/event-planning"
                               : `/client?service=${encodeURIComponent(service.name)}`
                         } 
                         className="flex-1"

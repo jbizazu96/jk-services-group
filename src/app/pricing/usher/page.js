@@ -26,6 +26,8 @@ import {
   Car,
   Mail,
   Hearts,
+  Lightbulb,
+  Stars,
   Cloud,
   Heart,
   GraduationCap,
@@ -223,6 +225,46 @@ const addOns = [
   { name: "Extended Travel", price: "$1.50/mile", icon: Car, description: "For events beyond package mileage limit" },
   { name: "VIP Concierge Service", price: "$150", icon: Gem, description: "Dedicated usher for VIP guests only" },
   { name: "Coat Check Service", price: "$100", icon: Shirt, description: "Ushers manage coat check for guests" },
+];
+
+
+const addOns2 = [
+  {
+    name: "Dancing on the Clouds",
+    price: "$300",
+    icon: Cloud,
+    description: "Low-lying fog effect for first dances, grand entrances, and special moments.",
+  },
+  {
+    name: "Cold Spark Effects (2 Machines)",
+    price: "$400",
+    icon: Sparkles,
+    description: "Indoor-safe cold spark fountains for unforgettable entrances and celebrations.",
+  },
+  {
+    name: "Cold Spark Effects (4 Machines)",
+    price: "$650",
+    icon: Sparkles,
+    description: "Premium cold spark display surrounding the dance floor or stage.",
+  },
+  {
+    name: "Dance Floor Lighting",
+    price: "$250",
+    icon: Lightbulb,
+    description: "Dynamic lighting effects to energize your dance floor.",
+  },
+  {
+    name: "Venue Uplighting",
+    price: "$350",
+    icon: Lightbulb,
+    description: "Elegant uplighting to transform the atmosphere of your venue.",
+  },
+  {
+    name: "Premium First Dance Package",
+    price: "$850",
+    icon: Stars,
+    description: "Includes Dancing on the Clouds, 2 cold spark machines, and synchronized dance floor lighting.",
+  },
 ];
 
 /* ==========================================
@@ -564,41 +606,51 @@ export default function UsherPricingPage() {
           </div>
         </motion.div>
 
-        {/* Event Types */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-20">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
-            Events We <span className="text-blue-600">Serve</span>
-          </h2>
-          <p className="text-gray-500 text-center mb-10">Professional usher services tailored to your specific event</p>
-
-          <div className="grid md:grid-cols-4 gap-4">
-            {eventTypes.map((event, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                whileHover={{ y: -5 }}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all"
-              >
-                <div className="rounded-xl bg-blue-50 p-2.5 inline-flex mb-3 text-blue-600"><event.icon className="w-6 h-6" /></div>
-                <h3 className="font-bold text-gray-900 mb-1">{event.title}</h3>
-                <p className="text-xs text-gray-500 mb-2">{event.description}</p>
-                <p className="text-sm font-semibold text-blue-600 mb-2">From {event.startingPrice}</p>
-                <p className="text-xs text-gray-400 mb-3">Recommended: {event.packageRecommendation}</p>
-                <ul className="space-y-1">
-                  {event.features.slice(0, 2).map((f, j) => (
-                    <li key={j} className="text-xs text-gray-600 flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3 text-blue-500" /> {f}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
         
+          {/* Fog Machine & Lighting */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-20 rounded-3xl bg-white border border-gray-200 p-8 shadow-lg"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
+                Fog Machine & Lighting
+              </h2>
+
+              <p className="text-gray-500 text-center mb-8">
+                Create unforgettable moments with premium lighting and special effects.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {addOns2.map((addon, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 rounded-xl bg-gray-50 p-4"
+                  >
+                    <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
+                      <addon.icon className="h-6 w-6" />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-sm font-semibold text-gray-900">
+                          {addon.name}
+                        </h4>
+
+                        <span className="text-xs font-bold text-blue-600">
+                          {addon.price}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-xs text-gray-500">
+                        {addon.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
         {/* Value Proposition & CTA */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="relative rounded-3xl bg-[#1a1a2e] p-12 md:p-16 text-center overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 blur-[80px] rounded-full pointer-events-none" />
@@ -696,29 +748,6 @@ export default function UsherPricingPage() {
                     </button>
                 </div>
 
-                {/* Price Summary */}
-                <div className="rounded-2xl bg-blue-50 p-4 mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-600">Base Package:</span>
-                    <span className="font-semibold">${usherPackages[selectedPackage].basePrice}</span>
-                    </div>
-                    {selectedAddOns.length > 0 && (
-                    <>
-                        <div className="border-t border-blue-200 pt-2 mb-2">
-                        {selectedAddOns.map((addon, i) => (
-                            <div key={i} className="flex justify-between items-center text-sm">
-                            <span className="text-gray-600">+ {addon.name}</span>
-                            <span className="text-blue-600">{addon.price}</span>
-                            </div>
-                        ))}
-                        </div>
-                    </>
-                    )}
-                    <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                    <span className="font-semibold text-gray-900">Total:</span>
-                    <span className="text-xl font-bold text-blue-600">${totalPrice}</span>
-                    </div>
-                </div>
 
                 <form onSubmit={handleBookNow} className="space-y-4">
                     <div>
@@ -854,6 +883,34 @@ export default function UsherPricingPage() {
                             </label>
                         );
                         })}
+                        {/* Fog Machine & Lighting Add-Ons */}
+                        {addOns2.map((addon) => {
+                        const isChecked = selectedAddOns.some(a => a.name === addon.name);
+                        return (
+                            <label
+                            key={addon.name}
+                            className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                                isChecked
+                                ? "border-blue-500 bg-blue-50"
+                                : "border-gray-200 hover:border-blue-300"
+                            }`}
+                            >
+                            <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleAddOnToggle(addon.name, addon.price)}
+                                className="mt-0.5 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-900">{addon.name}</span>
+                                <span className="text-sm font-bold text-blue-600">{addon.price}</span>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-0.5">{addon.description}</p>
+                            </div>
+                            </label>
+                        );
+                        })}
                     </div>
                     </div>
 
@@ -868,6 +925,29 @@ export default function UsherPricingPage() {
                     />
                     </div>
 
+                    {/* Price Summary */}
+                    <div className="rounded-2xl bg-blue-50 p-4 mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">Base Package:</span>
+                        <span className="font-semibold">${usherPackages[selectedPackage].basePrice}</span>
+                        </div>
+                        {selectedAddOns.length > 0 && (
+                        <>
+                            <div className="border-t border-blue-200 pt-2 mb-2">
+                            {selectedAddOns.map((addon, i) => (
+                                <div key={i} className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600">+ {addon.name}</span>
+                                <span className="text-blue-600">{addon.price}</span>
+                                </div>
+                            ))}
+                            </div>
+                        </>
+                        )}
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                        <span className="font-semibold text-gray-900">Total:</span>
+                        <span className="text-xl font-bold text-blue-600">${totalPrice}</span>
+                        </div>
+                    </div>
                     <button
                     type="submit"
                     disabled={loading}
