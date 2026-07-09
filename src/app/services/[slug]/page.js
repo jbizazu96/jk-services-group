@@ -160,12 +160,15 @@ export default function CategoryPage() {
   };
 
     /* ==========================================
-     LOADING STATE - BRANDED LOGO WITH ORBIT (FIXED)
+     LOADING STATE - BRANDED LOGO WITH ORBIT (STABILIZED)
   ========================================== */
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center relative overflow-hidden">
+      <motion.div 
+        layout // <--- This stabilizes the DOM mount
+        className="min-h-screen bg-black text-white flex flex-col justify-center items-center relative overflow-hidden"
+      >
         
         {/* Ambient Glows (Matches your service page theme) */}
         <div className="absolute top-20 right-10 h-[500px] w-[500px] rounded-full bg-gold/5 blur-[120px] pointer-events-none" />
@@ -218,29 +221,38 @@ export default function CategoryPage() {
             </div>
           </div>
 
-          {/* Loading Text */}
+          {/* Loading Text - FIXED FOR CONSISTENCY */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
             className="text-center"
           >
-            <h3 className="text-lg font-medium text-gray-300 mb-1 tracking-wide">
+            <h3 className="text-lg font-medium text-gray-300 mb-1 tracking-wide opacity-100">
               Loading the page
             </h3>
             <div className="flex items-center justify-center gap-1 mt-2">
+              
+              {/* Dot 1 */}
               <motion.span 
-                animate={{ opacity: [0, 1, 0] }} 
+                initial={{ opacity: 0.5 }} 
+                animate={{ opacity: [0.5, 1, 0.5] }} 
                 transition={{ duration: 1.5, repeat: Infinity, delay: 0 }} 
                 className="w-1.5 h-1.5 rounded-full bg-gold"
               />
+              
+              {/* Dot 2 */}
               <motion.span 
-                animate={{ opacity: [0, 1, 0] }} 
+                initial={{ opacity: 0.5 }} 
+                animate={{ opacity: [0.5, 1, 0.5] }} 
                 transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }} 
                 className="w-1.5 h-1.5 rounded-full bg-gold"
               />
+              
+              {/* Dot 3 */}
               <motion.span 
-                animate={{ opacity: [0, 1, 0] }} 
+                initial={{ opacity: 0.5 }} 
+                animate={{ opacity: [0.5, 1, 0.5] }} 
                 transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }} 
                 className="w-1.5 h-1.5 rounded-full bg-gold"
               />
@@ -248,7 +260,7 @@ export default function CategoryPage() {
           </motion.div>
           
         </motion.div>
-      </div>
+      </motion.div>
     );
   }
 
