@@ -25,50 +25,56 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Wait 1 second to let the page settle, then show content
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1200); // Adjust time as needed (1000ms - 1500ms is good for branded feels)
+    // FIX: If the user is coming back from an internal page, skip the loading screen
+    // document.referrer checks where they came from.
+    const isReturningUser = document.referrer && document.referrer.includes(window.location.origin);
+    
+    if (isReturningUser) {
+      setIsLoading(false); // Skip the timer entirely
+    } else {
+      // Only show loader if they opened the site fresh
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 1200); // Adjust time as needed
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   /* ==========================================
-     SCROLL TO PORTFOLIO WHEN RETURNING
+     SCROLL TO SECTIONS WHEN RETURNING
   ========================================== */
   useEffect(() => {
+    // We move this inside a setTimeout to ensure the DOM has finished rendering
+    // after isLoading becomes false.
     const scrollToSection = () => {
       const hash = window.location.hash;
 
       if (hash === "#gallery") {
         const section = document.getElementById("gallery");
-
         if (section) {
-          section.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
+          setTimeout(() => {
+            section.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100); // Small delay to ensure DOM is ready
         }
       }
 
       if (hash === "#services") {
         const section = document.getElementById("services");
-
         if (section) {
-          section.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
+          setTimeout(() => {
+            section.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100);
         }
       }
     };
 
-    scrollToSection();
+    // Only attempt to scroll after loading is completely done
+    if (!isLoading) {
+      scrollToSection();
+    }
 
-    const timer = setTimeout(scrollToSection, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading]);
 
  
   /* ==========================================

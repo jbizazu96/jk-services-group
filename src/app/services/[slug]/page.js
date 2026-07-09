@@ -159,22 +159,24 @@ export default function CategoryPage() {
     }
   };
 
-  /* ==========================================
-     LOADING STATE - BRANDED LOGO WITH ORBIT
+    /* ==========================================
+     LOADING STATE - BRANDED LOGO WITH ORBIT (FIXED)
   ========================================== */
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center">
-        {/* Hero / Layout Shimmer (Keeps the page from feeling empty) */}
-        <div className="absolute inset-0 w-full h-[300px] md:h-[400px] bg-gradient-to-br from-zinc-900/80 to-black/80 overflow-hidden pointer-events-none -z-10" />
+      <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center relative overflow-hidden">
         
+        {/* Ambient Glows (Matches your service page theme) */}
+        <div className="absolute top-20 right-10 h-[500px] w-[500px] rounded-full bg-gold/5 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-20 left-10 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-[100px] pointer-events-none" />
+
         {/* Centered Loader */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col items-center justify-center p-8"
+          className="flex flex-col items-center justify-center p-8 relative z-10"
         >
           
           {/* Logo Orbiting Container */}
@@ -185,10 +187,6 @@ export default function CategoryPage() {
               animate={{ rotate: 360 }}
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0 rounded-full border-2 border-dashed border-gold/30"
-              style={{ 
-                borderImage: "linear-gradient(to right, #d4af37, transparent) 1",
-                borderImageSlice: 1 
-              }}
             />
             
             {/* Faster Inner Dot Ring */}
