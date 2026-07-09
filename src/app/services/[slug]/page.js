@@ -160,37 +160,96 @@ export default function CategoryPage() {
   };
 
   /* ==========================================
-     LOADING STATE - BEAUTIFUL BRANDED SPINNER & SKELETONS
+     LOADING STATE - BRANDED LOGO WITH ORBIT
   ========================================== */
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col">
-        {/* Hero Skeleton Placeholder */}
-        <div className="relative h-[300px] md:h-[400px] w-full bg-gradient-to-br from-zinc-900 to-black overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="w-16 h-16 border-4 border-gold/30 border-t-gold rounded-full animate-spin mb-6" />
-            <div className="w-48 h-6 bg-white/10 rounded-full animate-pulse mb-2" />
-            <div className="w-64 h-4 bg-white/5 rounded-full animate-pulse" />
-          </div>
-        </div>
+      <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center">
+        {/* Hero / Layout Shimmer (Keeps the page from feeling empty) */}
+        <div className="absolute inset-0 w-full h-[300px] md:h-[400px] bg-gradient-to-br from-zinc-900/80 to-black/80 overflow-hidden pointer-events-none -z-10" />
+        
+        {/* Centered Loader */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center justify-center p-8"
+        >
+          
+          {/* Logo Orbiting Container */}
+          <div className="relative w-28 h-28 mb-8 flex items-center justify-center">
+            
+            {/* Dotted Orbit Ring */}
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 rounded-full border-2 border-dashed border-gold/30"
+              style={{ 
+                borderImage: "linear-gradient(to right, #d4af37, transparent) 1",
+                borderImageSlice: 1 
+              }}
+            />
+            
+            {/* Faster Inner Dot Ring */}
+            <motion.div 
+              animate={{ rotate: -360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-2 rounded-full border border-gold/10"
+            />
+            
+            {/* Rotating glowing dots on the orbit */}
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0"
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gold shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 rounded-full bg-gold/40" />
+              <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gold/40" />
+              <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gold/40" />
+            </motion.div>
 
-        {/* Grid Skeleton Placeholders */}
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="text-center mb-12">
-            <div className="w-32 h-6 bg-white/5 rounded-full mx-auto animate-pulse mb-4" />
-            <div className="w-48 h-8 bg-white/10 rounded-full mx-auto animate-pulse" />
+            {/* Central Logo Image */}
+            <div className="relative w-16 h-16 z-10 bg-black/80 backdrop-blur-md rounded-full border-2 border-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.15)] flex items-center justify-center overflow-hidden">
+              <img 
+                src="/images/logo1.webp" 
+                alt="J&K Services Logo" 
+                className="w-12 h-12 object-contain" 
+              />
+            </div>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* 6 Skeleton Cards */}
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-[320px] rounded-2xl bg-white/[0.03] border border-white/10 animate-pulse overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
-              </div>
-            ))}
-          </div>
-        </div>
+
+          {/* Loading Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-center"
+          >
+            <h3 className="text-lg font-medium text-gray-300 mb-1 tracking-wide">
+              Loading the page
+            </h3>
+            <div className="flex items-center justify-center gap-1 mt-2">
+              <motion.span 
+                animate={{ opacity: [0, 1, 0] }} 
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0 }} 
+                className="w-1.5 h-1.5 rounded-full bg-gold"
+              />
+              <motion.span 
+                animate={{ opacity: [0, 1, 0] }} 
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }} 
+                className="w-1.5 h-1.5 rounded-full bg-gold"
+              />
+              <motion.span 
+                animate={{ opacity: [0, 1, 0] }} 
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }} 
+                className="w-1.5 h-1.5 rounded-full bg-gold"
+              />
+            </div>
+          </motion.div>
+          
+        </motion.div>
       </div>
     );
   }

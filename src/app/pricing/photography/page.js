@@ -81,7 +81,7 @@ const photoPackages = {
     description: "Comprehensive photography for medium to large events and sessions",
     basePrice: 1499,
     hoursIncluded: 10,
-    photosIncluded: 300,
+    photosIncluded: 200,
     popular: true,
     features: [
       "Up to 10 Hours Photography Coverage",
@@ -114,7 +114,7 @@ const photoPackages = {
     description: "All-inclusive premium photography for grand celebrations and luxury events",
     basePrice: 2499,
     hoursIncluded: 12,
-    photosIncluded: 400,
+    photosIncluded: 300,
     popular: false,
     bestValue: true,
     features: [
