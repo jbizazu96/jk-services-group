@@ -148,7 +148,7 @@ export default function CategoryPage() {
         window.scrollTo({
           top: 0,
           left: 0,
-          behavior: "instant" // Use "smooth" if you want a nice scroll-up animation
+          behavior: "instant"
         });
       }, 50);
 
@@ -160,17 +160,34 @@ export default function CategoryPage() {
   };
 
   /* ==========================================
-     LOADING STATE
+     LOADING STATE - BEAUTIFUL BRANDED SPINNER & SKELETONS
   ========================================== */
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black">
-        <div className="h-[400px] bg-gradient-to-br from-zinc-900 to-black animate-pulse" />
+      <div className="min-h-screen bg-black text-white flex flex-col">
+        {/* Hero Skeleton Placeholder */}
+        <div className="relative h-[300px] md:h-[400px] w-full bg-gradient-to-br from-zinc-900 to-black overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 border-4 border-gold/30 border-t-gold rounded-full animate-spin mb-6" />
+            <div className="w-48 h-6 bg-white/10 rounded-full animate-pulse mb-2" />
+            <div className="w-64 h-4 bg-white/5 rounded-full animate-pulse" />
+          </div>
+        </div>
+
+        {/* Grid Skeleton Placeholders */}
         <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="text-center mb-12">
+            <div className="w-32 h-6 bg-white/5 rounded-full mx-auto animate-pulse mb-4" />
+            <div className="w-48 h-8 bg-white/10 rounded-full mx-auto animate-pulse" />
+          </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* 6 Skeleton Cards */}
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-[320px] rounded-2xl bg-white/[0.05] animate-pulse" />
+              <div key={i} className="h-[320px] rounded-2xl bg-white/[0.03] border border-white/10 animate-pulse overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+              </div>
             ))}
           </div>
         </div>
