@@ -52,37 +52,38 @@ export default function LIACustomersAdmin() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">LIA Store Customers ({customers.length})</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">
+        LIA Store Customers <span className="text-orange-500">({customers.length})</span>
+      </h1>
       <div className="overflow-x-auto bg-white rounded-xl shadow">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-orange-50">
             <tr>
-              <th className="px-4 py-3 text-left">Name</th>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-left">Phone</th>
-              <th className="px-4 py-3 text-left">City</th>
-              <th className="px-4 py-3 text-left">Store</th>
-              <th className="px-4 py-3 text-left">Contact Method</th>
-              <th className="px-4 py-3 text-left">Registered</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">Name</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">Email</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">Phone</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">City</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">Store</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">Contact Method</th>
+              <th className="px-4 py-3 text-left text-gray-700 font-semibold">Registered</th>
             </tr>
           </thead>
           <tbody>
             {customers.map((customer) => (
-              <tr key={customer.id} className="border-t border-gray-100 hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{customer.fullName}</td>
-                <td className="px-4 py-3">{customer.email}</td>
-                <td className="px-4 py-3">
-                  {/* Use phoneFormatted if available, otherwise format the phone number */}
+              <tr key={customer.id} className="border-t border-gray-100 hover:bg-orange-50/50 transition-colors">
+                <td className="px-4 py-3 font-medium text-gray-900">{customer.fullName}</td>
+                <td className="px-4 py-3 text-gray-600">{customer.email}</td>
+                <td className="px-4 py-3 text-gray-600">
                   {customer.phoneFormatted || formatPhoneForDisplay(customer.phone)}
                 </td>
-                <td className="px-4 py-3">{customer.city}</td>
-                <td className="px-4 py-3">{customer.storeName || "-"}</td>
+                <td className="px-4 py-3 text-gray-600">{customer.city}</td>
+                <td className="px-4 py-3 text-gray-600">{customer.storeName || "-"}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     customer.preferredContactMethod === 'email' 
                       ? 'bg-blue-100 text-blue-700' 
                       : customer.preferredContactMethod === 'sms' 
-                      ? 'bg-green-100 text-green-700'
+                      ? 'bg-orange-100 text-orange-700'
                       : 'bg-gray-100 text-gray-500'
                   }`}>
                     {customer.preferredContactMethod || "Not specified"}

@@ -131,9 +131,9 @@ export default function LIARegistrationPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50/30">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50/30">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -141,17 +141,17 @@ export default function LIARegistrationPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50/30">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50/30">
       {/* Background Effects */}
       <motion.div
         animate={{ x: [0, 60, 0], y: [0, -30, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute top-0 left-0 w-[600px] h-[600px] bg-emerald-200/20 blur-[120px] rounded-full pointer-events-none"
+        className="absolute top-0 left-0 w-[600px] h-[600px] bg-orange-200/20 blur-[120px] rounded-full pointer-events-none"
       />
       <motion.div
         animate={{ x: [0, -50, 0], y: [0, 30, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-teal-200/15 blur-[120px] rounded-full pointer-events-none"
+        className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-amber-200/15 blur-[120px] rounded-full pointer-events-none"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 md:py-12">
@@ -163,7 +163,7 @@ export default function LIARegistrationPage() {
         >
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-emerald-600 transition-colors text-sm"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors text-sm"
           >
             <ChevronRight className="w-4 h-4 rotate-180" />
             Back to JK Services
@@ -191,15 +191,15 @@ export default function LIARegistrationPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">LIA Store</h1>
-                <p className="text-sm text-emerald-600 font-medium">Delivery App</p>
+                <p className="text-sm text-orange-600 font-medium">Delivery App</p>
               </div>
             </div>
 
             {/* Hero Content */}
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 mb-4">
-                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+              <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 mb-4">
+                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-orange-700">
                   Coming Soon
                 </span>
               </div>
@@ -207,7 +207,7 @@ export default function LIARegistrationPage() {
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                 Your Local Store,
                 <br />
-                <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
                   At Your Doorstep
                 </span>
               </h2>
@@ -220,10 +220,10 @@ export default function LIARegistrationPage() {
               {/* Benefits */}
               <div className="grid grid-cols-2 gap-3 mb-8">
                 {[
-                  { icon: Store, label: "Local Stores", color: "emerald" },
-                  { icon: ShoppingBag, label: "Easy Ordering", color: "teal" },
-                  { icon: Truck, label: "Fast Delivery", color: "emerald" },
-                  { icon: Clock, label: "Real-time Tracking", color: "teal" },
+                  { icon: Store, label: "Local Stores", color: "orange" },
+                  { icon: ShoppingBag, label: "Easy Ordering", color: "amber" },
+                  { icon: Truck, label: "Fast Delivery", color: "orange" },
+                  { icon: Clock, label: "Real-time Tracking", color: "amber" },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -241,15 +241,15 @@ export default function LIARegistrationPage() {
               {/* Trust Badges */}
               <div className="flex flex-wrap gap-4 text-xs text-gray-500">
                 <div className="flex items-center gap-1.5">
-                  <Shield className="w-4 h-4 text-emerald-500" />
+                  <Shield className="w-4 h-4 text-orange-500" />
                   <span>Secure Payments</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-emerald-500" />
+                  <Users className="w-4 h-4 text-orange-500" />
                   <span>100+ Local Stores</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Star className="w-4 h-4 text-emerald-500" />
+                  <Star className="w-4 h-4 text-orange-500" />
                   <span>4.9/5 Rating</span>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function LIARegistrationPage() {
                       }}
                       className={`w-full rounded-xl border ${
                         formErrors.fullName ? "border-red-400" : "border-gray-200"
-                      } px-4 py-3 text-sm focus:border-emerald-500 outline-none transition-colors`}
+                      } px-4 py-3 text-sm focus:border-orange-500 outline-none transition-colors`}
                       placeholder="John Doe"
                     />
                     {formErrors.fullName && (
@@ -310,7 +310,7 @@ export default function LIARegistrationPage() {
                         }}
                         className={`w-full rounded-xl border ${
                           formErrors.email ? "border-red-400" : "border-gray-200"
-                        } px-4 py-3 text-sm focus:border-emerald-500 outline-none transition-colors`}
+                        } px-4 py-3 text-sm focus:border-orange-500 outline-none transition-colors`}
                         placeholder="john@email.com"
                       />
                       {formErrors.email && (
@@ -328,8 +328,8 @@ export default function LIARegistrationPage() {
                         placeholder="(222) 222 - 2222"
                         className={`w-full rounded-xl border ${
                           formErrors.phone ? "border-red-400" : "border-gray-200"
-                        } px-4 py-3 text-sm focus:border-emerald-500 outline-none transition-colors`}
-                        maxLength={17} // (XXX) XXX - XXXX = 17 characters
+                        } px-4 py-3 text-sm focus:border-orange-500 outline-none transition-colors`}
+                        maxLength={17}
                       />
                       {formErrors.phone && (
                         <p className="text-red-500 text-xs mt-1">{formErrors.phone}</p>
@@ -351,7 +351,7 @@ export default function LIARegistrationPage() {
                       }}
                       className={`w-full rounded-xl border ${
                         formErrors.city ? "border-red-400" : "border-gray-200"
-                      } px-4 py-3 text-sm focus:border-emerald-500 outline-none transition-colors`}
+                      } px-4 py-3 text-sm focus:border-orange-500 outline-none transition-colors`}
                       placeholder="e.g., Los Angeles, CA"
                     />
                     {formErrors.city && (
@@ -368,7 +368,7 @@ export default function LIARegistrationPage() {
                       type="text"
                       value={formData.storeName}
                       onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-emerald-500 outline-none transition-colors"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-orange-500 outline-none transition-colors"
                       placeholder="Your favorite local store"
                     />
                   </div>
@@ -381,7 +381,7 @@ export default function LIARegistrationPage() {
                     <select
                       value={formData.preferredContactMethod}
                       onChange={(e) => setFormData({ ...formData, preferredContactMethod: e.target.value })}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-emerald-500 outline-none transition-colors"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-orange-500 outline-none transition-colors"
                     >
                       <option value="">Select option</option>
                       <option value="email">Email</option>
@@ -392,7 +392,7 @@ export default function LIARegistrationPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3.5 font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3.5 font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -418,8 +418,8 @@ export default function LIARegistrationPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-8"
               >
-                <div className="rounded-full bg-emerald-100 p-4 inline-flex mb-6">
-                  <CheckCircle2 className="w-16 h-16 text-emerald-500" />
+                <div className="rounded-full bg-orange-100 p-4 inline-flex mb-6">
+                  <CheckCircle2 className="w-16 h-16 text-orange-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">
                   You're on the List! 🎉
@@ -428,8 +428,8 @@ export default function LIARegistrationPage() {
                   Thank you for joining the LIA Store waitlist. We'll notify you as soon as
                   the app launches in your area.
                 </p>
-                <div className="bg-emerald-50 rounded-xl p-4 mb-6 border border-emerald-100">
-                  <p className="text-sm text-emerald-700">
+                <div className="bg-orange-50 rounded-xl p-4 mb-6 border border-orange-100">
+                  <p className="text-sm text-orange-700">
                     <span className="font-semibold">Next Steps:</span> We'll send you early
                     access updates, launch announcements, and exclusive offers.
                   </p>
@@ -446,7 +446,7 @@ export default function LIARegistrationPage() {
                       preferredContactMethod: "",
                     });
                   }}
-                  className="text-emerald-600 font-medium hover:text-emerald-700 transition-colors text-sm"
+                  className="text-orange-600 font-medium hover:text-orange-700 transition-colors text-sm"
                 >
                   ← Back to form
                 </button>
