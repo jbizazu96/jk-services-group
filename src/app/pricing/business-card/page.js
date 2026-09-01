@@ -60,15 +60,15 @@ const pricingPackages = {
     cardCount: 25,
     options: [
       {
-        name: "Standard",
+        name: "Custom",
         price: 30,
         features: [
           "25 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
-          "Matte or Gloss Finish",
+          "No Finish",
           "Standard Shipping",
-          "Unlimited Revisions",
+          "1 Revisions",
         ],
       },
     ],
@@ -83,15 +83,15 @@ const pricingPackages = {
     cardCount: 100,
     options: [
       {
-        name: "Professional",
+        name: "Custom",
         price: 80,
         features: [
           "100 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
-          "Matte or Gloss Finish",
+          "No Finish",
           "Standard Shipping",
-          "Unlimited Revisions",
+          "2 Revisions",
           "Digital Proof Before Print",
         ],
       },
@@ -103,20 +103,20 @@ const pricingPackages = {
     title: "250 Cards",
     subtitle: "Business Pack",
     description: "Great for established businesses and frequent use.",
-    basePrice: 125,
+    basePrice: 149.99,
     cardCount: 250,
     options: [
       {
-        name: "Business",
-        price: 150,
+        name: "Custom",
+        price: 149.99,
         features: [
           "250 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
           "Premium Cardstock",
-          "Matte or Gloss Finish",
+          "Matte Finish",
           "Expedited Shipping",
-          "Unlimited Revisions",
+          "3 Revisions",
           "Digital Proof Before Print",
           "Die-Cut Options Available",
         ],
@@ -129,12 +129,12 @@ const pricingPackages = {
     title: "500 Cards",
     subtitle: "Enterprise Pack",
     description: "Maximum value for large teams and bulk distribution.",
-    basePrice: 200,
+    basePrice: 249.99,
     cardCount: 500,
     options: [
       {
-        name: "Enterprise",
-        price: 250,
+        name: "Custom",
+        price: 249.99,
         features: [
           "500 Premium Cards",
           "Custom Design Included",
