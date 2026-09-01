@@ -53,17 +53,17 @@ import {
 const pricingPackages = {
   thirty: {
     icon: IdCard,
-    title: "30 Cards",
+    title: "25 Cards",
     subtitle: "Starter Pack",
     description: "Perfect for networking events and small meetings.",
-    basePrice: 60,
-    cardCount: 30,
+    basePrice: 30,
+    cardCount: 25,
     options: [
       {
         name: "Standard",
-        price: 60,
+        price: 30,
         features: [
-          "30 Premium Cards",
+          "25 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
           "Matte or Gloss Finish",
@@ -76,17 +76,17 @@ const pricingPackages = {
 
   fifty: {
     icon: Layers,
-    title: "50 Cards",
+    title: "100 Cards",
     subtitle: "Professional Pack",
     description: "Ideal for growing businesses and regular networking.",
-    basePrice: 100,
-    cardCount: 50,
+    basePrice: 80,
+    cardCount: 100,
     options: [
       {
         name: "Professional",
-        price: 100,
+        price: 80,
         features: [
-          "50 Premium Cards",
+          "100 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
           "Matte or Gloss Finish",
@@ -100,17 +100,17 @@ const pricingPackages = {
 
   hundred: {
     icon: Package,
-    title: "100 Cards",
+    title: "250 Cards",
     subtitle: "Business Pack",
     description: "Great for established businesses and frequent use.",
-    basePrice: 180,
-    cardCount: 100,
+    basePrice: 125,
+    cardCount: 250,
     options: [
       {
         name: "Business",
-        price: 180,
+        price: 150,
         features: [
-          "100 Premium Cards",
+          "250 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
           "Premium Cardstock",
@@ -126,17 +126,17 @@ const pricingPackages = {
 
   twoHundred: {
     icon: Printer,
-    title: "200 Cards",
+    title: "500 Cards",
     subtitle: "Enterprise Pack",
     description: "Maximum value for large teams and bulk distribution.",
-    basePrice: 250,
-    cardCount: 200,
+    basePrice: 200,
+    cardCount: 500,
     options: [
       {
         name: "Enterprise",
         price: 250,
         features: [
-          "200 Premium Cards",
+          "500 Premium Cards",
           "Custom Design Included",
           "Full-Color Printing",
           "Premium Cardstock",
